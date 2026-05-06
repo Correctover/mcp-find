@@ -1,0 +1,146 @@
+---
+title: "Best MCP Servers for CRM: Salesforce, HubSpot, and More"
+description: "Find the best CRM MCP servers in 2026. Compare Salesforce, HubSpot, Pipedrive, and Close options for sales workflows, contact management, and deal tracking."
+excerpt: "MCPFind tracks 13 CRM MCP servers, with options spanning enterprise platforms like Salesforce and lightweight tools like Close and Pipedrive. Here is how each option fits different sales team sizes and workflows."
+date: "2026-04-28"
+updatedAt: "2026-04-28"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+tags:
+  - "mcp"
+  - "beginner"
+  - "crm"
+  - "salesforce"
+  - "hubspot"
+category: "crm"
+focusKeyword: "best MCP servers CRM sales"
+draft: false
+cornerstone: false
+faqItems:
+  - question: "How many CRM MCP servers does MCPFind index?"
+    answer: "MCPFind currently indexes 13 CRM MCP servers. The category is newer than devtools or databases, and most major CRM vendors added MCP support in late 2025 or early 2026. The number is growing as more platforms publish official server releases."
+  - question: "Does Salesforce MCP work with both Claude Desktop and Cursor?"
+    answer: "Salesforce MCP supports the stdio transport protocol, which both Claude Desktop and Cursor handle natively. Enterprise deployments may require additional OAuth configuration through your Salesforce Connected App settings."
+  - question: "Can I use HubSpot MCP without a HubSpot paid plan?"
+    answer: "HubSpot MCP works with free HubSpot accounts for basic contact and company reads, but some advanced tools like deal pipeline updates or sequence enrollment require a Sales Hub starter plan or higher."
+  - question: "What is the difference between Pipedrive MCP and a native Pipedrive AI assistant?"
+    answer: "Pipedrive MCP runs through an MCP client like Claude or Cursor, which means you control the AI model and can combine Pipedrive data with other tools in the same conversation. Pipedrive's native AI assistant is locked to its own in-app interface."
+  - question: "Are CRM MCP servers safe to connect to real customer data?"
+    answer: "Safety depends on transport mode and API key scope. Servers using stdio keep data local. Servers using HTTP transport route data through remote endpoints. Always use read-only API keys when the workflow only needs to read CRM records, not write to them."
+---
+
+If your sales team switches between a CRM, a data warehouse, and an AI tool to answer a single question about a deal, MCP can reduce that friction. By connecting your CRM directly to an AI agent through a Model Context Protocol server, you can ask questions about pipeline health, contact history, and deal status in plain language and get answers without tabbing between apps. MCPFind tracks 13 CRM MCP servers across platforms ranging from Salesforce to lightweight startup tools. If you are new to MCP, [start here](/blog/what-is-mcp) before choosing a specific CRM server.
+
+## Which MCP Servers Work Best for CRM and Sales Workflows?
+
+The MCPFind [CRM category](/categories/crm) covers 13 servers as of April 2026. That is smaller than categories like devtools (3,141 servers) or databases (276 servers), which reflects how recently enterprise CRM vendors started publishing official MCP support. The key players are Salesforce, HubSpot, Pipedrive, Attio, and Close. Salesforce launched its MCP server in January 2026, making it one of the first enterprise-grade options in the category. HubSpot followed with a server that targets both marketing teams and sales teams, while Pipedrive and Close cater to smaller teams that want AI-assisted deal management without the complexity of Salesforce's configuration. If you are evaluating options for the first time, the right starting point depends on your existing CRM: pick the server that matches the platform your team already uses rather than switching systems just to access MCP features.
+
+## How Does Salesforce MCP Connect Enterprise CRM Data to AI Agents?
+
+Salesforce MCP connects Claude, Cursor, and other MCP clients directly to your Salesforce org. You can query contacts, accounts, opportunities, and custom objects through natural language without writing SOQL. Authentication follows the OAuth 2.1 flow through Salesforce's Connected App system, which means your system administrator needs to approve the integration before your sales team can use it. Once connected, an agent can answer questions like "which open opportunities in the enterprise segment have had no activity in the last 30 days" or "what is the average deal size for customers acquired through inbound versus outbound." Salesforce MCP supports both read and write operations, so it can also update records or log call notes based on voice-to-text input from a meeting. The enterprise-grade access controls in Salesforce carry over to MCP, so agents respect the same record-level sharing rules as the user who authenticated.
+
+## What Can You Do With HubSpot MCP for Marketing and Sales Teams?
+
+HubSpot MCP connects to your HubSpot portal and exposes contacts, companies, deals, and email sequences to your AI agent. Marketing teams can use it to pull campaign engagement data or segment contacts for a follow-up sequence. Sales teams get deal pipeline visibility, meeting notes access, and the ability to update deal stages by asking the agent in plain text. Authentication uses a HubSpot private app token, which you create in your HubSpot settings under Integrations. The scoped permission model lets you grant only the access the workflow needs. A read-only research workflow needs different permissions than one that also logs activities or enrolls contacts in sequences. HubSpot MCP covers the essentials in the MCPFind [CRM category](/categories/crm), and the free-tier compatibility means small teams can test it before committing to a paid plan upgrade.
+
+## How Do Pipedrive and Close MCP Compare for Smaller Sales Teams?
+
+Pipedrive MCP focuses on pipeline visibility. It exposes deals, stages, activities, and contacts, letting an agent summarize which deals are stalled, which are moving to close this month, and which have missing follow-up tasks. If your team measures success by pipeline velocity and activity completion, Pipedrive MCP maps well to those metrics. Authentication uses a Pipedrive API token from your personal settings. [Close MCP](/servers/com-close-close-mcp) targets inside sales teams that use Close as their primary outreach tool. Close is designed around high-velocity phone and email sales, so its MCP server exposes lead status, call logs, and email sequences. Both servers are lighter to configure than Salesforce MCP because they require only an API key rather than an OAuth app setup. For early-stage teams without a dedicated CRM admin, that lower friction often makes these options the practical starting point.
+
+<table>
+<thead>
+<tr>
+<th>Server Name</th>
+<th>Best For</th>
+<th>Auth Required</th>
+<th>Open Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Salesforce MCP</td>
+<td>Enterprise CRM, large sales orgs, complex objects</td>
+<td>OAuth 2.1 (Connected App)</td>
+<td>No</td>
+</tr>
+<tr>
+<td>HubSpot MCP</td>
+<td>Inbound marketing, SMB sales, deal tracking</td>
+<td>Private app token</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Pipedrive MCP</td>
+<td>Pipeline management, activity tracking</td>
+<td>API key</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Close MCP</td>
+<td>Inside sales, phone-first outreach teams</td>
+<td>API key</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+
+Explore all options in the MCPFind [blog](/blog) or browse the full CRM category directly.
+
+## Frequently Asked Questions
+
+### How many CRM MCP servers does MCPFind index?
+
+MCPFind currently indexes 13 CRM MCP servers. The category is newer than devtools or databases, and most major CRM vendors added MCP support in late 2025 or early 2026. The number is growing as more platforms publish official server releases.
+
+### Does Salesforce MCP work with both Claude Desktop and Cursor?
+
+Salesforce MCP supports the stdio transport protocol, which both Claude Desktop and Cursor handle natively. Enterprise deployments may require additional OAuth configuration through your Salesforce Connected App settings.
+
+### Can I use HubSpot MCP without a HubSpot paid plan?
+
+HubSpot MCP works with free HubSpot accounts for basic contact and company reads, but some advanced tools like deal pipeline updates or sequence enrollment require a Sales Hub starter plan or higher.
+
+### What is the difference between Pipedrive MCP and a native Pipedrive AI assistant?
+
+Pipedrive MCP runs through an MCP client like Claude or Cursor, which means you control the AI model and can combine Pipedrive data with other tools in the same conversation. Pipedrive's native AI assistant is locked to its own in-app interface.
+
+### Are CRM MCP servers safe to connect to real customer data?
+
+Safety depends on transport mode and API key scope. Servers using stdio keep data local. Servers using HTTP transport route data through remote endpoints. Always use read-only API keys when the workflow only needs to read CRM records, not write to them.
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Best MCP Servers for CRM and Sales",
+  "description": "Top CRM MCP servers for sales teams indexed on MCPFind",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Salesforce MCP",
+      "url": "https://mcpfind.org/categories/crm"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "HubSpot MCP",
+      "url": "https://mcpfind.org/categories/crm"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Pipedrive MCP",
+      "url": "https://mcpfind.org/categories/crm"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Close MCP",
+      "url": "https://mcpfind.org/servers/com-close-close-mcp"
+    }
+  ]
+}
+</script>

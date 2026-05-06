@@ -1,0 +1,147 @@
+---
+title: "Best MCP Servers for DevOps: GitHub, Docker, Cloudflare"
+description: "Compare the best DevOps MCP servers in 2026. GitHub, Docker, Cloudflare, and Kubernetes ranked for CI/CD pipelines, containers, and infrastructure management."
+excerpt: "MCPFind indexes 3,141 devtools MCP servers and 164 cloud servers, making DevOps one of the richest categories in the directory. We analyzed both to surface the strongest options for CI/CD automation, container management, and cloud infrastructure operations."
+date: "2026-05-01"
+updatedAt: "2026-05-01"
+author: "Gus Marquez"
+authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
+authorSameAs:
+  - "https://www.linkedin.com/in/gustavoamarquez"
+tags:
+  - "mcp"
+  - "developer"
+  - "devops"
+  - "github"
+  - "cloudflare"
+  - "docker"
+category: "devtools"
+focusKeyword: "best MCP servers DevOps CI/CD"
+draft: false
+cornerstone: false
+faqItems:
+  - question: "How many DevOps MCP servers does MCPFind index?"
+    answer: "MCPFind indexes 3,141 servers in the devtools category and 164 in the cloud category, totaling over 3,300 DevOps-relevant servers. Devtools is the largest single category in the directory, with an average of 34.43 stars per server."
+  - question: "Does GitHub MCP work with both GitHub Cloud and GitHub Enterprise?"
+    answer: "GitHub MCP officially supports GitHub Cloud. GitHub Enterprise Server support depends on the MCP server implementation you choose and whether it points to your enterprise hostname. Check the server's README for the base URL configuration option."
+  - question: "Can Cloudflare MCP deploy Workers from Claude or Cursor?"
+    answer: "Yes. Cloudflare MCP exposes tools for creating, updating, and deploying Workers scripts directly from your MCP client. It also supports D1 database operations, R2 storage management, and KV namespace reads."
+  - question: "What is the best MCP server for Docker container management?"
+    answer: "Docker MCP from Docker Inc. is the official option. It exposes build, run, push, and pull operations through stdio transport, keeping credentials local. For Kubernetes management, a dedicated Kubernetes MCP server handles kubectl-equivalent operations."
+  - question: "Are DevOps MCP servers safe to use in production CI/CD pipelines?"
+    answer: "DevOps MCP servers work best as AI-assisted interfaces for humans, not as autonomous CI/CD actors. Use read-only tokens for observability workflows and scope write tokens carefully. Avoid granting production deployment permissions to a server without an explicit approval step in the workflow."
+---
+
+DevOps teams spend a significant amount of time context-switching between GitHub, a container registry, a cloud console, and a monitoring dashboard. MCP servers let an AI agent hold that context for you, answering questions about deployment state, pipeline failures, and infrastructure configuration without requiring you to open four tabs. We analyzed the devtools category (3,141 servers) and the cloud category (164 servers) across MCPFind's index of 7,615 total MCP servers to identify the strongest options for CI/CD workflows, container management, and cloud infrastructure operations. For background on how MCP servers work, see [what is MCP](/blog/what-is-mcp).
+
+## What Are the Best MCP Servers for DevOps and CI/CD in 2026?
+
+MCPFind's devtools category is the largest in the directory at 3,141 servers, averaging 34.43 GitHub stars each. The cloud category adds 164 more, with the highest average star count of any category at 59.6 stars per server. Cloudflare leads the cloud category at 3,566 stars, followed by AWS, GCP, and platform-specific offerings from providers like Fly.io and Railway. On the devtools side, the top stars belong to developer tooling projects that extend well beyond CI/CD, but the category includes focused tools for GitHub, Docker, Kubernetes, Terraform, and CI platforms. We found the strongest DevOps MCP servers tend to come from the vendors themselves rather than community forks, because official servers have the most complete API coverage and the most consistent maintenance cadence. Browse [all devtools servers](/categories/devtools) to filter by use case.
+
+## How Does GitHub MCP Server Streamline Pull Request and Issue Management?
+
+GitHub's official MCP server exposes pull requests, issues, repositories, code search, and Actions workflow status to your MCP client. In practical terms, that means an agent in Claude or Cursor can answer questions like "which PRs in the backend repo have been open for more than seven days without review" or "are there any failing Actions runs on main right now." Authentication uses a GitHub personal access token or a fine-grained token scoped to specific repositories. The fine-grained token option is the better production choice: it limits the agent's access to exactly the repositories and operations the workflow requires. The server runs in stdio mode and is open source, so you can audit the code before granting it access to your organization's repositories. For related DevOps workflows, our [Docker deployment guide](/blog/deploy-mcp-server-docker-guide) covers containerizing MCP servers for production use.
+
+## Which Cloud Infrastructure MCP Servers Have the Best Production Track Record?
+
+[Cloudflare MCP](/servers/com-cloudflare-mcp-mcp) leads the cloud category at 3,566 stars, making it the highest-starred server in that category by a significant margin. It supports Workers deployment, D1 database queries, R2 storage management, KV namespace operations, and DNS record updates. Authentication uses a Cloudflare API token scoped to the specific zones or accounts you want the agent to access. Beyond Cloudflare, AWS has a growing collection of service-specific MCP servers covering EC2, S3, Lambda, and CloudWatch. GCP and Azure have similar collections, though with fewer community stars than Cloudflare's server. For teams that host MCP servers remotely, the [remote hosting guide](/blog/host-mcp-server-remotely-cloudflare-cloud-run) compares Cloudflare Workers, Cloud Run, and Vercel as deployment targets. All three options can host an MCP server with public HTTP endpoints while keeping secret management out of the client config.
+
+## How Do Docker and Kubernetes MCP Servers Fit Into Agentic Workflows?
+
+Docker MCP comes directly from Docker Inc. and exposes build, run, push, and pull operations through stdio transport. An agent with Docker MCP configured can check running containers, inspect image layers, build from a Dockerfile, and push to a registry without leaving the AI interface. Authentication uses your existing Docker daemon credentials, which the server inherits through the local runtime. Kubernetes MCP handles cluster-level operations: listing pods, checking deployment status, reading logs, and applying manifests. Several community-maintained Kubernetes MCP servers exist in the devtools category, with authentication handled through kubeconfig file paths rather than stored tokens. Both tools work best in an interactive workflow where a developer reviews what the agent proposes before it executes destructive operations like container termination or rollout restarts. Read access can be used freely; write operations warrant a manual confirmation step.
+
+<table>
+<thead>
+<tr>
+<th>Server Name</th>
+<th>Best For</th>
+<th>Auth Required</th>
+<th>Open Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GitHub MCP</td>
+<td>PR management, issues, code search, Actions status</td>
+<td>GitHub personal access token</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Cloudflare MCP</td>
+<td>Workers, D1, R2, KV, DNS management</td>
+<td>API token (scoped)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Docker MCP</td>
+<td>Container builds, registry operations, runtime inspection</td>
+<td>Docker daemon credentials</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Terraform MCP</td>
+<td>IaC plan review, state inspection, resource queries</td>
+<td>Cloud provider credentials</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+
+Browse all DevOps options in the MCPFind [devtools category](/categories/devtools) or explore the full index.
+
+## Frequently Asked Questions
+
+### How many DevOps MCP servers does MCPFind index?
+
+MCPFind indexes 3,141 servers in the devtools category and 164 in the cloud category, totaling over 3,300 DevOps-relevant servers. Devtools is the largest single category in the directory, with an average of 34.43 stars per server.
+
+### Does GitHub MCP work with both GitHub Cloud and GitHub Enterprise?
+
+GitHub MCP officially supports GitHub Cloud. GitHub Enterprise Server support depends on the MCP server implementation you choose and whether it points to your enterprise hostname. Check the server's README for the base URL configuration option.
+
+### Can Cloudflare MCP deploy Workers from Claude or Cursor?
+
+Yes. Cloudflare MCP exposes tools for creating, updating, and deploying Workers scripts directly from your MCP client. It also supports D1 database operations, R2 storage management, and KV namespace reads.
+
+### What is the best MCP server for Docker container management?
+
+Docker MCP from Docker Inc. is the official option. It exposes build, run, push, and pull operations through stdio transport, keeping credentials local. For Kubernetes management, a dedicated Kubernetes MCP server handles kubectl-equivalent operations.
+
+### Are DevOps MCP servers safe to use in production CI/CD pipelines?
+
+DevOps MCP servers work best as AI-assisted interfaces for humans, not as autonomous CI/CD actors. Use read-only tokens for observability workflows and scope write tokens carefully. Avoid granting production deployment permissions to a server without an explicit approval step in the workflow.
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Best MCP Servers for DevOps and CI/CD",
+  "description": "Top DevOps MCP servers for CI/CD, cloud, and container workflows indexed on MCPFind",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "GitHub MCP",
+      "url": "https://mcpfind.org/categories/devtools"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Cloudflare MCP",
+      "url": "https://mcpfind.org/servers/com-cloudflare-mcp-mcp"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Docker MCP",
+      "url": "https://mcpfind.org/categories/devtools"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Terraform MCP",
+      "url": "https://mcpfind.org/categories/devtools"
+    }
+  ]
+}
+</script>
