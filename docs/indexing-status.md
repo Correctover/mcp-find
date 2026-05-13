@@ -1,5 +1,5 @@
 # mcpfind Indexing Status
-_Last updated: 2026-05-13 11:05 CT_
+_Last updated: 2026-05-13 11:22 CT_
 _Window: since 2026-05-06_
 
 GSC service account not configured — indexing checks skipped.
