@@ -24,6 +24,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Validate secrets are set
+        env:
+          GA4: ${{ secrets.GA4_MEASUREMENT_ID }}
+          CLARITY: ${{ secrets.CLARITY_PROJECT_ID }}
+        run: |
+          if [[ -z "$GA4" ]]; then
+            echo "::error::GA4_MEASUREMENT_ID secret is empty or missing"
+            exit 1
+          fi
+          if [[ -z "$CLARITY" ]]; then
+            echo "::error::CLARITY_PROJECT_ID secret is empty or missing"
+            exit 1
+          fi
+
       # ── Homepage ──────────────────────────────────────────────────────────
       - name: Fetch homepage HTML
         run: |
