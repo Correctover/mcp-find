@@ -33,15 +33,23 @@ jobs:
             echo "::error::GA4_MEASUREMENT_ID secret is empty or missing"
             exit 1
           fi
+          if [[ ${#GA4} -lt 8 ]]; then
+            echo "::error::GA4_MEASUREMENT_ID looks truncated (length ${#GA4}, expected 12+ for G-XXXXXXXXXX format)"
+            exit 1
+          fi
           if [[ -z "$CLARITY" ]]; then
             echo "::error::CLARITY_PROJECT_ID secret is empty or missing"
+            exit 1
+          fi
+          if [[ ${#CLARITY} -lt 8 ]]; then
+            echo "::error::CLARITY_PROJECT_ID looks truncated (length ${#CLARITY}, expected 10 chars)"
             exit 1
           fi
 
       # ── Homepage ──────────────────────────────────────────────────────────
       - name: Fetch homepage HTML
         run: |
-          curl -sf --retry 5 --retry-delay 30 \
+          curl -sf --retry 5 --retry-delay 30 --max-time 20 \
             -A "Mozilla/5.0 (CI discoverability-check)" \
             -o /tmp/homepage.html \
             https://mcpfind.org/
@@ -75,7 +83,7 @@ jobs:
       # Maintenance obligation: if this blog post is renamed/deleted, update this URL. Dynamic slug derivation deferred to follow-up.
       - name: Fetch representative blog page HTML
         run: |
-          curl -sf --retry 5 --retry-delay 30 \
+          curl -sf --retry 5 --retry-delay 30 --max-time 20 \
             -A "Mozilla/5.0 (CI discoverability-check)" \
             -o /tmp/blog.html \
             https://mcpfind.org/blog/github-mcp-server-claude-code-tutorial
