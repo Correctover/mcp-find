@@ -1,0 +1,118 @@
+---
+title: "Shopify MCP Server: All 4 Official Servers Explained"
+description: "Compare Shopify's four official MCP servers for storefront, Admin API, Partner API, and analytics. Setup guide for connecting Claude and Cursor to Shopify data."
+excerpt: "Shopify published four distinct official MCP servers, each targeting a different part of the platform. We explain what each server exposes, how authentication works for each one, and which server fits each developer use case from store management to app building."
+date: "2026-05-14"
+updatedAt: "2026-05-14"
+author: "Gus Marquez"
+authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
+authorSameAs:
+  - "https://www.linkedin.com/in/gustavoamarquez"
+tags:
+  - "mcp"
+  - "developer"
+  - "shopify"
+  - "ecommerce"
+category: "ecommerce"
+focusKeyword: "shopify mcp server"
+draft: false
+cornerstone: false
+faqItems:
+  - question: "Why does Shopify have four separate MCP servers instead of one?"
+    answer: "Each Shopify MCP server targets a different API surface: storefront management, admin operations, partner and app development, and analytics. Keeping them separate lets developers request only the OAuth scopes their workflow requires, reducing the permissions an AI agent holds."
+  - question: "Do Shopify MCP servers support write operations?"
+    answer: "Yes. The Admin API and storefront servers support write operations including product updates, order management, and customer record changes. The scope of write access depends on which OAuth permissions you approve when creating the Shopify app in your Partner Dashboard."
+  - question: "Which Shopify MCP server should I use for order management?"
+    answer: "The Admin API server is the right choice for order management. It exposes order status, fulfillment data, refund creation, and customer records through Shopify's Admin API, which covers operational data for running a store."
+  - question: "How does Shopify MCP authentication work?"
+    answer: "All four Shopify MCP servers use OAuth 2.0 through a Shopify Partner app. You create an app in your Shopify Partner Dashboard, grant the required API scopes, and provide the resulting access token to your MCP client configuration."
+  - question: "Can I use Shopify MCP servers with Claude Desktop and Cursor?"
+    answer: "Yes. Shopify's official MCP servers support stdio transport, which both Claude Desktop and Cursor handle natively. You add the server configuration to your MCP client settings file and restart the application."
+---
+
+Shopify is one of the few platform vendors to publish multiple official MCP servers rather than a single all-in-one integration. MCPFind's ecommerce category indexes 83 servers, and Shopify's four official servers are the only production-maintained options targeting a major ecommerce platform at this depth. Each server covers a distinct API surface: storefront data, admin operations, partner and app development, and analytics. Choosing the wrong one means requesting OAuth scopes you do not need or missing tools you do. This guide explains what each Shopify MCP server exposes, how to configure it, and which one fits each developer workflow.
+
+## What Are Shopify's Four Official MCP Servers and What Does Each One Cover?
+
+Shopify published four distinct MCP servers through its developer relations and engineering teams, each scoped to a different part of the platform.
+
+The **storefront server** exposes the Storefront API. It covers published products, collections, cart data, and checkout flow. This server is the right choice for headless commerce developers who need Claude to query published catalog data or generate storefront-related code.
+
+The **Admin API server** covers operational store data: orders, fulfillment, customers, inventory, metafields, and pricing. This is the most broadly useful server for store operators who want to ask Claude questions about their business data or automate operations like order status summaries and refund workflows.
+
+The **Partner API server** targets Shopify app developers and agency partners. It exposes app management, theme scaffolding, CLI documentation, and Liquid template references. Developers building custom Shopify apps or themes get the most value from this server.
+
+The **analytics server** provides access to sales reporting, traffic summaries, and performance data without requiring separate dashboard access. If you already understand MCP basics, see [What Is MCP?](/blog/what-is-mcp) for protocol context.
+
+## How Do You Configure a Shopify MCP Server in Claude or Cursor?
+
+All four Shopify MCP servers use stdio transport and follow the same installation pattern. The difference is which package you install and which OAuth scopes you approve.
+
+For the Admin API server in Claude Desktop, add this to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "shopify": {
+      "command": "npx",
+      "args": ["-y", "@shopify/admin-mcp"],
+      "env": {
+        "SHOPIFY_ACCESS_TOKEN": "your_admin_access_token",
+        "SHOPIFY_STORE": "your-store.myshopify.com"
+      }
+    }
+  }
+}
+```
+
+For the Partner API and dev tools server, replace `@shopify/admin-mcp` with the appropriate Shopify dev package and provide your Partner API credentials in place of the store access token.
+
+In Cursor, open Settings > MCP Servers and paste the same JSON block. Restart after saving. The server starts on demand and stops when you close the chat session, so there is no persistent background process to monitor.
+
+We recommend configuring only the server that matches your current workflow. Running multiple Shopify servers simultaneously gives Claude a broader set of tools, but it also expands the OAuth scope footprint in your configuration file. Browse [MCPFind's ecommerce category](/categories/ecommerce) to see the full list of 83 indexed servers if you need coverage beyond what Shopify's official servers provide. For payment processing alongside your store data, the [finance category](/categories/finance) includes Stripe and bank data servers that pair directly with Shopify order workflows.
+
+## How Does OAuth Authentication Work for Shopify MCP Servers?
+
+Authentication for all four Shopify MCP servers goes through a Shopify Partner app. The process requires a Shopify Partner account, which is free.
+
+Create a custom app in your Shopify Partner Dashboard. Under API credentials, select the scopes that match the server you are configuring. For the Admin API server, this typically includes read_orders, read_products, read_customers, and write_orders if your workflow creates refunds or updates fulfillment status. The storefront server uses a Storefront API access token with narrower scope. The Partner API server uses your Partner account credentials rather than a per-store access token.
+
+After creating the app and approving scopes, Shopify provides an admin access token or API key that you place in the MCP server configuration. Unlike Stripe's API keys, Shopify's access tokens are scoped per store. If you manage multiple stores, each needs its own app and token. This is intentional: Shopify's access model prevents a single credential from spanning multiple merchant stores, which reduces blast radius if a token is compromised.
+
+## What Can You Actually Do With Each Shopify MCP Server?
+
+The Admin API server covers the widest range of operational tasks. With Claude connected to it, you can ask for a list of all orders placed in the last seven days with unfulfilled status, pull customer purchase history by email, check current inventory levels for a SKU, summarize refund activity for a time period, or query metafield values for a specific product. These are data operations that normally require the Shopify admin dashboard or custom API scripts.
+
+The storefront server handles queries against published catalog data. Claude can retrieve product descriptions, available variants, collection membership, and pricing as it appears to customers. This is useful for content teams generating product copy or SEO drafts against live catalog data.
+
+The Partner API server is most valuable for developers building Shopify apps. Claude can reference Liquid syntax, scaffold app components, look up GraphQL API schema fields, and generate boilerplate for common Shopify app patterns. For ecommerce developers who spend time context-switching between Shopify docs and their editor, the Partner API server keeps that reference data accessible in the same chat session.
+
+## Which Shopify MCP Server Should You Configure First?
+
+The answer depends on your role. Store operators building operational workflows should start with the Admin API server. App developers and theme builders should start with the Partner API server. Headless commerce developers building custom storefronts should start with the storefront server. Analytics-focused users who primarily need sales data should start with the analytics server.
+
+If you are not sure which one fits your workflow, start with the Admin API server. It covers the broadest set of operational store questions and is the server most users mean when they say "connect Claude to Shopify." Configure it with read-only OAuth scopes initially; you can add write scopes later once you have validated the types of queries your AI workflow actually generates.
+
+For comparison with Stripe and other ecommerce payment options, the [best ecommerce MCP servers roundup](/blog/best-mcp-servers-ecommerce-stripe-shopify) covers both the ecommerce and finance categories side by side.
+
+## Frequently Asked Questions
+
+### Why does Shopify have four separate MCP servers instead of one?
+
+Each Shopify MCP server targets a different API surface: storefront management, admin operations, partner and app development, and analytics. Keeping them separate lets developers request only the OAuth scopes their workflow requires, reducing the permissions an AI agent holds.
+
+### Do Shopify MCP servers support write operations?
+
+Yes. The Admin API and storefront servers support write operations including product updates, order management, and customer record changes. The scope of write access depends on which OAuth permissions you approve when creating the Shopify app in your Partner Dashboard.
+
+### Which Shopify MCP server should I use for order management?
+
+The Admin API server is the right choice for order management. It exposes order status, fulfillment data, refund creation, and customer records through Shopify's Admin API, which covers operational data for running a store.
+
+### How does Shopify MCP authentication work?
+
+All four Shopify MCP servers use OAuth 2.0 through a Shopify Partner app. You create an app in your Shopify Partner Dashboard, grant the required API scopes, and provide the resulting access token to your MCP client configuration.
+
+### Can I use Shopify MCP servers with Claude Desktop and Cursor?
+
+Yes. Shopify's official MCP servers support stdio transport, which both Claude Desktop and Cursor handle natively. You add the server configuration to your MCP client settings file and restart the application.

@@ -1,0 +1,115 @@
+---
+title: "Salesforce MCP Server: Enterprise CRM Meets AI Agents"
+description: "Set up the Salesforce MCP server to query contacts, opportunities, and accounts in Claude or Cursor. Includes Connected App setup, OAuth config, and security guidance."
+excerpt: "The Salesforce MCP server connects Claude and Cursor to your Salesforce org through OAuth 2.1. We cover Connected App setup, available CRM tools, record-level security behavior, and common pipeline automation use cases for enterprise sales teams."
+date: "2026-05-15"
+updatedAt: "2026-05-15"
+author: "Gus Marquez"
+authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
+authorSameAs:
+  - "https://www.linkedin.com/in/gustavoamarquez"
+tags:
+  - "mcp"
+  - "developer"
+  - "salesforce"
+  - "crm"
+category: "crm"
+focusKeyword: "salesforce mcp server setup"
+draft: false
+cornerstone: false
+faqItems:
+  - question: "When did Salesforce launch its official MCP server?"
+    answer: "Salesforce launched its official MCP server in January 2026, making it one of the first enterprise CRM platforms to publish native MCP support. The server is maintained by Salesforce's developer relations team."
+  - question: "Does Salesforce MCP respect org-level security and sharing rules?"
+    answer: "Yes. The server authenticates as the specific Salesforce user who connected it, so record-level sharing rules, field-level security, and profile permissions all apply exactly as they do in the Salesforce UI. An AI agent cannot access records the authenticated user could not access directly."
+  - question: "Can Salesforce MCP write to Salesforce records?"
+    answer: "Yes, write operations are supported. You can create leads, update opportunity stages, log activities, and modify custom object records through the server. Write permissions depend on the OAuth scopes approved in your Connected App and the Salesforce profile of the authenticated user."
+  - question: "How is Salesforce MCP different from Salesforce's built-in Einstein AI?"
+    answer: "Einstein AI is a Salesforce-native product that runs within the Salesforce interface. Salesforce MCP connects external AI clients like Claude or Cursor to your Salesforce data, letting you combine CRM context with other MCP servers in the same conversation without switching to the Salesforce interface."
+  - question: "Does the Salesforce MCP server work in Cursor and Claude Desktop?"
+    answer: "Yes. The server supports stdio transport, which both Claude Desktop and Cursor handle natively. Enterprise deployments may require OAuth configuration approval from a Salesforce system administrator before the server can connect."
+---
+
+Salesforce launched its official MCP server in January 2026, making it one of the first enterprise CRM platforms to publish native MCP support. MCPFind's CRM category now indexes 15 servers, but Salesforce MCP stands apart because it connects to the widest object model of any CRM in the category. Contacts, accounts, opportunities, leads, cases, and custom objects are all accessible through the server. This guide covers the Connected App setup required for OAuth authentication, how to configure the server in Claude Desktop and Cursor, what CRM operations are available, and how Salesforce's record-level security model carries over when an AI agent holds the connection.
+
+## What Does the Salesforce MCP Server Give Claude Access To?
+
+The Salesforce MCP server connects Claude, Cursor, and other MCP clients to your Salesforce org through a typed tool interface. Rather than writing SOQL queries or opening Salesforce reports, you ask Claude in plain language and the server translates those queries into Salesforce API calls.
+
+The server exposes standard CRM objects: contacts, accounts, opportunities, leads, tasks, events, and cases. It also supports custom objects and custom fields, which is a significant advantage in enterprise deployments where the standard data model has been extended to match specific business processes. For developer workflows, the server handles both the query side and the write side, so agents can retrieve a list of stale opportunities and then update their next-step fields or log call notes.
+
+MCPFind's CRM category indexes 15 servers. Salesforce MCP is the only option in the category targeting full enterprise org access. For a broader comparison of CRM MCP options including HubSpot and Pipedrive, see the [best CRM MCP servers roundup](/blog/best-mcp-servers-crm-sales). If you are new to the protocol, [What Is MCP?](/blog/what-is-mcp) gives the foundation before diving into Salesforce configuration.
+
+## How Do You Set Up a Salesforce Connected App for MCP Authentication?
+
+The Salesforce MCP server uses OAuth 2.1 through a Salesforce Connected App. Setting up the Connected App requires access to your Salesforce org with permission to create connected apps, which typically means a system administrator or developer account.
+
+In Salesforce Setup, navigate to App Manager > New Connected App. Give the app a name and enable OAuth settings. Add a callback URL (this can be a localhost URL for local stdio-based MCP use). Under OAuth scopes, select at minimum: Access and manage your data (api), Perform requests at any time (refresh_token, offline_access). If your MCP workflow needs to read reports or access Analytics, add the appropriate scopes.
+
+After saving, Salesforce provides a Consumer Key and Consumer Secret. These are what you use to authenticate the MCP server. The first time you connect, you authenticate through a browser-based OAuth flow that generates a refresh token. Subsequent connections use that refresh token without requiring another browser step.
+
+Your system administrator needs to approve the Connected App if your org enforces admin approval for new connected apps. This is a standard enterprise Salesforce configuration, not specific to MCP.
+
+## How Do You Configure the Salesforce MCP Server in Claude or Cursor?
+
+After completing the Connected App setup, configure the server in your MCP client. For Claude Desktop, add this to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "salesforce": {
+      "command": "npx",
+      "args": ["-y", "@salesforce/mcp-server"],
+      "env": {
+        "SF_CLIENT_ID": "your_connected_app_consumer_key",
+        "SF_CLIENT_SECRET": "your_connected_app_consumer_secret",
+        "SF_INSTANCE_URL": "https://your-org.salesforce.com"
+      }
+    }
+  }
+}
+```
+
+For Cursor, open Settings > MCP Servers and paste the same block. Restart after saving.
+
+The initial launch triggers a browser OAuth flow. Salesforce opens a login and authorization page where you approve the Connected App access. After approval, the server stores a refresh token locally and uses it for subsequent sessions. For sandbox orgs, replace the instance URL with your sandbox URL (typically ending in `.sandbox.salesforce.com`). Using a sandbox for initial setup and prompt development is strongly recommended before connecting the server to a production org.
+
+The Salesforce MCP server sits in the [MCPFind CRM category](/categories/crm) alongside 15 total servers covering the major CRM platforms. Developers building custom Salesforce integrations alongside their AI workflows may also find relevant tooling in the [devtools category](/categories/devtools), which indexes 3,548 servers covering API clients, code generation, and workflow automation tools.
+
+## What CRM Tasks Can You Automate With Salesforce MCP?
+
+The most immediate value comes from reducing context-switching during pipeline reviews. With Salesforce MCP active, an account executive can ask Claude which open opportunities in their territory have had no activity logged in the last two weeks, get a prioritized list by deal value, and then ask Claude to draft a follow-up email for each one, pulling the contact name and company from the Salesforce record automatically.
+
+Other common use cases include generating weekly pipeline summaries by stage and close date without running a report, checking which leads came in from a specific campaign, querying case volume by product line for customer success reviews, and logging call notes to an activity record without switching back to Salesforce after each call.
+
+Write operations open up workflow automation. Agents can move an opportunity to the next stage after a confirmed meeting, create a follow-up task from a voice memo, or update the contact's title field after a LinkedIn lookup. These write workflows should be reviewed carefully before enabling in production. We recommend starting with read-only access, validating the queries your AI workflow generates, and adding write scopes only after you have confirmed the query patterns are reliable.
+
+## How Does Salesforce MCP Respect Record-Level Security?
+
+This is the question that matters most for enterprise deployments. The Salesforce MCP server authenticates as a specific Salesforce user, not as a system administrator with elevated access. Every query the server makes runs under that user's sharing rules, profile permissions, and field-level security settings.
+
+If a sales rep authenticates the server, the agent can only see and modify the records that rep has access to in the Salesforce UI. Opportunities owned by other reps that are not shared through a sharing rule are invisible to the agent. This behavior is enforced at the Salesforce API layer, not at the MCP server layer, so it cannot be bypassed by prompt engineering.
+
+For enterprise deployments where multiple team members use a shared agent tool backed by Salesforce MCP, each user should authenticate separately. Sharing a single Connected App credential across users effectively gives every user the permissions of whoever authenticated first, which violates the intended access model and creates audit trail problems. Each user's individual authentication ensures the event log shows the correct user for each API call.
+
+## Frequently Asked Questions
+
+### When did Salesforce launch its official MCP server?
+
+Salesforce launched its official MCP server in January 2026, making it one of the first enterprise CRM platforms to publish native MCP support. The server is maintained by Salesforce's developer relations team.
+
+### Does Salesforce MCP respect org-level security and sharing rules?
+
+Yes. The server authenticates as the specific Salesforce user who connected it, so record-level sharing rules, field-level security, and profile permissions all apply exactly as they do in the Salesforce UI. An AI agent cannot access records the authenticated user could not access directly.
+
+### Can Salesforce MCP write to Salesforce records?
+
+Yes, write operations are supported. You can create leads, update opportunity stages, log activities, and modify custom object records through the server. Write permissions depend on the OAuth scopes approved in your Connected App and the Salesforce profile of the authenticated user.
+
+### How is Salesforce MCP different from Salesforce's built-in Einstein AI?
+
+Einstein AI is a Salesforce-native product that runs within the Salesforce interface. Salesforce MCP connects external AI clients like Claude or Cursor to your Salesforce data, letting you combine CRM context with other MCP servers in the same conversation without switching to the Salesforce interface.
+
+### Does the Salesforce MCP server work in Cursor and Claude Desktop?
+
+Yes. The server supports stdio transport, which both Claude Desktop and Cursor handle natively. Enterprise deployments may require OAuth configuration approval from a Salesforce system administrator before the server can connect.

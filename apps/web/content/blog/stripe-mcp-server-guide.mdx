@@ -1,0 +1,105 @@
+---
+title: "Stripe MCP Server: Payment Data in Your AI Workflow"
+description: "Set up the Stripe MCP server to query customers, subscriptions, and payment data in Claude or Cursor. Step-by-step guide with API key scoping and security tips."
+excerpt: "The Stripe MCP server connects Claude and Cursor to your Stripe account, exposing payment data as callable tools. We cover installation, API key scoping, available payment operations, and security practices to keep production access locked down."
+date: "2026-05-11"
+updatedAt: "2026-05-11"
+author: "Gus Marquez"
+authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
+authorSameAs:
+  - "https://www.linkedin.com/in/gustavoamarquez"
+tags:
+  - "mcp"
+  - "developer"
+  - "stripe"
+  - "ecommerce"
+  - "payments"
+category: "finance"
+focusKeyword: "stripe mcp server"
+draft: false
+cornerstone: false
+faqItems:
+  - question: "Does the Stripe MCP server support write operations or only read?"
+    answer: "It supports both. You can create customers, trigger refunds, and update subscription data. Use restricted API keys to limit the server to read-only access if that is all your workflow requires."
+  - question: "Is it safe to connect Stripe MCP to Claude Desktop?"
+    answer: "Yes, with proper key scoping. Create a restricted Stripe API key with only the permissions your AI workflows need. Never use your full live secret key or a key with account-wide access."
+  - question: "Which tools does the Stripe MCP server expose?"
+    answer: "The server exposes tools for payments, customers, subscriptions, invoices, refunds, disputes, products, prices, and balance retrieval. The exact tool list depends on the server version you install."
+  - question: "Can I use the Stripe MCP server in test mode?"
+    answer: "Yes. Configure it with a Stripe test key (sk_test_...) to run all queries and mutations against your test environment without affecting live data or triggering real charges."
+  - question: "Does Stripe MCP work with Cursor and VS Code?"
+    answer: "Yes. The server uses stdio transport, which is compatible with Claude Desktop, Cursor, Claude Code, and any MCP client that supports local server processes."
+---
+
+Stripe leads MCPFind's finance category with 1,395 GitHub stars across 41 indexed finance servers. The gap between Stripe and the next closest server in the category is significant, and it reflects genuine adoption from developer teams who need payment data in their AI workflows. Instead of switching tabs to pull a customer's subscription status or dig through dispute history, you ask Claude directly. This guide covers what the Stripe MCP server exposes, how to install it in Claude Desktop or Cursor, how to scope API keys correctly, and which payment operations you can actually run through it. We also cover security practices for keeping production Stripe credentials safe when an AI agent holds them.
+
+## What Is the Stripe MCP Server and What Does It Do?
+
+The Stripe MCP server is an official integration built and maintained by Stripe. It connects AI tools to your Stripe account through the Model Context Protocol, exposing payment data as typed tools that Claude or Cursor can call without requiring you to open the dashboard or write one-off data scripts. The server covers customers, payments, subscriptions, invoices, refunds, disputes, products, prices, and balance retrieval.
+
+We analyzed MCPFind's finance category, which indexes 41 servers with an average of 34.63 GitHub stars each. Stripe leads at 1,395 stars, a gap that reflects active maintenance and real-world deployment. The server updates in step with Stripe API version releases and carries official support documentation. The broader [MCPFind finance category](/categories/finance) also indexes bank data, accounting, and transaction enrichment servers for adjacent payment workflows. If you are new to the protocol itself, [What Is MCP?](/blog/what-is-mcp) gives a grounded foundation before diving into configuration.
+
+## How Do You Install the Stripe MCP Server in Claude or Cursor?
+
+The Stripe MCP server runs as a Node.js package via `npx`, using stdio transport. There is no persistent background process to manage and no ports to configure.
+
+For Claude Desktop, add this block to your `claude_desktop_config.json` file (located at `~/Library/Application Support/Claude/` on macOS):
+
+```json
+{
+  "mcpServers": {
+    "stripe": {
+      "command": "npx",
+      "args": ["-y", "@stripe/mcp", "--api-key", "sk_live_YOUR_RESTRICTED_KEY"]
+    }
+  }
+}
+```
+
+For Cursor, open Settings > MCP Servers and paste the same configuration block. Restart after saving.
+
+The server starts on demand when you open a chat session and terminates when you close it. For Claude Code users, you can add the server with `claude mcp add stripe -- npx -y @stripe/mcp --api-key sk_live_YOUR_KEY` from the terminal. The server is listed on MCPFind at [/servers/com-stripe-mcp](/servers/com-stripe-mcp), where you can see version history and community notes alongside the install configuration.
+
+## What Payment Operations Can You Run Through Stripe MCP?
+
+The most practical use case is fast lookups. A developer can ask Claude to pull all failed payment attempts for a specific customer email in the last 30 days, check whether a subscription is active or past due, list disputes opened this quarter, retrieve a customer's lifetime charge total, or summarize invoice history by product line. These are queries that take multiple dashboard clicks to assemble; through Stripe MCP, a single prompt is enough.
+
+Write operations are also supported. The server can create refunds, update customer metadata, cancel subscriptions, issue credits, and modify subscription quantities. These operations require API keys with write access to the specific resources involved. We recommend keeping write-enabled keys completely separate from read-only keys. If your primary workflow is support and lookup, provision a read-only restricted key. Save write access for specific workflow tools where the AI action is intentional and reviewed. For a broader look at ecommerce MCP options including Shopify and Square alternatives, see the [best ecommerce MCP servers](/blog/best-mcp-servers-ecommerce-stripe-shopify) roundup.
+
+## How Do You Scope Stripe API Keys Securely for MCP?
+
+The Stripe API key you pass to the MCP server lives in your local config file. Any process with read access to that file can use it. Three scoping practices limit the exposure.
+
+First, create a restricted key in the Stripe dashboard under Developers > API Keys > Create restricted key. Stripe's permission model lets you select read or write access per resource type. A support workflow that needs to look up customers and disputes does not need write access to subscriptions or products. Scoping precisely means a malformed AI-generated tool call cannot do more than read a customer record.
+
+Second, use test mode keys during prompt development. Test keys (sk_test_...) point to your test environment, so no live transactions are affected while you are iterating on how to phrase queries. This is particularly important when testing write operations like refund creation.
+
+Third, rotate keys on a quarterly schedule. Restricted keys can be revoked and replaced without touching your main API credentials. If you notice unexpected write operations in your Stripe event log, revoke the key immediately. For teams sharing MCP access, each developer should provision their own restricted key rather than sharing a single credential across environments.
+
+## How Does the Stripe MCP Server Compare to Direct API Scripting?
+
+The practical difference comes down to iteration speed. When a developer writes a script to pull customer data, they define the exact query upfront and run it in one step. When the same developer uses Stripe MCP with Claude, they can ask follow-up questions in natural language without writing additional code. The first query might return a customer record; the second might ask Claude to identify which of those customers have active disputes and open subscriptions simultaneously. Claude assembles the multi-step query from Stripe's tools without the developer specifying each API call.
+
+The tradeoff is auditability. Direct scripts leave a clear code trail. MCP tool calls are logged differently, and the prompts that trigger them are not always reproducible in the exact same form. For workflows where audit trails matter, keep write operations in scripted form and use MCP for the read-heavy lookup work where the human reviews results before acting. Teams already using Stripe's official libraries should treat Stripe MCP as a complement to their existing integration, not a replacement. The server works alongside existing code and does not affect how your application calls the Stripe API outside of Claude sessions.
+
+## Frequently Asked Questions
+
+### Does the Stripe MCP server support write operations or only read?
+
+It supports both. You can create customers, trigger refunds, and update subscription data. Use restricted API keys to limit the server to read-only access if that is all your workflow requires.
+
+### Is it safe to connect Stripe MCP to Claude Desktop?
+
+Yes, with proper key scoping. Create a restricted Stripe API key with only the permissions your AI workflows need. Never use your full live secret key or a key with account-wide access.
+
+### Which tools does the Stripe MCP server expose?
+
+The server exposes tools for payments, customers, subscriptions, invoices, refunds, disputes, products, prices, and balance retrieval. The exact tool list depends on the server version you install.
+
+### Can I use the Stripe MCP server in test mode?
+
+Yes. Configure it with a Stripe test key (sk_test_...) to run all queries and mutations against your test environment without affecting live data or triggering real charges.
+
+### Does Stripe MCP work with Cursor and VS Code?
+
+Yes. The server uses stdio transport, which is compatible with Claude Desktop, Cursor, Claude Code, and any MCP client that supports local server processes.
