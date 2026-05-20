@@ -1,0 +1,115 @@
+---
+title: "HubSpot MCP Server: Full Setup Guide for Marketing Teams"
+description: "Connect HubSpot to Claude with three setup paths: HubSpot CLI, npm package, or no-code connector. Covers permissions, use cases, and CRM MCP alternatives."
+excerpt: "The HubSpot MCP server gives Claude and Cursor live access to your CRM data, letting you query contacts, update deals, and pull pipeline reports without leaving your AI workflow. Three setup paths exist depending on your comfort with the terminal."
+date: "2026-05-13"
+updatedAt: "2026-05-13"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+tags:
+  - "mcp"
+  - "beginner"
+  - "crm"
+  - "hubspot"
+category: "crm"
+focusKeyword: "hubspot mcp server"
+draft: false
+cornerstone: false
+faqItems:
+  - question: "Does the HubSpot MCP server work with free HubSpot accounts?"
+    answer: "Yes. You can create a Private App and generate an API key on any HubSpot plan, including the free tier. The tools available depend on which HubSpot hubs you have licensed."
+  - question: "Is the HubSpot MCP server read-only or can it write CRM data?"
+    answer: "The server supports read and write operations. You choose which permission scopes to enable when creating the Private App in HubSpot, so restricting it to read-only is straightforward."
+  - question: "Which AI tools work with the HubSpot MCP server?"
+    answer: "Claude Desktop, Claude Code, Cursor, and any MCP-compatible client work with the HubSpot MCP server. The no-code HubSpot Connector for Claude requires a paid Anthropic subscription."
+  - question: "What is the HubSpot developer MCP server used for?"
+    answer: "HubSpot publishes a separate developer MCP server for local development tasks like app scaffolding and CLI-based project setup. It is distinct from the CRM data server this guide covers."
+---
+
+If you want to ask Claude "list all contacts who became a marketing qualified lead last week" and get a live answer from your actual HubSpot account, the HubSpot MCP server makes that possible. The server connects your CRM directly to any Model Context Protocol client, including Claude Desktop and Cursor. MCPFind indexes 15 servers in the [CRM category](/categories/crm), and HubSpot is one of the few with a first-party setup path. This guide walks through all three installation options, how to scope permissions for safe use, and the practical workflows marketing and sales teams are getting value from today.
+
+## What Does the HubSpot MCP Server Do With Your CRM Data?
+
+The HubSpot MCP server gives AI tools direct read-write access to your CRM data using the Model Context Protocol standard. If you have read about [what MCP is](/blog/what-is-mcp), think of this server as a live connection between your AI client and your HubSpot workspace.
+
+Once connected, you can query contact records by lifecycle stage, retrieve open deals in a specific pipeline, update contact properties, log activities, and generate status summaries. All of this runs through plain-language prompts in Claude or Cursor. You do not need to know the HubSpot API or write any code to use these features.
+
+HubSpot publishes two MCP servers. The developer server handles CLI tasks like app scaffolding and local project setup. The CRM server, which this guide covers, is for marketing and sales data: contacts, companies, deals, tasks, and tickets. The MCPFind CRM category lists 15 servers total, including enterprise options for Salesforce and community-built integrations for Pipedrive and Attio.
+
+## How Do You Set Up the HubSpot MCP Server in Claude or Cursor?
+
+Three paths exist, and the right one depends on your comfort with the terminal.
+
+**Official HubSpot CLI.** If you have the HubSpot CLI installed, run `hs mcp setup` and follow the prompts. This is the fastest path. The CLI automatically writes the server entry into your MCP client configuration file.
+
+**Open-source npm package.** Install the `mcp-hubspot` npm package and create a Private App in your HubSpot account under Settings, then Integrations. HubSpot generates an API key for the app. Add that key and the server reference to your Claude Desktop or Cursor configuration. This path works with any MCP client and gives you the most control over which permission scopes to grant.
+
+**HubSpot Connector for Claude.** If you have a paid Anthropic subscription, enable the HubSpot Connector from Claude.ai settings without touching any config files. This is the no-code option for teams that want a point-and-click setup with no terminal required.
+
+After completing any path, verify the connection by asking Claude to pull your five most recently updated contacts. A valid response confirms the server is working.
+
+## What Tasks Can Marketing Teams Do With HubSpot MCP?
+
+The server is most useful for teams that spend time pulling reports or updating CRM records manually. Instead of logging into HubSpot, generating a report, and exporting a CSV, you ask Claude directly and iterate in the same conversation.
+
+Common marketing workflows that benefit from HubSpot MCP:
+
+- Summarize all deals that have not had activity in 14 days
+- Pull a list of contacts in the "Decision Maker" persona who have not been contacted this quarter
+- Get a pipeline stage breakdown for a specific sales rep or territory
+- Update the lifecycle stage for a batch of contacts after a campaign event
+- Draft a follow-up email based on a contact's deal notes and last recorded activity
+
+The server returns structured data you can refine with follow-up prompts. For marketing operations, this is especially useful for audience segmentation reviews before sends and post-event list hygiene. This works alongside the broader [CRM server options](/blog/best-mcp-servers-crm-sales) covered across the MCPFind directory.
+
+## How Do You Scope API Permissions for the HubSpot MCP Server?
+
+When you create a HubSpot Private App, you select the specific API scopes that app can access. This is the main security boundary for the MCP server.
+
+For a read-only setup, enable read access on contacts, companies, deals, and tickets. For automation workflows where you want Claude to update records, add write scopes for those same objects. Start with read-only until you trust the workflow, then expand scopes as needed.
+
+A few practical tips to keep in mind:
+
+- Treat the Private App token like a database password and store it in your MCP client's secret management rather than pasting it into a config file you might share.
+- Do not enable Marketing Hub scopes for email sends unless you specifically want Claude to trigger campaign actions.
+- Private App tokens do not expire automatically, so rotate them periodically and revoke any token that was accidentally exposed.
+
+The core CRM objects, which cover contacts, deals, companies, and tasks, are accessible on any HubSpot plan including the free tier. Marketing Hub features like email sends and ad campaign management require a paid subscription.
+
+## What Are the Current Limits of the HubSpot MCP Server?
+
+The HubSpot MCP server covers core CRM objects well, but several areas remain limited or unavailable through the current server.
+
+Marketing Hub campaign tools are not accessible by default. You cannot trigger email sends, manage ad campaigns, or control workflow enrollments through the standard CRM MCP server. Those capabilities require additional scope configuration and, in most cases, a paid Marketing Hub license.
+
+Response latency can also be noticeable for large contact list queries. HubSpot's API rate limits apply to the MCP server the same way they apply to any other API client. If you are pulling thousands of records in a single prompt, expect the response to take several seconds. For bulk operations at scale, HubSpot's native workflow automation is still faster than MCP.
+
+The developer MCP server and the CRM server are also separate tools. If you need both CRM data access and developer CLI features in the same session, you configure both server entries individually in your MCP client's configuration.
+
+## How Does HubSpot MCP Compare to Salesforce and Other CRM Servers?
+
+MCPFind indexes 15 servers in the [CRM category](/categories/crm) with an average star count near zero, reflecting how recently enterprise CRM vendors have started shipping MCP support rather than reflecting quality.
+
+For most marketing teams, HubSpot is the practical starting point. The Private App model requires no OAuth infrastructure to deploy, and HubSpot's own documentation covers the setup in detail. The official CLI path cuts setup to a few minutes for anyone who already has the HubSpot developer tools installed.
+
+If your team works in Salesforce, the [Salesforce MCP server guide](/blog/salesforce-mcp-server-setup-guide) covers Connected App OAuth configuration for enterprise deployments. Salesforce adds more complexity upfront but handles record-level security and field-level permissions that matter in large organizations. Pipedrive and Attio also have community-maintained servers in the MCPFind directory, though neither has achieved significant adoption yet by star count. For teams already in HubSpot who want a stable, documented integration, the official path remains the safest choice.
+
+## Frequently Asked Questions
+
+### Does the HubSpot MCP server work with free HubSpot accounts?
+
+Yes. You can create a Private App and generate an API key on any HubSpot plan, including the free tier. The tools available depend on which HubSpot hubs you have licensed.
+
+### Is the HubSpot MCP server read-only or can it write CRM data?
+
+The server supports read and write operations. You choose which permission scopes to enable when creating the Private App in HubSpot, so restricting it to read-only is straightforward.
+
+### Which AI tools work with the HubSpot MCP server?
+
+Claude Desktop, Claude Code, Cursor, and any MCP-compatible client work with the HubSpot MCP server. The no-code HubSpot Connector for Claude requires a paid Anthropic subscription.
+
+### What is the HubSpot developer MCP server used for?
+
+HubSpot publishes a separate developer MCP server for local development tasks like app scaffolding and CLI-based project setup. It is distinct from the CRM data server this guide covers.
