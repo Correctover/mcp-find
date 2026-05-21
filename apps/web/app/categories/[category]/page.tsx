@@ -1,5 +1,6 @@
 import { getServersByCategory } from '@/lib/queries';
 import { generateCategoryMetadata, generateCategoryJsonLd } from '@/lib/metadata';
+import { getQualityStatus } from '@/lib/quality-status';
 import { safeJsonLd } from '@/lib/json-ld';
 import { CATEGORIES, CATEGORY_LABELS, CATEGORY_DESCRIPTIONS, CATEGORY_FAQS } from '@mcpfind/shared';
 import type { Category } from '@mcpfind/shared';
@@ -69,7 +70,7 @@ export default async function CategoryPage({
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {servers.map((server) => (
-            <ServerCard key={server.id} server={server} />
+            <ServerCard key={server.id} server={server} qualityStatus={getQualityStatus(server.slug)} />
           ))}
         </div>
 

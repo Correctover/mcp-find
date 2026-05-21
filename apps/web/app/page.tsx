@@ -8,6 +8,7 @@ import { HeroSearch } from "@/components/ui/hero-search";
 import { safeJsonLd } from "@/lib/json-ld";
 import { getAllPosts } from "@/lib/blog";
 import { getTopServers, getServerCount, listServers } from "@/lib/queries";
+import { getQualityStatus } from "@/lib/quality-status";
 import { CATEGORIES, CATEGORY_LABELS, SITE_URL } from "@mcpfind/shared";
 import type { Category, ServerListItem } from "@mcpfind/shared";
 import { HomeFaq } from "@/components/ui/home-faq";
@@ -307,7 +308,7 @@ export default async function HomePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {featuredServers.map((server) => (
-                <ServerCard key={server.id} server={server} />
+                <ServerCard key={server.id} server={server} qualityStatus={getQualityStatus(server.slug)} />
               ))}
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { getServerBySlug, getTopServers, getServersByCategory } from "@/lib/queries";
 import { generateServerMetadata, generateServerJsonLd } from "@/lib/metadata";
+import { getQualityStatus } from "@/lib/quality-status";
 import { safeJsonLd } from "@/lib/json-ld";
 import { generateConfig } from "@mcpfind/shared";
 import { notFound } from "next/navigation";
@@ -12,6 +13,7 @@ import { ReadmeSection } from "@/components/ui/readme-section";
 import { ServerCard } from "@/components/ui/server-card";
 import { formatNumber } from "@/components/ui/stat-badge";
 import { RelatedArticles } from "@/components/related-articles";
+import { StaleServerBadge } from "@/components/StaleServerBadge";
 import { Navbar } from "@/components/ui/navbar";
 import {
   IconArrowLeft,
@@ -49,7 +51,25 @@ export async function generateMetadata({
   const { slug } = await params;
   const server = await getServerBySlug(slug);
   if (!server) return { title: "Server Not Found" };
-  return generateServerMetadata(server);
+
+  const qualityStatus = getQualityStatus(slug);
+  const base = generateServerMetadata(server);
+
+  // Noindex BROKEN entries: archived/non-functional servers should not appear
+  // in search results. Safety gate: this is driven by a closed-enum manifest
+  // with build-time delta check (scripts/check-broken-delta.mjs).
+  if (qualityStatus === "BROKEN") {
+    return {
+      ...base,
+      // noindex to hide from search results; follow:true preserves link equity flow (standard SEO)
+      robots: {
+        index: false,
+        follow: true,
+      },
+    };
+  }
+
+  return base;
 }
 
 
@@ -61,6 +81,8 @@ export default async function ServerDetailPage({
   const { slug } = await params;
   const server = await getServerBySlug(slug);
   if (!server) notFound();
+
+  const qualityStatus = getQualityStatus(slug);
 
   const relatedServers = server.category
     ? (await getServersByCategory(server.category))
@@ -145,6 +167,7 @@ export default async function ServerDetailPage({
                   </span>
                 )}
               </div>
+              <StaleServerBadge qualityStatus={qualityStatus} className="mb-3" />
               <p className="text-neutral-400 text-lg max-w-2xl leading-relaxed mb-4">
                 {server.description}
               </p>

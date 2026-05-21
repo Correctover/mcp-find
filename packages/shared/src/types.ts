@@ -4,6 +4,19 @@ export type { Category };
 
 export type PackageType = 'npm' | 'pypi' | 'docker' | 'other';
 
+/**
+ * Closed enum for directory entry quality status.
+ * Populated from the v1 audit manifest (directory-quality-audit-2026-05-20.json)
+ * and will be superseded by v2 manifest after Phase 2 enrichment.
+ * Unknown values fail the build — see scripts/check-broken-delta.mjs and lib/quality-status.ts.
+ *
+ * SINGLE SOURCE OF TRUTH: derive QualityStatus from this constant.
+ * scripts/check-broken-delta.mjs has a local VALID_STATUSES set that must stay in
+ * sync — see comment there. Future: import this constant once the script can resolve TS.
+ */
+export const QUALITY_STATUS_VALUES = ['HEALTHY', 'STALE', 'BROKEN', 'LOW-CREDIBILITY'] as const;
+export type QualityStatus = typeof QUALITY_STATUS_VALUES[number];
+
 export type ClientType = 'claude-desktop' | 'cursor' | 'vscode' | 'windsurf' | 'claude-code';
 
 export type SortOption = 'stars' | 'updated' | 'name' | 'downloads';

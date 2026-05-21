@@ -1,10 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import type { ServerListItem } from "@mcpfind/shared";
+import type { ServerListItem, QualityStatus } from "@mcpfind/shared";
 import { CategoryBadge } from "./category-badge";
 import { languageColors } from "./language-badge";
 import { formatNumber } from "./stat-badge";
+import { StaleServerBadge } from "@/components/StaleServerBadge";
 import {
   IconStar,
   IconDownload,
@@ -17,10 +18,12 @@ import {
 
 interface ServerCardProps {
   server: ServerListItem;
+  /** Optional quality_status from the audit manifest — drives StaleServerBadge. */
+  qualityStatus?: QualityStatus;
   className?: string;
 }
 
-export function ServerCard({ server, className }: ServerCardProps) {
+export function ServerCard({ server, qualityStatus, className }: ServerCardProps) {
   const tags = server.registry_tags ?? [];
   const language = server.github_language;
 // Derive author display from github_url, e.g. "org/repo"
@@ -94,9 +97,12 @@ export function ServerCard({ server, className }: ServerCardProps) {
       </div>
 
       {/* Description */}
-      <p className="text-neutral-400 text-sm leading-relaxed mb-4 line-clamp-2">
+      <p className="text-neutral-400 text-sm leading-relaxed mb-2 line-clamp-2">
         {server.description}
       </p>
+
+      {/* Quality badge — only renders for STALE; returns null for all other statuses */}
+      <StaleServerBadge qualityStatus={qualityStatus} className="mb-3" />
 
       {/* Tags */}
       <div className="flex flex-wrap gap-1.5 mb-4">

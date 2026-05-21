@@ -10,6 +10,7 @@ import { ServersFilters } from "@/components/ui/servers-filters";
 import { IconFilter, IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
 import { parseFilterParams } from "@/lib/filter-utils";
 import { safeJsonLd } from "@/lib/json-ld";
+import { getQualityStatus } from "@/lib/quality-status";
 
 export const metadata: Metadata = {
   title: `Browse MCP Servers | ${SITE_NAME}`,
@@ -139,7 +140,7 @@ export default async function ServersPage({
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {result.servers.map((server) => (
-                    <ServerCard key={server.id} server={server} />
+                    <ServerCard key={server.id} server={server} qualityStatus={getQualityStatus(server.slug)} />
                   ))}
                 </div>
               )}
