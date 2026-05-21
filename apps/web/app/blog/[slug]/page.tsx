@@ -14,6 +14,7 @@ import { TableOfContents } from "@/components/blog/table-of-contents";
 import type { TocHeading } from "@/components/blog/table-of-contents";
 import { mdxComponents } from "@/components/blog/mdx-components";
 import { BlogFaq } from "@/components/blog/blog-faq";
+import { RelatedServersForCategory } from "@/components/RelatedServersForCategory";
 
 export const revalidate = 86400;
 
@@ -165,6 +166,14 @@ export default async function BlogPostPage({
           <div className="max-w-none lg:max-w-[calc(100%-250px-2.5rem)]">
             <BlogFaq faqItems={post.frontmatter.faqItems} />
           </div>
+        )}
+
+        {/* Related MCP servers — blog→directory funnel (after FAQ for crawl proximity) */}
+        {post.frontmatter.category && (
+          <RelatedServersForCategory
+            category={post.frontmatter.category}
+            currentSlug={post.slug}
+          />
         )}
 
         {/* Related posts */}

@@ -28,7 +28,7 @@ function calculateReadingTime(content: string): number {
 export function getAllPosts(options?: { limit?: number; offset?: number; category?: string }): BlogPost[] {
   if (!fs.existsSync(CONTENT_DIR)) return [];
 
-  const files = fs.readdirSync(CONTENT_DIR).filter(f => f.endsWith('.mdx'));
+  const files = fs.readdirSync(CONTENT_DIR).filter(f => f.endsWith('.mdx') && !f.startsWith('_'));
 
   let posts = files.map(filename => {
     const slug = filename.replace(/\.mdx$/, '');
@@ -99,7 +99,7 @@ export function getPostBySlug(slug: string): BlogPost | null {
 export function getPostSlugs(): string[] {
   if (!fs.existsSync(CONTENT_DIR)) return [];
   return fs.readdirSync(CONTENT_DIR)
-    .filter(f => f.endsWith('.mdx'))
+    .filter(f => f.endsWith('.mdx') && !f.startsWith('_'))
     .map(f => f.replace(/\.mdx$/, ''));
 }
 

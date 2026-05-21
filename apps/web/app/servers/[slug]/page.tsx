@@ -14,6 +14,7 @@ import { ServerCard } from "@/components/ui/server-card";
 import { formatNumber } from "@/components/ui/stat-badge";
 import { RelatedArticles } from "@/components/related-articles";
 import { StaleServerBadge } from "@/components/StaleServerBadge";
+import { VerifiedServerBadge } from "@/components/VerifiedServerBadge";
 import { Navbar } from "@/components/ui/navbar";
 import {
   IconArrowLeft,
@@ -167,7 +168,9 @@ export default async function ServerDetailPage({
                   </span>
                 )}
               </div>
+              {/* Quality badges — mutually exclusive: only one renders */}
               <StaleServerBadge qualityStatus={qualityStatus} className="mb-3" />
+              <VerifiedServerBadge qualityStatus={qualityStatus} className="mb-3" />
               <p className="text-neutral-400 text-lg max-w-2xl leading-relaxed mb-4">
                 {server.description}
               </p>
