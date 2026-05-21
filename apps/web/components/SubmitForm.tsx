@@ -62,13 +62,17 @@ function validate(fields: FormFields): FormErrors {
 
   if (!fields.name.trim()) {
     errors.name = "Server name is required.";
+  } else if (!toSlug(fields.name)) {
+    // Fix 3: empty-slug guard moved into validate() so hasErrors reflects it
+    errors.name = "Name must contain at least one letter or number.";
   }
 
   if (!fields.github_url.trim()) {
     errors.github_url = "GitHub URL is required.";
   } else if (
     // Fix #5: tighter GitHub URL regex (requires org/repo segments)
-    !/^https:\/\/github\.com\/[^/]+\/[^/]+/.test(fields.github_url)
+    // Fix 2: anchored regex — rejects trailing garbage, allows deep links
+    !/^https:\/\/github\.com\/[^/]+\/[^/?#]+(?:[/?#].*)?$/.test(fields.github_url)
   ) {
     errors.github_url =
       "Must be a full GitHub repo URL (e.g. https://github.com/org/repo)";
@@ -144,15 +148,8 @@ export function SubmitForm() {
 
     if (Object.keys(fieldErrors).length > 0) return;
 
-    // Fix #1: empty slug guard
+    // Fix 3: slug is now guaranteed non-empty by validate()
     const slug = toSlug(fields.name);
-    if (!slug) {
-      setErrors((prev) => ({
-        ...prev,
-        name: "Name must contain at least one letter or number.",
-      }));
-      return;
-    }
 
     const yaml = buildYaml(fields);
     const encoded = encodeURIComponent(yaml);
@@ -187,11 +184,13 @@ export function SubmitForm() {
           onBlur={(e) => handleBlur("name", e.target.value)}
           className={[INPUT_BASE, touched.has("name") && errors.name ? INPUT_ERROR : ""].join(" ")}
         />
-        {touched.has("name") && errors.name && (
-          <p id="sf-name-err" className="mt-1.5 text-xs text-red-400">
-            {errors.name}
-          </p>
-        )}
+        <p
+          id="sf-name-err"
+          aria-live="polite"
+          className="mt-1.5 text-xs text-red-400 min-h-[1.25rem]"
+        >
+          {touched.has("name") && errors.name ? errors.name : ""}
+        </p>
       </div>
 
       {/* GitHub URL */}
@@ -212,11 +211,13 @@ export function SubmitForm() {
           onBlur={(e) => handleBlur("github_url", e.target.value)}
           className={[INPUT_BASE, touched.has("github_url") && errors.github_url ? INPUT_ERROR : ""].join(" ")}
         />
-        {touched.has("github_url") && errors.github_url && (
-          <p id="sf-github_url-err" className="mt-1.5 text-xs text-red-400">
-            {errors.github_url}
-          </p>
-        )}
+        <p
+          id="sf-github_url-err"
+          aria-live="polite"
+          className="mt-1.5 text-xs text-red-400 min-h-[1.25rem]"
+        >
+          {touched.has("github_url") && errors.github_url ? errors.github_url : ""}
+        </p>
       </div>
 
       {/* Package Name */}
@@ -230,6 +231,7 @@ export function SubmitForm() {
           type="text"
           placeholder="e.g. my-mcp-server or @org/mcp-server"
           value={fields.package_name}
+          maxLength={214}
           aria-required="true"
           aria-invalid={!!errors.package_name}
           aria-describedby="sf-package_name-err"
@@ -238,11 +240,13 @@ export function SubmitForm() {
           className={[INPUT_BASE, touched.has("package_name") && errors.package_name ? INPUT_ERROR : ""].join(" ")}
         />
         <p className="mt-1.5 text-xs text-neutral-600">npm package name, PyPI name, or Docker image</p>
-        {touched.has("package_name") && errors.package_name && (
-          <p id="sf-package_name-err" className="mt-1 text-xs text-red-400">
-            {errors.package_name}
-          </p>
-        )}
+        <p
+          id="sf-package_name-err"
+          aria-live="polite"
+          className="mt-1 text-xs text-red-400 min-h-[1.25rem]"
+        >
+          {touched.has("package_name") && errors.package_name ? errors.package_name : ""}
+        </p>
       </div>
 
       {/* Description */}
@@ -270,11 +274,13 @@ export function SubmitForm() {
             {fields.description.length}/200
           </span>
         </p>
-        {touched.has("description") && errors.description && (
-          <p id="sf-description-err" className="mt-1 text-xs text-red-400">
-            {errors.description}
-          </p>
-        )}
+        <p
+          id="sf-description-err"
+          aria-live="polite"
+          className="mt-1 text-xs text-red-400 min-h-[1.25rem]"
+        >
+          {touched.has("description") && errors.description ? errors.description : ""}
+        </p>
       </div>
 
       {/* Package Type (optional) — Fix #9: type-guarded onChange */}
@@ -326,11 +332,13 @@ export function SubmitForm() {
             </option>
           ))}
         </select>
-        {touched.has("category") && errors.category && (
-          <p id="sf-category-err" className="mt-1.5 text-xs text-red-400">
-            {errors.category}
-          </p>
-        )}
+        <p
+          id="sf-category-err"
+          aria-live="polite"
+          className="mt-1.5 text-xs text-red-400 min-h-[1.25rem]"
+        >
+          {touched.has("category") && errors.category ? errors.category : ""}
+        </p>
       </div>
 
       {/* Submit — Fix #6: disabled only when submitted && hasErrors */}
