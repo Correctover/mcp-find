@@ -72,7 +72,7 @@ function validate(fields: FormFields): FormErrors {
   } else if (
     // Fix #5: tighter GitHub URL regex (requires org/repo segments)
     // Fix 2: anchored regex — rejects trailing garbage, allows deep links
-    !/^https:\/\/github\.com\/[^/]+\/[^/?#]+(?:[/?#].*)?$/.test(fields.github_url)
+    !/^https:\/\/github\.com\/[^/]+\/[^/?#]+(?:[/?#].*)?$/.test(fields.github_url.trim())
   ) {
     errors.github_url =
       "Must be a full GitHub repo URL (e.g. https://github.com/org/repo)";
@@ -148,10 +148,20 @@ export function SubmitForm() {
 
     if (Object.keys(fieldErrors).length > 0) return;
 
-    // Fix 3: slug is now guaranteed non-empty by validate()
-    const slug = toSlug(fields.name);
+    // Trim all string fields so clipboard-pasted whitespace never leaks into the YAML.
+    const trimmed: FormFields = {
+      name: fields.name.trim(),
+      github_url: fields.github_url.trim(),
+      package_name: fields.package_name.trim(),
+      description: fields.description.trim(),
+      package_type: fields.package_type, // select value, no trim needed
+      category: fields.category,         // select value, no trim needed
+    };
 
-    const yaml = buildYaml(fields);
+    // Fix 3: slug is now guaranteed non-empty by validate()
+    const slug = toSlug(trimmed.name);
+
+    const yaml = buildYaml(trimmed);
     const encoded = encodeURIComponent(yaml);
     const url = `https://github.com/MCPFind/mcp-find/new/main?filename=submissions/${slug}.yml&value=${encoded}`;
 
@@ -342,6 +352,7 @@ export function SubmitForm() {
       </div>
 
       {/* Submit — Fix #6: disabled only when submitted && hasErrors */}
+      {/* Button stays enabled until the first submit attempt; afterward it tracks hasErrors so it auto-re-enables once the user fixes them. */}
       <button
         type="submit"
         disabled={submitted && hasErrors}
