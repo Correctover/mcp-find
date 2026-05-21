@@ -3,7 +3,7 @@ title: "How to Use MCP Servers With Ollama and Local LLMs"
 description: "Connect MCP servers to Ollama and local LLMs using MCPHost or compatible bridges. Covers model requirements, tool-calling setup, and which servers work best offline."
 excerpt: "Ollama does not natively speak MCP, but bridge tools like MCPHost let local models call MCP tools over stdio. MCPFind indexes 832 servers in the ai-ml category. This guide covers which models support tool calling, how to wire MCPHost to any local model, and which server categories are worth running offline."
 date: "2026-04-17"
-updatedAt: "2026-04-17"
+updatedAt: "2026-05-21"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -30,6 +30,9 @@ faqItems:
 ---
 
 Ollama makes it easy to run open-weight models locally, but it does not ship an MCP client. The MCP protocol is handled at the client layer, not inside the LLM itself. To use MCP servers with a local Ollama model, you need a bridge that speaks MCP on one side and the Ollama API on the other. MCPFind indexes 832 servers in the [ai-ml category](/categories/ai-ml), averaging 114.27 stars per server, the highest average across all categories. Most of those servers are designed for cloud-hosted clients, but a meaningful subset runs well offline. This guide covers the bridge setup, model selection, and which server categories give the best results on local hardware.
+
+
+For a curated list of top servers in this space, see [the best MCP servers for AI and machine learning](/blog/best-mcp-servers-ai-machine-learning).
 
 ## Does Ollama Support MCP Natively?
 

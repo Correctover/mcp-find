@@ -3,7 +3,7 @@ title: "MCP stdio vs HTTP Transport: What's the Difference?"
 description: "When to use stdio versus Streamable HTTP in MCP servers. Covers architecture, config examples, and decision rules based on 6,105 indexed servers."
 excerpt: "The choice between stdio and Streamable HTTP transport shapes how your MCP server handles concurrency, authentication, and deployment. This guide explains both options with config examples and decision rules drawn from 6,105 servers in the MCPFind directory."
 date: "2026-04-06"
-updatedAt: "2026-04-06"
+updatedAt: "2026-05-21"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -30,6 +30,9 @@ faqItems:
 ---
 
 When you build an MCP server, one of the first configuration decisions is which transport to use. The two options are stdio and Streamable HTTP. stdio runs the server as a child process communicating through stdin and stdout. HTTP runs it as a persistent service accepting POST requests. That choice determines concurrency, authentication complexity, and deployment target.
+
+
+For a curated list of top servers in this space, see [the best DevOps MCP servers](/blog/best-mcp-servers-devops-cicd).
 
 We analyzed 6,105 servers in the MCPFind directory across 21 categories and found that transport preference tracks closely with use case. Tools built for Claude Desktop or Cursor almost always use stdio. Servers meant for SaaS integrations use HTTP. This guide explains both options with concrete examples so you can decide quickly.
 

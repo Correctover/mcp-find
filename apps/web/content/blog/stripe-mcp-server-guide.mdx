@@ -3,7 +3,7 @@ title: "Stripe MCP Server: Payment Data in Your AI Workflow"
 description: "Set up the Stripe MCP server to query customers, subscriptions, and payment data in Claude or Cursor. Step-by-step guide with API key scoping and security tips."
 excerpt: "The Stripe MCP server connects Claude and Cursor to your Stripe account, exposing payment data as callable tools. We cover installation, API key scoping, available payment operations, and security practices to keep production access locked down."
 date: "2026-05-11"
-updatedAt: "2026-05-11"
+updatedAt: "2026-05-21"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -31,7 +31,10 @@ faqItems:
     answer: "Yes. The server uses stdio transport, which is compatible with Claude Desktop, Cursor, Claude Code, and any MCP client that supports local server processes."
 ---
 
-Stripe leads MCPFind's finance category with 1,395 GitHub stars across 41 indexed finance servers. The gap between Stripe and the next closest server in the category is significant, and it reflects genuine adoption from developer teams who need payment data in their AI workflows. Instead of switching tabs to pull a customer's subscription status or dig through dispute history, you ask Claude directly. This guide covers what the Stripe MCP server exposes, how to install it in Claude Desktop or Cursor, how to scope API keys correctly, and which payment operations you can actually run through it. We also cover security practices for keeping production Stripe credentials safe when an AI agent holds them.
+The Stripe MCP server connects Claude, Cursor, and other AI tools directly to your Stripe account — exposing payment data as callable tools without the dashboard. You can query customers, subscriptions, invoices, disputes, and balance in natural language. The critical first step: create a restricted Stripe API key with minimum permissions. PCI scope and idempotency key behavior mean a full live secret key should never sit in an MCP config file.
+
+
+For a curated list of top servers in this space, see [the best finance MCP servers](/blog/best-mcp-servers-finance-banking).
 
 ## What Is the Stripe MCP Server and What Does It Do?
 

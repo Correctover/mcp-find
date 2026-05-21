@@ -13,6 +13,7 @@ export interface BlogFrontmatter {
   canonicalUrl?: string;
   focusKeyword?: string;
   draft?: boolean;
+  noindex?: boolean;
   faqItems?: Array<{ question: string; answer: string }>;
   cornerstone?: boolean;
 }

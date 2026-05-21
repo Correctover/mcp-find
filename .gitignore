@@ -10,6 +10,12 @@ dist/
 .DS_Store
 .env.*
 coverage/
+
+# GitHub PAT / token files — belt-and-suspenders
+*github-pat*
+*github-token*
+*.pat
+*.pat.txt
 supabase/.temp/
 logs/
 .claude/

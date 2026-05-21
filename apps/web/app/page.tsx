@@ -590,9 +590,17 @@ export default async function HomePage() {
             <p className="text-neutral-600 text-sm">
               &copy; 2026 MCP Find. Open source.
             </p>
-            <p className="text-neutral-600 text-sm">
-              Model Context Protocol is an open standard by Anthropic.
-            </p>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/privacy"
+                className="text-neutral-600 hover:text-neutral-400 text-sm transition-colors duration-200"
+              >
+                Privacy Policy
+              </Link>
+              <p className="text-neutral-600 text-sm">
+                Model Context Protocol is an open standard by Anthropic.
+              </p>
+            </div>
           </div>
         </div>
       </footer>

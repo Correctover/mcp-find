@@ -3,7 +3,7 @@ title: "Best Database MCP Servers: PostgreSQL, MySQL, SQLite, Supabase"
 description: "MCPFind indexes 267 database MCP servers. Compare top options for PostgreSQL, MySQL, SQLite, and Supabase by star count, transport type, and read-write access."
 excerpt: "If you want to connect Claude or another AI agent to a relational database, you need a database MCP server. MCPFind indexes 267 of them across PostgreSQL, MySQL, SQLite, and Supabase. This guide compares the top options by star count, access model, and transport type so you can pick the right one for your stack."
 date: "2026-04-20"
-updatedAt: "2026-04-20"
+updatedAt: "2026-05-21"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -30,6 +30,9 @@ faqItems:
 ---
 
 Connecting an AI agent to a relational database used to mean writing a custom API layer or pasting query results manually into a chat window. With database MCP servers, you add a JSON config block, and Claude can query your PostgreSQL, MySQL, SQLite, or Supabase database directly in conversation. We analyzed the 267 servers in MCPFind's [databases category](/categories/databases), which averages 16.59 GitHub stars per server. This guide covers the top options by adoption and helps you choose based on your stack. If you are new to MCP, read [what MCP is](/blog/what-is-mcp) first.
+
+
+For a curated list of top servers in this space, see [the best documentation MCP servers](/blog/best-mcp-servers-for-documentation).
 
 ## How Do Database MCP Servers Compare by Adoption?
 
@@ -66,7 +69,7 @@ For read-only access, create a dedicated database role and connect with those cr
 
 ## What Are the Best Options for Supabase, MySQL, and SQLite?
 
-Supabase is the clear choice for teams already on the platform. The official Supabase MCP server goes beyond SQL access, exposing project configuration, storage, edge functions, and realtime subscriptions through dedicated tools. Setup requires a Supabase personal access token rather than a raw database password, which simplifies credential management and rotation.
+Supabase is the clear choice for teams already on the platform. The official Supabase MCP server goes beyond SQL access, exposing project configuration, storage, edge functions, and realtime subscriptions through dedicated tools. Setup requires a Supabase personal access token rather than a raw database password, which simplifies credential management and rotation. For full configuration walkthrough, OAuth setup, and production safety practices, see the [Supabase MCP server deep-dive](/blog/supabase-mcp-server-deep-dive).
 
 For MySQL, community-built servers cover the most common use cases. Check the [databases category on MCPFind](/categories/databases) filtered by keyword for current MySQL options. Quality varies more than PostgreSQL, so prioritize servers with active maintenance (recent commits, open issues with responses) over pure star count.
 

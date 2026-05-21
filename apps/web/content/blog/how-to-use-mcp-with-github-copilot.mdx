@@ -3,7 +3,7 @@ title: "How to Use MCP Servers with GitHub Copilot in VS Code"
 description: "Set up MCP servers in GitHub Copilot's VS Code agent mode. Connect Copilot to databases, APIs, and dev tools through the Model Context Protocol."
 excerpt: "GitHub Copilot now supports MCP servers in VS Code agent mode. This guide walks through configuration, server selection from a directory of 5,778 indexed servers, and practical tips for getting Copilot connected to external tools through the Model Context Protocol."
 date: "2026-04-08"
-updatedAt: "2026-04-08"
+updatedAt: "2026-05-21"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -30,6 +30,9 @@ faqItems:
 ---
 
 GitHub Copilot added MCP server support in VS Code agent mode, giving it access to external tools, databases, and APIs during code generation. This is a significant shift from Copilot's previous model, where it could only read your open files and workspace. With MCP, Copilot can query a PostgreSQL database, check your CI status, or pull documentation from internal systems while helping you write code. We analyzed the MCPFind directory of 5,778 MCP servers to identify which ones work best with Copilot's agent mode.
+
+
+For a curated list of top servers in this space, see [the best DevOps and CI/CD MCP servers](/blog/best-mcp-servers-devops-cicd).
 
 ## How Does MCP Work Inside GitHub Copilot?
 

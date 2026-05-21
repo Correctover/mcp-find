@@ -3,7 +3,7 @@ title: "MCP Security Basics: What to Know Before Adding Servers"
 description: "Understand MCP server security risks before you connect one to Claude. Covers permissions, trust, prompt injection, and what verified means on MCPFind."
 excerpt: "Every MCP server you add to Claude gets access to tools that can read files, call APIs, or query databases. Before connecting one, you should understand the permission model, what prompt injection looks like in practice, and how to evaluate whether a server is trustworthy. This guide covers the basics without requiring a security background."
 date: "2026-04-07"
-updatedAt: "2026-04-07"
+updatedAt: "2026-05-21"
 author: "Adam Bush"
 authorUrl: "https://www.linkedin.com/in/adam-bush/"
 authorSameAs:
@@ -31,6 +31,9 @@ faqItems:
 ---
 
 Adding an MCP server to Claude is not the same as installing an app. When you connect a server, you are giving it tools that can take real actions: reading your files, querying your databases, posting to APIs. Most servers are well-intentioned and safe, but understanding what access you are granting matters before you connect anything. MCPFind indexes 5,296 servers across 21 categories, including 171 in the [security category](/categories/security) built specifically to help teams audit and protect their MCP deployments. This guide explains what to check before you start, without requiring a security background. If you are new to MCP, start with [what MCP is](/blog/what-is-mcp).
+
+
+For a curated list of top servers in this space, see [the best documentation and security MCP servers](/blog/best-mcp-servers-for-documentation).
 
 ## What Permissions Does an MCP Server Actually Have?
 

@@ -17,10 +17,13 @@ import {
   KNOWN_LANGUAGES,
   type ParsedFilters,
 } from "@/lib/filter-utils";
+import { trackDirectorySearchUsed, bucketResultsCount } from "@/lib/analytics";
 
 interface ServersFiltersProps {
   initialFilters: ParsedFilters;
   totalCount: number;
+  /** Current result count — used for GA4 bucketed reporting */
+  resultCount?: number;
   children: React.ReactNode;
 }
 
@@ -32,6 +35,7 @@ const LANGUAGE_OPTIONS = KNOWN_LANGUAGES.map((v) => ({
 export function ServersFilters({
   initialFilters,
   totalCount,
+  resultCount,
   children,
 }: ServersFiltersProps) {
   const router = useRouter();
@@ -58,11 +62,18 @@ export function ServersFilters({
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       navigate(filters);
+      // GA4: fire directory_search_used when search query or category changes.
+      // resultCount falls back to totalCount (server-rendered); bucket prevents fingerprinting.
+      const count = resultCount !== undefined ? resultCount : totalCount;
+      trackDirectorySearchUsed({
+        category: filters.category ?? "",
+        results_count: bucketResultsCount(count),
+      });
     }, 400);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [filters, navigate]);
+  }, [filters, navigate, resultCount, totalCount]);
 
   // Sync mobile filters when drawer opens
   const openMobileDrawer = () => {

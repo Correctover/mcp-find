@@ -15,6 +15,7 @@ import type { TocHeading } from "@/components/blog/table-of-contents";
 import { mdxComponents } from "@/components/blog/mdx-components";
 import { BlogFaq } from "@/components/blog/blog-faq";
 import { RelatedServersForCategory } from "@/components/RelatedServersForCategory";
+import { BlogConversionTracker } from "@/components/BlogConversionTracker";
 
 export const revalidate = 86400;
 
@@ -34,6 +35,9 @@ export async function generateMetadata({
   return {
     title: `${post.frontmatter.title} | MCP Find Blog`,
     description: post.frontmatter.description,
+    ...(post.frontmatter.noindex && {
+      robots: { index: false, follow: false },
+    }),
     alternates: {
       canonical: `/blog/${post.slug}`,
     },
@@ -170,10 +174,12 @@ export default async function BlogPostPage({
 
         {/* Related MCP servers — blog→directory funnel (after FAQ for crawl proximity) */}
         {post.frontmatter.category && (
-          <RelatedServersForCategory
-            category={post.frontmatter.category}
-            currentSlug={post.slug}
-          />
+          <BlogConversionTracker>
+            <RelatedServersForCategory
+              category={post.frontmatter.category}
+              currentSlug={post.slug}
+            />
+          </BlogConversionTracker>
         )}
 
         {/* Related posts */}

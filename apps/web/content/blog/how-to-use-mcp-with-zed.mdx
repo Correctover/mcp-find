@@ -3,7 +3,7 @@ title: "How to Set Up MCP Servers in Zed Editor (2026 Guide)"
 description: "Configure MCP servers in Zed editor using context_servers settings. Step-by-step guide for developers with working JSON examples and troubleshooting tips."
 excerpt: "Zed added native MCP support via its context_servers configuration block. This guide walks you through connecting any of the 2,824 devtools servers MCPFind indexes to your Zed workspace, with troubleshooting for common setup failures."
 date: "2026-04-13"
-updatedAt: "2026-04-13"
+updatedAt: "2026-05-21"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -30,6 +30,9 @@ faqItems:
 ---
 
 Zed launched native MCP support in 2025, letting developers connect context servers directly inside the editor without switching to Claude Desktop or a separate client. The configuration sits in a single JSON block, and it works with any stdio-based MCP server. MCPFind currently indexes 2,824 servers in the devtools category alone, the largest category in the directory. This guide covers the exact config format, which servers pair well with Zed, and how to debug the most common setup failures.
+
+
+For a curated list of top servers in this space, see [the best AI and ML MCP servers](/blog/best-mcp-servers-ai-machine-learning).
 
 ## How Does Zed Implement MCP?
 

@@ -12,6 +12,7 @@ import {
   buildYaml,
   validate,
 } from "@/lib/submit-helpers";
+import { trackSubmitFormCompleted } from "@/lib/analytics";
 
 const INPUT_BASE =
   "w-full bg-neutral-900 border border-neutral-800 text-white placeholder-neutral-600 rounded-xl px-4 py-3 text-sm outline-none transition-colors duration-150 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50";
@@ -110,6 +111,12 @@ export function SubmitForm() {
       // Fix #3 & #10: noopener,noreferrer + popup-blocker fallback
       const win = window.open(url, "_blank", "noopener,noreferrer");
       if (win) {
+        // GA4: fire submit_form_completed on successful GitHub editor open.
+        // category is always "server-submit" for this form; no email field exists.
+        trackSubmitFormCompleted({
+          category: "server-submit",
+          has_email_provided: false,
+        });
         setSuccess(true);
       } else {
         setFallbackUrl(url);

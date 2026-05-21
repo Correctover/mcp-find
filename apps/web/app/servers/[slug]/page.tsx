@@ -33,6 +33,7 @@ import {
   IconUsers,
   IconPackage,
 } from "@tabler/icons-react";
+import { ServerOutboundLink } from "@/components/ServerOutboundLink";
 
 export const revalidate = 86400;
 
@@ -190,16 +191,15 @@ export default async function ServerDetailPage({
             {/* Quick action */}
             {server.github_url && (
               <div className="flex flex-row sm:flex-col gap-3 shrink-0">
-                <a
+                <ServerOutboundLink
                   href={server.github_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  serverSlug={slug}
                   className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-white font-medium px-5 py-2.5 rounded-xl transition-colors duration-200 text-sm"
                 >
                   <IconBrandGithub size={16} />
                   View on GitHub
                   <IconExternalLink size={13} className="text-neutral-500" />
-                </a>
+                </ServerOutboundLink>
               </div>
             )}
           </div>
@@ -303,14 +303,13 @@ export default async function ServerDetailPage({
                     </span>
                   )}
                   {server.package_url && (
-                    <a
+                    <ServerOutboundLink
                       href={server.package_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      serverSlug={slug}
                       className="text-blue-400 hover:text-blue-300 transition-colors duration-200"
                     >
                       <IconExternalLink size={14} />
-                    </a>
+                    </ServerOutboundLink>
                   )}
                 </div>
               </section>
@@ -425,10 +424,9 @@ export default async function ServerDetailPage({
                       </div>
                     </div>
                   </div>
-                  <a
+                  <ServerOutboundLink
                     href={server.github_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    serverSlug={slug}
                     className="flex items-center gap-2 text-neutral-400 hover:text-white text-sm transition-colors duration-200"
                   >
                     <IconBrandGithub size={15} />
@@ -437,7 +435,7 @@ export default async function ServerDetailPage({
                       size={12}
                       className="text-neutral-600 ml-auto shrink-0"
                     />
-                  </a>
+                  </ServerOutboundLink>
                 </div>
               );
             })()}

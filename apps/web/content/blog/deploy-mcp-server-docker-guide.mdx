@@ -3,7 +3,7 @@ title: "How to Deploy an MCP Server with Docker"
 description: "Step-by-step guide to containerizing MCP servers with Docker for Node.js and Python, with production best practices and real directory examples."
 excerpt: "Most MCP servers fail in production because they depend on local system state that Docker eliminates. This guide shows how to write Dockerfiles for Node.js and Python MCP servers, expose the right ports, and push to a container registry for reliable remote deployment."
 date: "2026-04-22"
-updatedAt: "2026-04-22"
+updatedAt: "2026-05-21"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -30,6 +30,9 @@ faqItems:
 ---
 
 If you have built an MCP server that works locally, the hardest part of shipping it is making it reliable on someone else's machine. Local dependencies, PATH differences, and missing environment variables all cause failures that never show up during development. Docker eliminates these variables by packaging the server and its exact runtime together. We examined the MCPFind [devtools category](/categories/devtools), which indexes 3,010 MCP servers with an average of 35.93 GitHub stars, and found that the highest-starred servers use containers to guarantee consistent behavior across deployment targets. If you are new to what MCP servers actually do, start with [what is MCP](/blog/what-is-mcp) before working through this guide.
+
+
+For a curated list of top servers in this space, see [the best MCP servers for cloud infrastructure](/blog/best-mcp-servers-cloud-infrastructure).
 
 ## Why Do Most MCP Servers Fail in Production Without Containers?
 
