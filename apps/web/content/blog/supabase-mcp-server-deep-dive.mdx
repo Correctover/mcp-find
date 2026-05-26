@@ -3,7 +3,7 @@ title: "Supabase MCP Server: 32 Tools, OAuth Setup, and Production Safety"
 description: "Supabase leads MCPFind's databases category at 2,556 stars. Configure 32 tools for SQL, schema design, and project management in Claude or Cursor."
 excerpt: "Supabase leads the MCPFind databases category at 2,556 GitHub stars and exposes 32 tools covering the full platform. This guide covers full configuration for Claude and Cursor, security best practices for keeping production data safe, and how Supabase compares to PostgreSQL and other database MCP servers."
 date: "2026-05-14"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-26"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -28,7 +28,7 @@ faqItems:
     answer: "You can authenticate with a personal access token generated in the Supabase dashboard, or use the OAuth 2 flow introduced in the 2025-03-26 spec revision. The OAuth path avoids storing long-lived tokens in config files."
 ---
 
-The Supabase MCP server connects Claude, Cursor, and other AI clients to your Supabase project with 32 tools covering SQL execution, schema design, TypeScript type generation, and project management. Authentication uses either a personal access token or OAuth 2 — OAuth is preferred because no secret appears in your config. Do not connect to a production project until you understand the RLS bypass risk with the service role key.
+The Supabase MCP server connects Claude, Cursor, and other AI clients to your Supabase project with 32 tools covering SQL execution, schema design, TypeScript type generation, and project management. Authentication uses either a personal access token or OAuth 2. OAuth is preferred because no secret appears in your config file. Do not connect to a production project until you understand the RLS bypass risk with the service role key.
 
 ## What Tools Does the Supabase MCP Server Expose?
 

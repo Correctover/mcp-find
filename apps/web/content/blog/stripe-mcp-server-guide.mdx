@@ -3,7 +3,7 @@ title: "Stripe MCP Server: Payment Data in Your AI Workflow"
 description: "Set up the Stripe MCP server to query customers, subscriptions, and payment data in Claude or Cursor. Step-by-step guide with API key scoping and security tips."
 excerpt: "The Stripe MCP server connects Claude and Cursor to your Stripe account, exposing payment data as callable tools. We cover installation, API key scoping, available payment operations, and security practices to keep production access locked down."
 date: "2026-05-11"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-26"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -31,7 +31,7 @@ faqItems:
     answer: "Yes. The server uses stdio transport, which is compatible with Claude Desktop, Cursor, Claude Code, and any MCP client that supports local server processes."
 ---
 
-The Stripe MCP server connects Claude, Cursor, and other AI tools directly to your Stripe account — exposing payment data as callable tools without the dashboard. You can query customers, subscriptions, invoices, disputes, and balance in natural language. The critical first step: create a restricted Stripe API key with minimum permissions. PCI scope and idempotency key behavior mean a full live secret key should never sit in an MCP config file.
+The Stripe MCP server connects Claude, Cursor, and other AI tools directly to your Stripe account, exposing payment data as callable tools without the dashboard. You can query customers, subscriptions, invoices, disputes, and balance in natural language. The critical first step: create a restricted Stripe API key with minimum permissions. PCI scope and idempotency key behavior mean a full live secret key should never sit in an MCP config file.
 
 
 For a curated list of top servers in this space, see [the best finance MCP servers](/blog/best-mcp-servers-finance-banking).
