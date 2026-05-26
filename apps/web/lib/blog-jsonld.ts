@@ -90,6 +90,26 @@ export function generateBlogPostJsonLd(post: BlogPost): object {
     });
   }
 
+  // Add HowTo when howToSteps present
+  if (post.frontmatter.howToSteps && post.frontmatter.howToSteps.length > 0) {
+    const howToNode: Record<string, unknown> = {
+      '@type': 'HowTo',
+      '@id': `${SITE_URL}/blog/${post.slug}#howto`,
+      name: post.frontmatter.howToName || post.frontmatter.title,
+      description: post.frontmatter.howToDescription || post.frontmatter.description,
+      step: post.frontmatter.howToSteps.map((step, index) => ({
+        '@type': 'HowToStep',
+        position: index + 1,
+        name: step.name,
+        text: step.text,
+      })),
+    };
+    if (post.frontmatter.howToTotalTime) {
+      howToNode.totalTime = post.frontmatter.howToTotalTime;
+    }
+    graph.push(howToNode);
+  }
+
   return { '@context': 'https://schema.org', '@graph': graph };
 }
 

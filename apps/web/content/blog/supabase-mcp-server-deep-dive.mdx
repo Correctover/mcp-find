@@ -17,6 +17,16 @@ category: "databases"
 focusKeyword: "supabase mcp server"
 draft: false
 cornerstone: false
+howToName: "How to Configure the Supabase MCP Server in Claude or Cursor"
+howToDescription: "Connect an AI client to your Supabase project using a personal access token or OAuth 2. Setup takes under three minutes."
+howToTotalTime: "PT3M"
+howToSteps:
+  - name: "Generate a personal access token in Supabase"
+    text: "Log in to app.supabase.com, click your avatar in the top right, go to Account settings, and generate a personal access token. Copy it immediately as it will not be shown again. Alternatively, use the OAuth 2 flow described below to avoid storing a token locally."
+  - name: "Add the server to your MCP config"
+    text: "Open your claude_desktop_config.json (macOS: ~/Library/Application Support/Claude/) and add a mcpServers block with command: npx, args: [-y, @supabase/mcp-server-supabase@latest, --access-token, YOUR_TOKEN]. For Cursor, paste the same block under Settings > MCP Servers. Restart the client after saving."
+  - name: "Confirm the connection"
+    text: "Ask Claude to list your Supabase projects. A successful response returns your project names and regions. If nothing returns, verify the token has not expired and that Node.js 18 or later is installed."
 faqItems:
   - question: "Does the Supabase MCP server work with self-hosted Supabase instances?"
     answer: "Yes. You can point the MCP server at a self-hosted Supabase project by configuring the project URL and service role key. The same 32 tools work against both managed and self-hosted projects."
@@ -39,6 +49,47 @@ On the database side, you get tools for executing SQL queries, designing and mod
 On the project side, tools cover listing and creating Supabase projects, getting cost estimates for new projects, pausing and restoring projects, accessing real-time logs, and managing environment configuration. The combination means a single AI session can both query data and manage the project infrastructure around it.
 
 Supabase also became an official Claude connector, which means it appears in Claude.ai's built-in connector menu alongside other first-party integrations. The local MCP server configuration and the official connector share the same tool surface.
+
+## Complete Tool Inventory: All 32 Supabase MCP Tools
+
+No competing resource publishes a clean enumeration of every tool the Supabase MCP server exposes. The table below covers the full surface, organized by category.
+
+| Tool Name | Category | Purpose | Auth Required |
+|---|---|---|---|
+| `list_projects` | Project | List all Supabase projects in your account | PAT or OAuth |
+| `get_project` | Project | Get configuration, region, and status for a specific project | PAT or OAuth |
+| `create_project` | Project | Provision a new Supabase project | PAT or OAuth |
+| `pause_project` | Project | Pause a project to stop compute billing | PAT or OAuth |
+| `restore_project` | Project | Restore a paused project to active state | PAT or OAuth |
+| `get_project_url` | Project | Get the API URL for a project | PAT or OAuth |
+| `get_anon_key` | Project | Retrieve the anon public key for a project | PAT or OAuth |
+| `get_cost` | Project | Get cost estimate for a new project configuration | PAT or OAuth |
+| `confirm_cost` | Project | Confirm cost acknowledgment before creating a project | PAT or OAuth |
+| `list_organizations` | Project | List organizations associated with your account | PAT or OAuth |
+| `get_organization` | Project | Get details for a specific organization | PAT or OAuth |
+| `get_logs` | Project | Retrieve real-time logs from a project | PAT or OAuth |
+| `execute_sql` | Database | Run a raw SQL query against a project's database | PAT or OAuth |
+| `list_tables` | Database | List tables and views in the database | PAT or OAuth |
+| `list_extensions` | Database | List installed PostgreSQL extensions | PAT or OAuth |
+| `list_migrations` | Database | List applied database migrations | PAT or OAuth |
+| `apply_migration` | Database | Apply a SQL migration to the database | PAT or OAuth |
+| `get_advisors` | Database | Get security and performance advisory recommendations | PAT or OAuth |
+| `generate_typescript_types` | Database | Generate TypeScript type definitions from the current schema | PAT or OAuth |
+| `create_branch` | Branch | Create a database branch (preview environment) | PAT or OAuth |
+| `list_branches` | Branch | List all database branches for a project | PAT or OAuth |
+| `delete_branch` | Branch | Delete a database branch | PAT or OAuth |
+| `merge_branch` | Branch | Merge a branch's migrations into the main database | PAT or OAuth |
+| `reset_branch` | Branch | Reset a branch to its base migration state | PAT or OAuth |
+| `rebase_branch` | Branch | Rebase a branch on top of the latest main migrations | PAT or OAuth |
+| `list_edge_functions` | Functions | List deployed Edge Functions for a project | PAT or OAuth |
+| `deploy_edge_function` | Functions | Deploy a new or updated Edge Function | PAT or OAuth |
+| `get_function_body` | Functions | Retrieve the source code of a deployed Edge Function | PAT or OAuth |
+| `delete_edge_function` | Functions | Delete a deployed Edge Function | PAT or OAuth |
+| `create_secret` | Secrets | Create a new Vault secret for a project | PAT or OAuth |
+| `list_secrets` | Secrets | List secret names stored in Vault (values not returned) | PAT or OAuth |
+| `delete_secret` | Secrets | Delete a Vault secret | PAT or OAuth |
+
+All 32 tools require a valid personal access token or an active OAuth 2 session. The service role key referenced elsewhere in this guide applies to direct database connections, not to the MCP server authentication layer. Tool availability may vary slightly by server version.
 
 ## How Do You Configure the Supabase MCP Server in Claude and Cursor?
 

@@ -3,7 +3,7 @@ title: "Playwright MCP Server: Automated Browser Testing With AI"
 description: "Connect AI agents to real browsers with Microsoft's Playwright MCP server. Uses the accessibility tree for 25+ automation tools, no vision model required."
 excerpt: "Microsoft's Playwright MCP server exposes 25+ browser automation tools to AI agents using the accessibility tree rather than screenshots. MCPFind indexes 82 testing servers. This guide covers setup, tool reference, and practical development use cases."
 date: "2026-05-15"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-26"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -18,6 +18,16 @@ category: "testing"
 focusKeyword: "playwright mcp server"
 draft: false
 cornerstone: false
+howToName: "How to Install and Configure the Playwright MCP Server"
+howToDescription: "Add Microsoft's Playwright MCP server to Claude Desktop or Cursor in three steps. Requires Node.js."
+howToTotalTime: "PT5M"
+howToSteps:
+  - name: "Add Playwright MCP to your config file"
+    text: "Open your claude_desktop_config.json (macOS: ~/Library/Application Support/Claude/) and add a mcpServers block with command: npx and args: [@playwright/mcp@latest]. For Cursor, open Settings > MCP Servers and paste the same block."
+  - name: "Configure browser mode"
+    text: "For headed mode (browser window visible during execution), add --headed to the args array. For a specific browser engine, add --browser and firefox or --browser and webkit as additional args."
+  - name: "Verify the connection"
+    text: "Open Claude Desktop or Cursor and ask it to take a browser snapshot of a URL. A successful response returns the page's accessibility tree. If no response arrives, check that Node.js is installed and restart the client."
 faqItems:
   - question: "Does the Playwright MCP server require a browser to already be running?"
     answer: "No. The server launches a browser instance automatically when it receives its first tool call. You can configure whether it uses headless or headed mode in the server settings."

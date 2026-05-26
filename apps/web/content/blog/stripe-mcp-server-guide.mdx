@@ -18,6 +18,16 @@ category: "finance"
 focusKeyword: "stripe mcp server"
 draft: false
 cornerstone: false
+howToName: "How to Install the Stripe MCP Server with a Restricted API Key"
+howToDescription: "Connect Claude or Cursor to your Stripe account using the official Stripe MCP server. Takes under five minutes."
+howToTotalTime: "PT5M"
+howToSteps:
+  - name: "Create a restricted Stripe API key"
+    text: "In the Stripe dashboard, go to Developers > API Keys > Create restricted key. Select only the resource permissions your workflow needs. For read-only lookup workflows, enable read access for customers, subscriptions, invoices, and disputes. Do not use your full live secret key."
+  - name: "Add the server to your MCP config"
+    text: "Open your claude_desktop_config.json and add a mcpServers block with command: npx, args: [-y, @stripe/mcp, --api-key, YOUR_RESTRICTED_KEY]. For Cursor, paste the same block under Settings > MCP Servers. Restart the client after saving."
+  - name: "Test with a read query"
+    text: "Ask Claude to list your 5 most recent Stripe customers. A successful response confirms the connection and key permissions are working. If you see an authorization error, verify the restricted key has read access to the customers resource in the Stripe dashboard."
 faqItems:
   - question: "Does the Stripe MCP server support write operations or only read?"
     answer: "It supports both. You can create customers, trigger refunds, and update subscription data. Use restricted API keys to limit the server to read-only access if that is all your workflow requires."

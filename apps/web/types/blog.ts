@@ -15,6 +15,10 @@ export interface BlogFrontmatter {
   draft?: boolean;
   noindex?: boolean;
   faqItems?: Array<{ question: string; answer: string }>;
+  howToSteps?: Array<{ name: string; text: string }>;
+  howToName?: string;
+  howToDescription?: string;
+  howToTotalTime?: string;
   cornerstone?: boolean;
 }
 
