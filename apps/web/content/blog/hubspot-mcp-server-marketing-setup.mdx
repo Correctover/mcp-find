@@ -1,9 +1,9 @@
 ---
-title: "HubSpot MCP Server: Full Setup Guide for Marketing Teams"
-description: "Connect HubSpot to Claude with three setup paths: HubSpot CLI, npm package, or no-code connector. Covers permissions, use cases, and CRM MCP alternatives."
+title: "HubSpot MCP Server: Give Your AI Assistant Real-Time CRM Access for Sales Automation"
+description: "Connect HubSpot to Claude or Cursor for real-time CRM access. Query contacts, update deals, and pull pipeline reports with plain-language prompts. Three setup paths compared."
 excerpt: "The HubSpot MCP server gives Claude and Cursor live access to your CRM data, letting you query contacts, update deals, and pull pipeline reports without leaving your AI workflow. Three setup paths exist depending on your comfort with the terminal."
 date: "2026-05-13"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-26"
 author: "Adam Bush"
 authorUrl: "https://www.linkedin.com/in/adam-bush/"
 authorSameAs:
@@ -28,7 +28,7 @@ faqItems:
     answer: "HubSpot publishes a separate developer MCP server for local development tasks like app scaffolding and CLI-based project setup. It is distinct from the CRM data server this guide covers."
 ---
 
-If you want to ask Claude "list all contacts who became a marketing qualified lead last week" and get a live answer from your actual HubSpot account, the HubSpot MCP server makes that possible. The server connects your CRM directly to any Model Context Protocol client, including Claude Desktop and Cursor. MCPFind indexes 15 servers in the [CRM category](/categories/crm), and HubSpot is one of the few with a first-party setup path. This guide walks through all three installation options, how to scope permissions for safe use, and the practical workflows marketing and sales teams are getting value from today.
+The HubSpot MCP server connects Claude, Cursor, and any MCP-compatible AI client directly to your CRM, giving salespeople and RevOps leads live data without the dashboard. Ask for pipeline stage breakdowns, pull contacts by lifecycle status, update deal records, or generate follow-up drafts from deal notes, all in plain language. Three setup paths exist: the HubSpot CLI (fastest for developers), an npm package (most control over permission scopes), and the no-code Claude Connector (no terminal required). HubSpot was among the first CRM platforms in the MCP registry, which means the tooling is stable and the documentation is complete. This guide walks through all three paths, permission scoping, and the sales automation workflows teams are running today.
 
 ## What Does the HubSpot MCP Server Do With Your CRM Data?
 
