@@ -3,7 +3,7 @@ title: "Stripe MCP Server Security: Restricted API Keys, OAuth, and Prompt Injec
 description: "Set up the Stripe MCP server safely. Covers restricted API key scoping, OAuth considerations, prompt injection risks, and PCI scope implications for Claude and Cursor."
 excerpt: "The Stripe MCP server connects Claude and Cursor to your Stripe account, exposing payment data as callable tools. We cover installation, API key scoping, available payment operations, and security practices to keep production access locked down."
 date: "2026-05-11"
-updatedAt: "2026-05-26"
+updatedAt: "2026-05-27"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -41,7 +41,7 @@ faqItems:
     answer: "Yes. The server uses stdio transport, which is compatible with Claude Desktop, Cursor, Claude Code, and any MCP client that supports local server processes."
 ---
 
-The Stripe MCP server gives Claude, Cursor, and other AI tools direct access to your Stripe account: customers, subscriptions, invoices, disputes, and balance through plain-language prompts. The security setup matters as much as the config. A restricted API key with minimum permissions is the baseline. Prompt injection through malicious page content is a real vector when the AI also browses the web. PCI scope extends to any system where your live secret key sits at rest, including your MCP config file. This guide covers installation, API key scoping, OAuth considerations, and the audit steps most setup guides skip.
+The Stripe MCP server gives Claude, Cursor, and other AI tools direct access to your Stripe account through plain-language prompts. Security setup matters as much as configuration. A restricted API key with minimum permissions is the baseline. Prompt injection through malicious page content is a real vector. PCI scope extends to any system where a live secret key sits at rest. This guide covers installation, key scoping, OAuth, and audit steps most setup guides skip.
 
 
 For a curated list of top servers in this space, see [the best finance MCP servers](/blog/best-mcp-servers-finance-banking).

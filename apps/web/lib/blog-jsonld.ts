@@ -91,20 +91,23 @@ export function generateBlogPostJsonLd(post: BlogPost): object {
   }
 
   // Add HowTo when howToSteps present
+  const ISO_8601_DURATION = /^P(?!$)(?:\d+Y)?(?:\d+M)?(?:\d+W)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+S)?)?$/;
   if (post.frontmatter.howToSteps && post.frontmatter.howToSteps.length > 0) {
     const howToNode: Record<string, unknown> = {
       '@type': 'HowTo',
       '@id': `${SITE_URL}/blog/${post.slug}#howto`,
+      url: `${SITE_URL}/blog/${post.slug}`,
       name: post.frontmatter.howToName || post.frontmatter.title,
       description: post.frontmatter.howToDescription || post.frontmatter.description,
-      step: post.frontmatter.howToSteps.map((step, index) => ({
-        '@type': 'HowToStep',
-        position: index + 1,
-        name: step.name,
-        text: step.text,
-      })),
+      step: post.frontmatter.howToSteps
+        .filter(s => s.name?.trim() && s.text?.trim())
+        .map(step => ({
+          '@type': 'HowToStep',
+          name: step.name,
+          text: step.text,
+        })),
     };
-    if (post.frontmatter.howToTotalTime) {
+    if (post.frontmatter.howToTotalTime && ISO_8601_DURATION.test(post.frontmatter.howToTotalTime)) {
       howToNode.totalTime = post.frontmatter.howToTotalTime;
     }
     graph.push(howToNode);
