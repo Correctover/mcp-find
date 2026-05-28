@@ -46,14 +46,26 @@ import {
   IconMapPin,
 } from "@tabler/icons-react";
 
-export const metadata: Metadata = {
-  title: "MCPFind — Open-Source MCP Server Directory",
-  description:
-    "Browse, search, and install 3,300+ verified MCP servers across 21 categories. One-click configs for Claude Desktop, Cursor, VS Code, Windsurf, and GitHub Copilot.",
-  alternates: {
-    canonical: "https://mcpfind.org",
-  },
-};
+// Static metadata — description uses a conservative number to avoid drift.
+// The live serverCount from Supabase is shown dynamically in the hero section.
+export async function generateMetadata(): Promise<Metadata> {
+  let serverCount = 0;
+  try {
+    serverCount = await getServerCount();
+  } catch {
+    // Supabase not available during build — fall back to empty (filtered out below)
+  }
+  const countStr = serverCount > 0
+    ? `${serverCount.toLocaleString()}+`
+    : "2,000+";
+  return {
+    title: "MCPFind — Open-Source MCP Server Directory",
+    description: `Browse, search, and install ${countStr} MCP servers across the ecosystem. One-click configs for Claude Desktop, Cursor, VS Code, Windsurf, and GitHub Copilot.`,
+    alternates: {
+      canonical: "https://mcpfind.org",
+    },
+  };
+}
 
 const categoryIconMap: Record<string, React.ReactNode> = {
   databases: <IconDatabase size={20} className="text-blue-400" />,

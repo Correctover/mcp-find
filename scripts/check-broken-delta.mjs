@@ -114,7 +114,21 @@ if (delta > ABSOLUTE_THRESHOLD || deltaPercent > PERCENT_THRESHOLD) {
   process.exit(1);
 }
 
+// --- Total-entries shrinkage gate ---
+// Catches accidental mass-deletes that would slip past the BROKEN-delta check.
+const TOTAL_DELTA_THRESHOLD_PERCENT = 30;
+const totalDelta = Math.abs(currentTotal - expectedTotal);
+const totalDeltaPercent = (totalDelta / expectedTotal) * 100;
+
+if (totalDeltaPercent > TOTAL_DELTA_THRESHOLD_PERCENT) {
+  console.error(`[gate] FAIL: total entries delta ${totalDeltaPercent.toFixed(2)}% exceeds ${TOTAL_DELTA_THRESHOLD_PERCENT}% threshold`);
+  console.error(`Expected ~${expectedTotal}, got ${currentTotal} (delta ${currentTotal > expectedTotal ? '+' : '-'}${totalDelta})`);
+  console.error(`If this is intentional (e.g., deliberate cleanup), bump expected_total in broken-count.json baseline`);
+  process.exit(1);
+}
+
 console.log(
   `OK: BROKEN-delta check passed. ` +
-  `BROKEN: ${currentBroken} (expected ${expectedBroken}, delta ${delta}).`
+  `BROKEN: ${currentBroken} (expected ${expectedBroken}, delta ${delta}). ` +
+  `Total entries: ${currentTotal} (expected ~${expectedTotal}, delta ${totalDelta}, ${totalDeltaPercent.toFixed(2)}%).`
 );
