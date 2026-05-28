@@ -124,7 +124,7 @@ export async function RelatedServersForCategory({
             <div
               key={server.slug}
               className={wrapperOpacity}
-              data-conversion="related_servers_click"
+              data-conversion="blog_to_servers_click"
               data-source={currentSlug ?? ""}
               data-target={server.slug}
               data-category={category}
