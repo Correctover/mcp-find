@@ -46,6 +46,10 @@ import {
   IconMapPin,
 } from "@tabler/icons-react";
 
+// Fallback displayed when Supabase count is unavailable (e.g., at build time).
+// 2,000+ is the most conservative number — least likely to overstate.
+const FALLBACK_SERVER_COUNT_DISPLAY = "2,000+";
+
 // Static metadata — description uses a conservative number to avoid drift.
 // The live serverCount from Supabase is shown dynamically in the hero section.
 export async function generateMetadata(): Promise<Metadata> {
@@ -57,7 +61,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }
   const countStr = serverCount > 0
     ? `${serverCount.toLocaleString()}+`
-    : "2,000+";
+    : FALLBACK_SERVER_COUNT_DISPLAY;
   return {
     title: "MCPFind — Open-Source MCP Server Directory",
     description: `Browse, search, and install ${countStr} MCP servers across the ecosystem. One-click configs for Claude Desktop, Cursor, VS Code, Windsurf, and GitHub Copilot.`,
@@ -132,7 +136,7 @@ export default async function HomePage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
             </span>
-            Now featuring {serverCount > 0 ? `${serverCount.toLocaleString()}+` : "500+"} verified MCP servers
+            Now featuring {serverCount > 0 ? `${serverCount.toLocaleString()}+` : FALLBACK_SERVER_COUNT_DISPLAY} verified MCP servers
           </div>
 
           {/* Headline */}
@@ -174,7 +178,7 @@ export default async function HomePage() {
           <div className="flex flex-wrap justify-center gap-x-12 gap-y-4 text-sm">
             <div className="flex flex-col items-center">
               <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-                {serverCount > 0 ? `${serverCount.toLocaleString()}+` : "500+"}
+                {serverCount > 0 ? `${serverCount.toLocaleString()}+` : FALLBACK_SERVER_COUNT_DISPLAY}
               </span>
               <span className="text-neutral-500 mt-1">Verified MCP Servers</span>
             </div>

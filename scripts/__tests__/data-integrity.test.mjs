@@ -16,6 +16,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { QUALITY_STATUS_VALUES } from "../../packages/shared/dist/types.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -24,7 +25,7 @@ const repoRoot = join(__dirname, "..", "..");
 const qualityMapPath = join(repoRoot, "apps", "web", "data", "quality-status-map.json");
 const snapshotPath = join(repoRoot, ".build-state", "broken-count.json");
 
-const VALID_STATUSES = new Set(["HEALTHY", "STALE", "BROKEN", "LOW-CREDIBILITY"]);
+const VALID_STATUSES = new Set(QUALITY_STATUS_VALUES);
 
 let qualityMap;
 let snapshot;
@@ -46,6 +47,13 @@ const totalEntries = entries.length;
 const expectedTotal = snapshot.total_entries;
 
 describe("data-integrity: quality-status-map.json", () => {
+  it("VALID_STATUSES matches QUALITY_STATUS_VALUES canonical enum", () => {
+    expect(VALID_STATUSES.size).toBe(QUALITY_STATUS_VALUES.length);
+    for (const v of QUALITY_STATUS_VALUES) {
+      expect(VALID_STATUSES.has(v)).toBe(true);
+    }
+  });
+
   it("has no BROKEN entries (post-cleanup invariant)", () => {
     const broken = entries.filter(([, status]) => status === "BROKEN");
     if (broken.length > 0) {
