@@ -39,7 +39,7 @@ export async function generateMetadata({
       robots: { index: false, follow: false },
     }),
     alternates: {
-      canonical: `/blog/${post.slug}`,
+      canonical: `${SITE_URL}/blog/${post.slug}`,
     },
     openGraph: {
       title: post.frontmatter.title,

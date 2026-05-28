@@ -1,6 +1,7 @@
 import { getAllPosts } from "@/lib/blog";
 import { generateBlogIndexJsonLd } from "@/lib/blog-jsonld";
 import { safeJsonLd } from "@/lib/json-ld";
+import { SITE_URL } from "@mcpfind/shared";
 import { Navbar } from "@/components/ui/navbar";
 import { PostCard } from "@/components/blog/post-card";
 import { BlogCategoryFilter } from "@/components/blog/blog-category-filter";
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
   description:
     "Guides, tutorials, and analysis on MCP servers and the Model Context Protocol. Learn how to connect AI assistants to your tools and data.",
   alternates: {
-    canonical: "/blog",
+    canonical: `${SITE_URL}/blog`,
     types: {
       "application/rss+xml": "/blog/feed.xml",
     },
