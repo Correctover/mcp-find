@@ -1,0 +1,273 @@
+---
+title: "Best Search MCP Servers for Web Research in 2026"
+description: "MCPFind indexes 433 search MCP servers as of May 2026. For web research specifically, the HEALTHY-tier picks are Exa MCP (thousands of stars), Brave Search MCP (~825 stars), SerpAPI MCP, One Search MCP, and Perplexity Search MCP. Compared on result freshness, source breadth, citation handling, free tier availability, and structured output shape for agent workflows in 2026."
+focusKeyword: "best search mcp servers for web research"
+category: "search"
+author: "Gus Marquez"
+authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
+authorSameAs:
+  - "https://www.linkedin.com/in/gustavoamarquez"
+cluster: "search-listicle"
+date: "2026-05-28"
+publishedAt: "2026-05-28"
+updatedAt: "2026-05-28"
+tags:
+  - "mcp"
+  - "search"
+  - "web-research"
+  - "exa"
+  - "brave-search"
+  - "agent-research"
+draft: false
+cornerstone: false
+faqItems:
+  - question: "What is the difference between a web research MCP server and a web scraping server?"
+    answer: "A web research server calls a search API and returns ranked results for a query: titles, URLs, snippets, and sometimes full page content. A scraping server fetches the full content of a specific URL you already know. Most research workflows use both in sequence: run a search to find the best sources, then scrape the top results for full context."
+  - question: "Which search MCP server has the best free tier for getting started?"
+    answer: "Brave Search MCP offers 2,000 free queries per month with no credit card required. That is enough for most personal research workflows and agent prototyping. Exa provides a free tier as well, though its pricing scales with usage volume. SerpAPI has a free trial with limited results per search."
+  - question: "Do any search MCP servers return citations alongside results?"
+    answer: "Exa MCP returns structured results with source URLs, publication dates, and author metadata, making citation extraction straightforward. Brave Search MCP includes source URLs in every result. SerpAPI returns detailed SERP metadata including featured snippets, knowledge panels, and related questions that can serve as citation context."
+  - question: "Can search MCP servers access recent news, not just indexed web pages?"
+    answer: "Yes, with caveats. Brave Search indexes live news and returns recent results without significant caching lag. Exa offers a date filter on results, letting you narrow to content published within a specific time window. SerpAPI can query Google News directly as a separate endpoint. Perplexity Search synthesizes an AI answer from recent sources but summarizes rather than returning raw results."
+  - question: "Does the official Tavily MCP server work with Claude Desktop?"
+    answer: "Tavily's official MCP server entry in the MCPFind directory is classified as STALE as of May 2026, meaning it has not received a commit in the prior 90 days. Community-maintained Tavily wrappers exist on GitHub, but the official server is not in the HEALTHY tier. Check the Tavily GitHub repository directly for the current maintenance status before using it in a production pipeline."
+howToSteps:
+  - name: "Pick your primary search backend"
+    text: "Choose Brave Search MCP if you want a free tier with no credit card, Exa MCP if you need semantic or neural search with date filtering, or SerpAPI MCP if you need structured SERP data (featured snippets, knowledge panels, related questions) alongside results."
+  - name: "Get an API key from your chosen provider"
+    text: "Sign up at search.brave.com/api (Brave), exa.ai (Exa), or serpapi.com (SerpAPI), create a free or paid key, and copy it before editing any config file."
+  - name: "Add the server config block to your MCP client"
+    text: "Paste the JSON config into ~/Library/Application Support/Claude/claude_desktop_config.json for Claude Desktop, or .cursor/mcp.json for Cursor, filling in your API key in the env block."
+  - name: "Restart the MCP client and verify with a test query"
+    text: "After restarting the client, ask the agent a question that requires current information, such as a recent news headline, and confirm the server returns live results before using it in a real research workflow."
+howToName: "How to set up a web research MCP server for Claude"
+howToDescription: "Step-by-step guide for selecting and configuring a web search MCP server in Claude Desktop or Cursor for live research and agent workflows."
+howToTotalTime: "PT10M"
+---
+
+The [MCPFind search category](/categories/search) indexes 433 servers as of May 2026. Most of them are thin wrappers around a single search API, which makes the category look crowded but the real choice narrower. For web research specifically -- giving an AI agent the ability to pull current events, verify claims across multiple sources, or research a company before a meeting -- the HEALTHY-tier options that hold up to scrutiny are fewer than the total count suggests. Exa MCP leads by star count in this segment (tens of thousands of stars), followed by Brave Search MCP (~825 stars). Below those two, SerpAPI MCP, One Search MCP, and Perplexity Search MCP cover the remaining patterns: structured SERP data, multi-engine aggregation, and AI-synthesized answers. One notable absence: Tavily's official MCP server is STALE in the directory as of May 2026, which is worth knowing before you factor it into a stack decision.
+
+## Selection Criteria
+
+Three filters shaped the candidate list. First, HEALTHY classification in the MCPFind quality audit: 50+ GitHub stars (or vendor-official status) and a commit within the prior 90 days. Second, the server had to perform live web research, meaning it hits a search API or search engine index at query time rather than returning cached private corpus data. Internal document search servers are covered in a separate listicle (Topic 93). Third, the transport and auth model had to be documented well enough to configure without guesswork. Star counts come from the MCPFind directory snapshot on May 20, 2026. The comparison table uses a search-specific column set: Free Tier replaces Read/Write (all search servers are read-only by nature), and Citations replaces Price to surface the structured output shape.
+
+## Comparison Table
+
+| Server | Stars | Source | Free Tier | Citations | Best for |
+|---|---|---|---|---|---|
+| Exa MCP | tens of thousands | Neural / web index | Yes (limited) | Yes | Semantic queries, date-filtered research |
+| Brave Search MCP | ~825 | Brave index | Yes (2K/mo) | Partial | Privacy-first, no-credit-card start |
+| SerpAPI MCP | low hundreds | Google SERP | Trial only | Yes (rich) | Structured SERP data, featured snippets |
+| One Search MCP | low hundreds | Multi-engine | Depends on backend | Partial | Aggregated results across engines |
+| Perplexity Search MCP | low hundreds | AI-synthesized | Limited | Summarized | AI-answer workflows, not raw results |
+
+## Exa MCP
+
+Exa (github.com/exa-labs/exa-mcp-server, slug `ai-exa-exa`) is the highest-starred dedicated web research server in the MCPFind search category, and the gap between it and everything else in this segment is significant. The product behind it is a search engine built specifically for AI agents. Where traditional keyword search optimizes for web browsers scanning a list of blue links, Exa uses a neural index that understands semantic similarity between a query and a document. That difference is meaningful when the agent's question is conceptual rather than keyword-based: "what are experts saying about autonomous agent evaluation" returns more relevant results from Exa than from a standard keyword engine.
+
+The MCP surface exposes three primary tools. `search` accepts a natural-language query and returns ranked results with URLs, titles, snippets, and publication dates. `get_contents` fetches the full page content for one or more URLs from a prior search result, handling the common two-step pattern of searching first and then fetching the best hit. `find_similar` takes a URL and returns semantically similar pages, which is useful when a research workflow starts with one good source and needs to find related material. The date filtering parameter on `search` narrows results to a specific publication window, which is the feature I reach for most on time-sensitive queries.
+
+Exa is the right call when the question is hard to express as a keyword string. Multi-source synthesis ("summarize recent coverage on X"), semantic lookup ("find papers arguing against Y"), or research that needs results ranked by meaning rather than link popularity. It's also the better fit for citation-required workflows because the returned metadata includes publication dates, not just URLs. Teams building agent pipelines where the search layer needs to be reliable and the results need to be citable will find Exa's structured output cleaner to parse than most alternatives.
+
+Skip it if you need completely free, unlimited queries. Exa's free tier is generous for prototyping but metered for production. Teams that just need to verify a fact occasionally or run occasional news lookups may find Brave Search's free tier sufficient for their volume without hitting any billing. Exa also doesn't surface SERP features like featured snippets or knowledge panels, which matters if you are building an agent that needs to extract structured answers rather than full document content.
+
+Tens of thousands of GitHub stars (MCPFind directory snapshot, May 2026). Last commit active through early 2026. MIT license. Official server maintained by the Exa team. See the [Exa docs](https://docs.exa.ai) for current API key setup.
+
+### Setup Snippet
+
+```json
+{
+  "mcpServers": {
+    "exa": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-exa"],
+      "env": {
+        "EXA_API_KEY": "your-exa-api-key"
+      }
+    }
+  }
+}
+```
+
+Confirm the package name against the [Exa MCP GitHub repository](https://github.com/exa-labs/exa-mcp-server) before running, as install paths can shift between releases.
+
+---
+
+## Brave Search MCP
+
+Brave Search (github.com/brave/brave-search-mcp-server, slug `io-github-brave-brave-search-mcp-server`) is the most common starting point for developers adding web search to a Claude setup, and the reason is the free tier. Two thousand queries per month, no credit card required. For most personal research workflows, that's enough to run the server for months without ever hitting a billing event. Brave maintains its own search index independently of Google, which makes its results both privacy-preserving and genuinely distinct from what you'd get from a Google-backed API. Results can differ meaningfully on niche technical topics.
+
+The tool surface is straightforward: a `brave_web_search` tool that accepts a query string and returns ranked web results with titles, descriptions, and source URLs. Brave also exposes a `brave_local_search` tool for location-aware queries, which is useful if the agent needs to surface business listings or local results alongside general web results. The `count` parameter controls how many results come back, and the `offset` parameter supports pagination for agents that need to scan beyond the first page. Response format is JSON with consistent field names, making it easy to parse in downstream steps.
+
+This is the server to reach for when cost is the primary constraint and the queries are mostly keyword-searchable. News lookups, current pricing, public API documentation, recent GitHub releases -- anything where a standard keyword search engine would return the right result -- all work well here. Brave's index is comprehensive for English-language content and reasonably fast on common web queries. Teams that need live search in a Claude setup but don't want to think about billing until they have a clear production use case should start here.
+
+Where Brave falls short is on semantic or conceptual queries. It is a keyword search engine with a privacy-preserving index, not a neural retrieval system. Queries like "find documents arguing that X is underrated" or "what are the strongest critiques of Y" don't play to its strengths the way they do to Exa's. The free tier also caps at 2,000 queries per month across all usage, which is a hard limit rather than a soft throttle.
+
+~825 stars (MCPFind directory snapshot, May 2026). Official server maintained by Brave Software. Active maintenance signal with commits through early 2026. Apache 2.0 license. Free tier: 2,000 queries/month at search.brave.com/api.
+
+### Setup Snippet
+
+```json
+{
+  "mcpServers": {
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "your-brave-api-key"
+      }
+    }
+  }
+}
+```
+
+Get your API key at [search.brave.com/app/api](https://search.brave.com/app/api). The free plan requires account creation but no payment method.
+
+---
+
+## SerpAPI MCP
+
+SerpAPI (github.com/serpapi/serpapi-mcp, slug `io-github-serpapi-serpapi-mcp`) takes a different angle from Exa and Brave. Instead of returning ranked web results, it returns the full structure of a Google search results page: organic results, featured snippets, knowledge panels, related questions, and image results. That structured SERP data is the distinctive capability here. If an agent's research workflow needs to know not just what pages rank for a query but what Google's featured snippet says -- or what the knowledge panel for an entity contains -- SerpAPI surfaces those structures as typed fields in the response.
+
+The tools exposed map to SerpAPI's underlying endpoints. The primary `search` tool queries Google and returns a structured SERP object where different result types are keyed separately: organic results in one list, knowledge graph data in another, related questions in a third. Agents that need to extract a direct answer to a factual question often find the featured snippet field more reliable than parsing arbitrary page content. SerpAPI also supports querying Google News, Google Images, and Google Shopping as separate endpoints, which expands the server's utility beyond general web search into category-specific research.
+
+Reach for SerpAPI when the research task requires structured metadata about search results rather than just the content of those results. Competitive research workflows that need to understand what surfaces for a brand query. Content gaps analysis that checks which questions appear in "People Also Ask" for a topic. Citation workflows that want to pull the authoritative source Google features for a query rather than choosing from a ranked list. SerpAPI is the right pick for these cases in a way that pure content search servers aren't.
+
+The main limitation is cost. SerpAPI's free trial gives a limited number of searches, and production usage requires a paid plan that gets expensive at volume. For teams that just need to search the web for agent research tasks, the pricing is harder to justify than Brave's free tier or Exa's usage-based billing. The server also introduces a Google dependency, which matters for teams in environments where Google API usage is restricted.
+
+Star count in the low hundreds (MCPFind directory snapshot, May 2026). Official server maintained by the SerpAPI team. Active development through early 2026. MIT license. See [serpapi.com](https://serpapi.com) for current pricing and API key registration.
+
+### Setup Snippet
+
+```json
+{
+  "mcpServers": {
+    "serpapi": {
+      "command": "npx",
+      "args": ["-y", "serpapi-mcp"],
+      "env": {
+        "SERPAPI_API_KEY": "your-serpapi-key"
+      }
+    }
+  }
+}
+```
+
+Confirm the exact package name and startup command from the [SerpAPI MCP GitHub repository](https://github.com/serpapi/serpapi-mcp) before configuring, as CLI flags may differ between versions.
+
+---
+
+## One Search MCP
+
+One Search MCP (github.com/yokingma/one-search-mcp, slug `io-github-yokingma-one-search-mcp`) takes the aggregator approach: instead of routing queries to a single search API, it can connect to multiple backends and merge the results. The supported backends include Bing, SearXNG, Google Custom Search, and DuckDuckGo, among others. You configure which ones are active and the server fans the query out across them. The rationale is coverage: different engines rank and index content differently, and a result that doesn't surface on one may appear clearly on another.
+
+The tool surface centers on a unified `search` call that returns aggregated results from whichever backends are configured. The response includes source attribution per result, so the agent can see which engine surfaced each item. That metadata matters when the agent is doing multi-source verification: if the same claim appears in results from both Bing and DuckDuckGo, that's a stronger confirmation signal than if it came from a single engine. The server also exposes per-engine calls for cases where the agent wants to query only a specific backend in a given step.
+
+This server fits research workflows where coverage matters more than precision. Checking whether a piece of information appears across multiple independent search indexes, not just ranking well on one. Workflows in environments where a specific commercial search API isn't available or isn't approved. Teams that use SearXNG as a privacy-preserving search proxy and want that backend exposed through MCP. The aggregator pattern also provides some resilience against API rate limits: if one backend is throttled, the query still gets results from the others.
+
+One Search MCP requires more configuration than the single-API servers. You need to set up credentials for each backend you want active, and the result quality depends on which backends you choose and how they are tuned. For teams that want to just point at a single API key and go, the setup overhead is higher than Brave or Exa. The aggregated results also take longer to return than a single-API call, which matters in latency-sensitive pipelines.
+
+Star count in the low hundreds (MCPFind directory snapshot, May 2026). Community-maintained, with active commits through early 2026. License: check the [GitHub repository](https://github.com/yokingma/one-search-mcp) for current terms before production use.
+
+### Setup Snippet
+
+One Search MCP requires backend-specific configuration. A minimal setup using the Bing backend:
+
+```json
+{
+  "mcpServers": {
+    "one-search": {
+      "command": "npx",
+      "args": ["-y", "one-search-mcp"],
+      "env": {
+        "BING_API_KEY": "your-bing-api-key"
+      }
+    }
+  }
+}
+```
+
+See the [One Search MCP README](https://github.com/yokingma/one-search-mcp) for the full list of supported backends and their environment variables. Confirm the package name before running.
+
+---
+
+## Perplexity Search MCP
+
+Perplexity Search MCP (slug `ai-smithery-arjunkmrm-perplexity-search`) connects an agent to Perplexity's AI-powered search API, which works differently from every other server in this list. Instead of returning a ranked list of URLs and snippets, Perplexity returns an AI-generated answer synthesized from recent web sources, with citations embedded in the response. The distinction matters: this server is better described as an AI research assistant API than a traditional search engine. The raw search results don't come back. The synthesized answer does.
+
+The tool the server exposes calls the Perplexity API with a query string and returns a text response in the form of a generated answer. Citations appear as numbered references within the response, and the sources backing those citations are included as a separate list. The model Perplexity uses internally determines how current the underlying sources are and how well the synthesis handles ambiguous or contested topics. For research questions where the agent wants a concise expert answer with sourcing, this can cut the number of tool calls needed compared to fetching and parsing multiple raw pages.
+
+The right use case is summarization-first research: "What is the current state of research on X?" or "What do experts say about Y right now?" workflows where the agent wants a synthesized take on a topic rather than a list of URLs to inspect. It's also useful for time-pressed workflows where the agent needs a cited answer quickly rather than a thorough multi-source analysis. The citation structure makes it possible to extract sources for follow-up, even though the full text of those sources isn't returned.
+
+Skip it for workflows that require raw result inspection. If an agent needs to read the actual content of specific pages -- to verify a claim, extract a table, or check exact wording -- this server doesn't expose that. Perplexity returns its own synthesis. Teams that need to audit exactly what sources were used and what they say verbatim will find the raw search servers more transparent. There's also an API cost: the Perplexity API is paid, with no meaningful free tier at production volume.
+
+Star count in the low hundreds (MCPFind directory snapshot, May 2026). Community-maintained implementation. Active maintenance as of early 2026. Check the [Smithery listing](https://smithery.ai/server/ai-smithery-arjunkmrm-perplexity-search) for current install details and the Perplexity API docs for key registration.
+
+### Setup Snippet
+
+Install details vary by the community wrapper version. Check the current Smithery listing or GitHub source for the exact package name and startup command. The pattern follows a standard stdio server:
+
+```json
+{
+  "mcpServers": {
+    "perplexity-search": {
+      "command": "npx",
+      "args": ["-y", "perplexity-search-mcp"],
+      "env": {
+        "PERPLEXITY_API_KEY": "your-perplexity-api-key"
+      }
+    }
+  }
+}
+```
+
+Verify the package name and env variable names against the source repository before saving to your config.
+
+---
+
+## How to Choose: Decision Framework
+
+Start with what kind of output the research workflow actually needs. If the agent is going to synthesize, cite, or verify information from multiple web sources, raw results with source URLs are the right shape. Exa and Brave both return that format. If the agent wants a pre-synthesized answer with citations embedded, Perplexity is the faster path. And if the workflow needs to extract structured SERP metadata -- featured snippets, knowledge panels, related questions -- SerpAPI is the only server here that surfaces those structures.
+
+For teams starting fresh, the free-tier decision matters. Brave Search's 2,000 free monthly queries require no credit card and no billing discussion. That makes it the lowest-friction entry point for prototyping or personal use. Once the volume or query complexity outgrows Brave's free tier, Exa's neural search and date filtering justify its pricing for most research-heavy workflows. The upgrade path is natural: swap in Exa when you need semantic queries or structured metadata on results, keep Brave alongside it for cost-efficient keyword lookups.
+
+Citation requirements change the calculus. For workflows that need to surface a source URL and publication date alongside every result -- research agents writing reports, agents verifying claims before presenting them to a user -- Exa's metadata returns are the cleanest. SerpAPI's featured snippet and knowledge panel fields are useful for direct-answer extraction but aren't a substitute for full source attribution. Perplexity provides summarized citations that work for general research but are less auditable than raw URL-plus-date metadata.
+
+One server worth noting that doesn't appear in this list: Airweave Search (6,092 stars), which was covered in depth in the [databases listicle for vector and RAG stacks](/blog/best-databases-mcp-servers-vector-rag-stacks). Airweave handles multi-source retrieval from private and connected data sources, not live web search. If the research question spans both the public web and internal documents, pairing Exa or Brave with Airweave covers that split without overlap.
+
+Browse all servers in the [MCPFind search category](/categories/search) with the star filter set to 50+ to see the full HEALTHY-tier picture. The category has 433 servers total; the real web-research candidates are a tighter subset, and that filter surfaces them quickly.
+
+## Frequently Asked Questions
+
+### What is the difference between a web research MCP server and a web scraping server?
+
+A web research server calls a search API and returns ranked results for a query: titles, URLs, snippets, and sometimes full page content. A scraping server fetches the full content of a specific URL you already know. Most research workflows use both in sequence: run a search to find the best sources, then scrape the top results for full context.
+
+### Which search MCP server has the best free tier for getting started?
+
+Brave Search MCP offers 2,000 free queries per month with no credit card required. That is enough for most personal research workflows and agent prototyping. Exa provides a free tier as well, though its pricing scales with usage volume. SerpAPI has a free trial with limited results per search.
+
+### Do any search MCP servers return citations alongside results?
+
+Exa MCP returns structured results with source URLs, publication dates, and author metadata, making citation extraction straightforward. Brave Search MCP includes source URLs in every result. SerpAPI returns detailed SERP metadata including featured snippets, knowledge panels, and related questions that can serve as citation context.
+
+### Can search MCP servers access recent news, not just indexed web pages?
+
+Yes, with caveats. Brave Search indexes live news and returns recent results without significant caching lag. Exa offers a date filter on results, letting you narrow to content published within a specific time window. SerpAPI can query Google News directly as a separate endpoint. Perplexity Search synthesizes an AI answer from recent sources but summarizes rather than returning raw results.
+
+### Does the official Tavily MCP server work with Claude Desktop?
+
+Tavily's official MCP server entry in the MCPFind directory is classified as STALE as of May 2026, meaning it has not received a commit in the prior 90 days. Community-maintained Tavily wrappers exist on GitHub, but the official server is not in the HEALTHY tier. Check the Tavily GitHub repository directly for the current maintenance status before using it in a production pipeline.
+
+## Related Servers in This Category
+
+{/* RelatedServersForCategory renders automatically from the `category` frontmatter field.
+    Filters: status=published AND public=true. Ordered by GitHub stars descending.
+    No manual server list needed here. Remove this comment block before publishing. */}
+
+## Next Steps
+
+- [Best search MCP servers for internal docs](/blog/best-search-mcp-servers-internal-docs)
+- [Best databases MCP servers for vector and RAG stacks](/blog/best-databases-mcp-servers-vector-rag-stacks)
+- [Browse all search MCP servers on MCPFind](/categories/search)
+- [What is MCP and how does it work?](/blog/what-is-mcp)
