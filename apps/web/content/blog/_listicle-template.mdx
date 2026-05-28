@@ -1,88 +1,212 @@
 ---
-title: "Best [N] MCP Servers for [Category Use Case]"
-description: "[50-70 word direct answer to 'best mcp servers for X' query. Lead with the number of servers indexed, name the top 2-3 explicitly, include the year. This paragraph is the primary LLM-citation and AI Overview surface.]"
-focusKeyword: "best [category] mcp servers"
-category: "<one of: devtools, ai-ml, search, databases>"
+title: "Best [N] MCP Servers for [Category Use Case] — [Year]"
+description: "[50-70 word direct answer to 'best mcp servers for X'. Lead with the number of servers MCPFind indexes in this category, name the top 2-3 by name and star count, include the year. This is the primary LLM-citation and AI Overview surface -- write it as a standalone answer.]"
+focusKeyword: "best [category] mcp servers [year]"
+category: "<one of: devtools | ai-ml | search | databases | cloud | monitoring | communication | productivity | ecommerce | finance | crm | data-analytics | devops | documentation>"
 author: "<adam | gus>"
-cluster: "<cluster id — e.g. analytics-cluster>"
-publishedAt: "2026-MM-DD"
-date: "2026-MM-DD"
-updatedAt: "2026-MM-DD"
 authorUrl: "https://www.linkedin.com/in/<profile>"
 authorSameAs:
   - "https://www.linkedin.com/in/<profile>"
+cluster: "<cluster-id — e.g. analytics-cluster | devtools-cluster | productivity-cluster>"
+date: "2026-MM-DD"
+publishedAt: "2026-MM-DD"
+updatedAt: "2026-MM-DD"
 tags:
   - "mcp"
   - "<category-tag>"
   - "<use-case-tag>"
+  - "<primary-server-name-tag>"
 draft: true
 cornerstone: false
 faqItems:
-  - question: "<User-phrased question 1?>"
-    answer: "<Concise 2-3 sentence answer.>"
-  - question: "<User-phrased question 2?>"
-    answer: "<Concise 2-3 sentence answer.>"
-  - question: "<User-phrased question 3?>"
-    answer: "<Concise 2-3 sentence answer.>"
+  - question: "<User-phrased question 1 — e.g. 'Do [category] MCP servers support read-only mode?'>"
+    answer: "<Concise 2-3 sentence answer. Plain language. No jargon without explanation.>"
+  - question: "<User-phrased question 2>"
+    answer: "<2-3 sentences.>"
+  - question: "<User-phrased question 3>"
+    answer: "<2-3 sentences.>"
+  - question: "<User-phrased question 4 — optional>"
+    answer: "<2-3 sentences.>"
+  - question: "<User-phrased question 5 — optional>"
+    answer: "<2-3 sentences.>"
+howToSteps:
+  - name: "<Step 1 verb phrase — e.g. 'Install the server'>"
+    text: "<One-sentence instruction. Concrete. Use exact command or config value.>"
+  - name: "<Step 2 verb phrase — e.g. 'Add credentials to config'>"
+    text: "<One sentence.>"
+  - name: "<Step 3 verb phrase — e.g. 'Restart Claude Desktop'>"
+    text: "<One sentence.>"
+howToName: "How to set up [Category] MCP servers for Claude"
+howToDescription: "Step-by-step setup guide for connecting [category] MCP servers to Claude Desktop or your preferred MCP client."
+howToTotalTime: "PT10M"
 ---
 
-{/* LISTICLE TEMPLATE — Do not publish. Copy this file, rename, and fill in. */}
+{/* =========================================================================
+    LISTICLE TEMPLATE — underscore prefix keeps this file out of the build.
+    To publish: copy this file, rename without underscore, fill in all
+    placeholder blocks, delete these header comments, set draft: false.
+    =========================================================================
 
-[50-70 word answer lead — directly answers "what are the best MCP servers for [X]". State how many servers MCPFind indexes in this category, name the top contenders explicitly, and include a year signal. This paragraph is the LLM-citation surface and should read as a standalone answer. Link to the relevant [MCPFind category page](/categories/[category]) here.]
+    Required before publishing:
+    - All [BRACKET PLACEHOLDERS] replaced with real content
+    - Comparison table has real server data (name, stars, transport, auth)
+    - Each server section has 3-5 paragraphs
+    - FAQ body matches faqItems frontmatter exactly (same Q, same A)
+    - howToSteps frontmatter matches the Setup Snippet in at least one server section
+    - No em dashes in final copy
+    - pnpm type-check passes in the monorepo root
+    ========================================================================= */}
+
+<!-- ANSWER LEAD: 60-75 words, directly answers "what are the best MCP servers for [X]". State category name, total server count from MCPFind index, name top 2-3 by display name, include year. This paragraph should read as a standalone answer in AI Overviews. Link to [MCPFind category page](/categories/[category]) here. Do NOT start with "I", do NOT start with "In this guide". -->
+
+[Answer lead goes here. Example structure: "MCPFind indexes [N] [category] MCP servers as of [year]. The top three by adoption are [Server A] ([X] stars), [Server B] ([Y] stars), and [Server C] ([Z] stars). This guide compares them on [key criteria 1], [key criteria 2], and [key criteria 3] so you can match the right server to your [specific use case]. See the full list at the [MCPFind [category] category](/categories/[category])."]
 
 ## Selection Criteria
 
-[How we evaluated: minimum star threshold used, last-commit recency window (e.g. active within 6 months), transport support (stdio / HTTP / SSE), auth method compatibility, and any real-world testing notes. 2-4 sentences. Be specific about thresholds — vague criteria undermine trust.]
+<!-- SELECTION CRITERIA: 2-4 sentences. Name exact thresholds used: minimum star count, last-commit recency window (e.g. active within 6 months), transport types evaluated, auth models covered. Vague criteria undermine trust. -->
+
+[How we evaluated: explain the minimum GitHub star threshold, last-commit recency cutoff, transport types included (stdio / HTTP / SSE), auth compatibility checked, and any hands-on testing notes. Be specific about numbers.]
 
 ## Comparison Table
 
+<!-- COMPARISON TABLE: real server data only -- no placeholder rows in final copy.
+     Columns are fixed. Fill every cell. Use "N/A" if a field is genuinely unknown.
+     Stars: pull from MCPFind directory at time of writing.
+     Transport: stdio | HTTP | SSE | multiple
+     Auth: API key | OAuth | none | multiple
+     Read/Write: R (read-only) | R+W (read and write)
+     Price: Free | Paid | Freemium
+     Best for: 5-8 words max per cell -->
+
 | Server | Stars | Transport | Auth | Read/Write | Price | Best for |
 |---|---|---|---|---|---|---|
-| [Server 1] | [N] | [stdio / HTTP / SSE] | [API key / OAuth / none] | [R / R+W] | [Free / Paid] | [one-line use case] |
-| [Server 2] | [N] | | | | | |
-| [Server 3] | [N] | | | | | |
-| [Server 4] | [N] | | | | | |
-| [Server 5] | [N] | | | | | |
+| [Server Name 1] | [N] | [stdio / HTTP / SSE] | [API key / OAuth / none] | [R / R+W] | [Free / Paid] | [one-line use case] |
+| [Server Name 2] | [N] | | | | | |
+| [Server Name 3] | [N] | | | | | |
+| [Server Name 4] | [N] | | | | | |
+| [Server Name 5] | [N] | | | | | |
 
 ## [Server 1 Name]
 
-### Why We Like It
+<!-- PER-SERVER SECTION: 3-5 paragraphs covering:
+     (1) What it is -- purpose, who built it, active maintenance signal
+     (2) Key tools -- specific tool names the server exposes, what each does
+     (3) When to use it -- exact team/stack/workflow conditions that make this the right pick
+     (4) When NOT to use it -- honest trade-off; who should skip this server
+     (5) GitHub stats -- star count, last commit recency, issue tracker health
+     Each paragraph: 60-120 words. No bullets inside the paragraph blocks. -->
 
-[2-3 sentences on what makes this server the best choice in its niche. Be concrete — reference a specific feature, workflow, or integration that other servers lack.]
+<!-- Paragraph 1: What it is. (60-120 words) -->
+[What this server is, who built/maintains it, what problem it solves, and what signal of active maintenance exists -- e.g. last commit date, open issues with responses, README quality.]
 
-### Standout Features
+<!-- Paragraph 2: Key tools exposed by this server. (60-120 words) -->
+[Name the specific tools this server exposes. What does each tool let Claude do? Be concrete: "The `query_database` tool accepts raw SQL and returns results as a JSON array." Avoid vague statements like "it lets you interact with X".]
 
-- [Feature 1 — 1-line description]
-- [Feature 2 — 1-line description]
-- [Feature 3 — 1-line description]
+<!-- Paragraph 3: When to use it. (60-120 words) -->
+[Describe the exact conditions under which this is the right server: stack requirements, team size, use case, workflow type. Give a concrete example: "If your team runs [specific stack] and needs [specific outcome], this is the lowest-friction path."]
 
-### Trade-offs
+<!-- Paragraph 4: When NOT to use it. (40-80 words) -->
+[Who should skip this server and why. Be honest. This builds trust and reduces bounce from mismatched expectations.]
 
-[Honest weakness — 1-2 sentences. What type of team or use case should NOT use this server?]
+<!-- Paragraph 5: GitHub stats summary. (30-60 words) -->
+[Star count, approximate last commit date, issue tracker note (e.g. "issues are answered within a few days"), license. Source: MCPFind directory data at time of writing.]
 
 ### Setup Snippet
 
-```bash
-# Install / configure example
-# Replace <YOUR_CREDENTIALS> with your actual credentials
+```json
+{
+  "mcpServers": {
+    "[server-key]": {
+      "command": "[command]",
+      "args": ["[arg1]", "[arg2]"],
+      "env": {
+        "[ENV_VAR]": "your-value-here"
+      }
+    }
+  }
+}
 ```
+
+<!-- Add this block to ~/Library/Application Support/Claude/claude_desktop_config.json for Claude Desktop,
+     or .cursor/mcp.json for Cursor. Restart the client after saving. -->
 
 ---
 
 ## [Server 2 Name]
 
-### Why We Like It
+<!-- Paragraph 1: What it is. (60-120 words) -->
+[What this server is and who built it.]
 
-[2-3 sentences.]
+<!-- Paragraph 2: Key tools. (60-120 words) -->
+[Specific tool names and what each does.]
 
-### Standout Features
+<!-- Paragraph 3: When to use it. (60-120 words) -->
+[Exact conditions making this the right pick.]
 
-- [Feature 1]
-- [Feature 2]
+<!-- Paragraph 4: When NOT to use it. (40-80 words) -->
+[Who should skip it.]
 
-### Trade-offs
+<!-- Paragraph 5: GitHub stats. (30-60 words) -->
+[Stars, last commit, license.]
 
-[1-2 sentences.]
+### Setup Snippet
+
+```json
+{
+  "mcpServers": {
+    "[server-key]": {
+      "command": "[command]",
+      "args": ["[arg1]"]
+    }
+  }
+}
+```
+
+---
+
+## [Server 3 Name]
+
+<!-- Paragraph 1: What it is. (60-120 words) -->
+[What this server is and who built it.]
+
+<!-- Paragraph 2: Key tools. (60-120 words) -->
+[Specific tool names and what each does.]
+
+<!-- Paragraph 3: When to use it. (60-120 words) -->
+[Exact conditions making this the right pick.]
+
+<!-- Paragraph 4: When NOT to use it. (40-80 words) -->
+[Who should skip it.]
+
+<!-- Paragraph 5: GitHub stats. (30-60 words) -->
+[Stars, last commit, license.]
+
+### Setup Snippet
+
+```bash
+# Install / configure example
+# Replace YOUR_CREDENTIAL with your actual value
+npx -y @[package-name] [arg]
+```
+
+---
+
+## [Server 4 Name] *(repeat per-server block for each additional server)*
+
+<!-- Paragraph 1: What it is. -->
+[What this server is.]
+
+<!-- Paragraph 2: Key tools. -->
+[Tool names and what each does.]
+
+<!-- Paragraph 3: When to use. -->
+[Conditions making this the right pick.]
+
+<!-- Paragraph 4: When NOT to use. -->
+[Who should skip it.]
+
+<!-- Paragraph 5: GitHub stats. -->
+[Stars, last commit, license.]
 
 ### Setup Snippet
 
@@ -92,34 +216,37 @@ faqItems:
 
 ---
 
-## [Server 3 Name] *(repeat pattern for each server)*
+## How to Choose: Decision Framework
 
-### Why We Like It
+<!-- DECISION FRAMEWORK: 2-4 paragraphs. Guide the reader to the right server based on their specific situation.
+     Use conditional logic: "If your team [condition], use [server]."
+     Cover at least: (a) primary use case / workflow, (b) auth / security requirements, (c) team size or environment (local vs shared), (d) budget.
+     End with a link to the MCPFind category browse so readers can compare all options. -->
 
-[2-3 sentences.]
+<!-- Paragraph 1: Route by primary use case. (60-100 words) -->
+[If you need [outcome A], [Server 1] is the lowest-friction path. If your workflow requires [outcome B], [Server 2] covers that surface without [trade-off]. For teams with [condition C], [Server 3] adds [benefit] that the others do not.]
 
-### Standout Features
+<!-- Paragraph 2: Route by auth / security model. (40-80 words) -->
+[For teams with strict least-privilege requirements: look for servers that honor a read-only flag at the protocol level, not just via credential scoping. [Server X] supports this. [Server Y] does not -- its permission boundary sits at the credential level only.]
 
-- [Feature 1]
-- [Feature 2]
+<!-- Paragraph 3: Route by environment (local vs shared). (40-80 words) -->
+[Stdio servers run per-user on the local machine and are easier to isolate. HTTP-transport servers can serve multiple users but require authentication middleware for shared environments. If you are deploying to a shared host, [Server Z] has the most complete auth story in this category.]
 
-### Trade-offs
+<!-- Paragraph 4: Browse all options. (20-40 words) -->
+[Browse all [N] servers in the [MCPFind [category] category](/categories/[category]) with the star filter set to [threshold]+ to see current adoption leaders. Category coverage grows weekly as new servers are submitted to the directory.]
 
-[1-2 sentences.]
+## Frequently Asked Questions
 
-### Setup Snippet
-
-```bash
-# Install / configure example
-```
-
----
-
-## FAQ
+<!-- FAQ BODY: must match faqItems frontmatter exactly.
+     Same question text, same answer text (can be slightly expanded in body vs frontmatter).
+     The frontmatter faqItems drive the JSON-LD FAQPage schema.
+     The body FAQ section is what readers see on the page.
+     If they diverge, search engines see one answer, readers see another -- bad. -->
 
 ### [User-phrased question 1?]
 
-[Answer — 2-3 sentences, plain language, no jargon without explanation.]
+<!-- Answer: 2-3 sentences. Plain language. No jargon without explanation. Match faqItems frontmatter answer. -->
+[Answer.]
 
 ### [User-phrased question 2?]
 
@@ -129,70 +256,27 @@ faqItems:
 
 [Answer.]
 
-### [User-phrased question 4 (optional)]
+### [User-phrased question 4?] *(optional -- include if faqItems has 4+ entries)*
 
 [Answer.]
 
-### [User-phrased question 5 (optional)]
+### [User-phrased question 5?] *(optional -- include if faqItems has 5 entries)*
 
 [Answer.]
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "[User-phrased question 1?]",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "[Answer — plain text, no markdown.]"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "[User-phrased question 2?]",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "[Answer.]"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "[User-phrased question 3?]",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "[Answer.]"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "[User-phrased question 4 (optional)]",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "[Answer.]"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "[User-phrased question 5 (optional)]",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "[Answer.]"
-      }
-    }
-  ]
-}
-</script>
 
 ## Related Servers in This Category
 
-{/* RelatedServersForCategory renders automatically based on the `category` frontmatter value.
-    Filters: status=published AND public=true. No manual list needed here. */}
+{/* RelatedServersForCategory renders automatically from the `category` frontmatter field.
+    Filters: status=published AND public=true. Ordered by GitHub stars descending.
+    No manual server list needed here. Remove this comment block before publishing. */}
 
 ## Next Steps
 
-- [How-to spoke link — e.g. "How to connect [Server 1] to Claude" → /blog/how-to-...]
-- [Comparison spoke link — e.g. "[Server 1] vs [Server 2]" → /blog/...]
-- [Directory category browse → /categories/[category]]
+<!-- NEXT STEPS: 3-5 internal links. One should be a how-to spoke for the top server.
+     One should be the MCPFind category browse. One should link to a comparison or related listicle.
+     Use specific anchor text -- not "click here" or "read more". -->
+
+- [How to connect [Server 1] to Claude Desktop](/blog/[how-to-slug])
+- [[Server 1] vs [Server 2]: which to choose for [use case]](/blog/[comparison-slug])
+- [Browse all [category] MCP servers on MCPFind](/categories/[category])
+- [What is MCP and how does it work?](/blog/what-is-mcp)
