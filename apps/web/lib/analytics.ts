@@ -58,8 +58,11 @@ function guardPii(payload: Record<string, unknown>): void {
     try {
       assertNoPii(payload);
     } catch (err) {
-      // Log violation (event name + key, never the value) but never crash the page
-      console.error("[analytics] PII violation suppressed in prod:", err instanceof Error ? err.message : String(err));
+      // Log violation (event name + key) but never the offending value — strip anything
+      // that looks like an email or literal value from the message before logging.
+      const raw = err instanceof Error ? err.message : String(err);
+      const sanitized = raw.replace(/"[^"]*@[^"]*"/g, '"<redacted>"').replace(/: "[^"]+"\./g, ': "<redacted>".');
+      console.error("[analytics] PII violation suppressed in prod:", sanitized);
     }
   }
 }

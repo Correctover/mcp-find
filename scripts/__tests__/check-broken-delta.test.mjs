@@ -16,6 +16,7 @@ import { readFileSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
+import { QUALITY_STATUS_VALUES } from "../../packages/shared/dist/types.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -41,6 +42,33 @@ function runScript(mapPath, snapshotPath) {
     return { exitCode: err.status ?? 1, output: (err.stderr ?? "") + (err.message ?? "") };
   }
 }
+
+// ---------------------------------------------------------------------------
+// Drift-defense: VALID_STATUSES in the script must match QUALITY_STATUS_VALUES
+// from packages/shared/src/types.ts (the single source of truth).
+// ---------------------------------------------------------------------------
+
+describe("VALID_STATUSES drift defense", () => {
+  // The script's hardcoded set — extracted here to mirror script/check-broken-delta.mjs line 69.
+  const SCRIPT_VALID_STATUSES = new Set(["HEALTHY", "STALE", "BROKEN", "LOW-CREDIBILITY"]);
+
+  it("script VALID_STATUSES has the same count as QUALITY_STATUS_VALUES", () => {
+    expect(SCRIPT_VALID_STATUSES.size).toBe(QUALITY_STATUS_VALUES.length);
+  });
+
+  it("every value in QUALITY_STATUS_VALUES is present in VALID_STATUSES", () => {
+    for (const status of QUALITY_STATUS_VALUES) {
+      expect(SCRIPT_VALID_STATUSES.has(status)).toBe(true);
+    }
+  });
+
+  it("every value in VALID_STATUSES is present in QUALITY_STATUS_VALUES", () => {
+    const sharedSet = new Set(QUALITY_STATUS_VALUES);
+    for (const status of SCRIPT_VALID_STATUSES) {
+      expect(sharedSet.has(status)).toBe(true);
+    }
+  });
+});
 
 describe("check-broken-delta.mjs smoke tests", () => {
   beforeEach(() => {

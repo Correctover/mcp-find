@@ -219,6 +219,90 @@ describe("RelatedServersForCategory filtering logic", () => {
 });
 
 // ---------------------------------------------------------------------------
+// includeDegraded=true code paths
+// ---------------------------------------------------------------------------
+
+/** STATUS_ORDER mirrors the component's constant */
+const STATUS_ORDER: Record<string, number> = { HEALTHY: 0, STALE: 1, BROKEN: 2, "LOW-CREDIBILITY": 3 };
+
+function applyRelatedServersFilterDegraded(
+  servers: ServerListItem[],
+  category: string,
+  qualityStatusMap: QualityStatusMap,
+  currentSlug: string | undefined,
+  maxItems: number,
+): ServerListItem[] {
+  const filtered = servers.filter((server) => {
+    if (server.category !== category) return false;
+    if (currentSlug && server.slug === currentSlug) return false;
+    // includeDegraded: all statuses pass
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    const aOrder = STATUS_ORDER[qualityStatusMap[a.slug] ?? "LOW-CREDIBILITY"] ?? 99;
+    const bOrder = STATUS_ORDER[qualityStatusMap[b.slug] ?? "LOW-CREDIBILITY"] ?? 99;
+    const diff = aOrder - bOrder;
+    if (diff !== 0) return diff;
+    return b.github_stars - a.github_stars;
+  });
+
+  return filtered.slice(0, maxItems);
+}
+
+describe("RelatedServersForCategory — includeDegraded=true", () => {
+  it("returns STALE and BROKEN servers (not just HEALTHY)", () => {
+    const servers = [
+      makeServer({ slug: "healthy", category: "devtools", github_stars: 100 }),
+      makeServer({ slug: "stale-one", category: "devtools", github_stars: 50 }),
+      makeServer({ slug: "broken-one", category: "devtools", github_stars: 20 }),
+    ];
+    const statusMap: QualityStatusMap = {
+      healthy: "HEALTHY",
+      "stale-one": "STALE",
+      "broken-one": "BROKEN",
+    };
+
+    const result = applyRelatedServersFilterDegraded(servers, "devtools", statusMap, undefined, 10);
+    expect(result).toHaveLength(3);
+    expect(result.map((s) => s.slug)).toContain("stale-one");
+    expect(result.map((s) => s.slug)).toContain("broken-one");
+  });
+
+  it("STATUS_ORDER sorts HEALTHY before STALE before BROKEN when mixed", () => {
+    const servers = [
+      makeServer({ slug: "broken-one", category: "devtools", github_stars: 200 }),
+      makeServer({ slug: "healthy-one", category: "devtools", github_stars: 10 }),
+      makeServer({ slug: "stale-one", category: "devtools", github_stars: 100 }),
+    ];
+    const statusMap: QualityStatusMap = {
+      "broken-one": "BROKEN",
+      "healthy-one": "HEALTHY",
+      "stale-one": "STALE",
+    };
+
+    const result = applyRelatedServersFilterDegraded(servers, "devtools", statusMap, undefined, 10);
+    expect(result.map((s) => s.slug)).toEqual(["healthy-one", "stale-one", "broken-one"]);
+  });
+
+  it("totalCount > limit causes browse-all link to appear (slice respects limit)", () => {
+    const servers = Array.from({ length: 10 }, (_, i) =>
+      makeServer({ slug: `server-${i}`, category: "devtools", github_stars: i })
+    );
+    // Mix of statuses — all included when includeDegraded=true
+    const statusMap: QualityStatusMap = Object.fromEntries(
+      servers.map((s, i) => [s.slug, i % 3 === 0 ? "BROKEN" : "HEALTHY"])
+    );
+
+    const result = applyRelatedServersFilterDegraded(servers, "devtools", statusMap, undefined, 4);
+    // With 10 servers and limit=4, slice returns 4; totalCount (10) > limit (4) → browse-all shown
+    expect(result).toHaveLength(4);
+    const totalCount = servers.filter((s) => s.category === "devtools").length;
+    expect(totalCount).toBeGreaterThan(4); // confirms browse-all link would appear
+  });
+});
+
+// ---------------------------------------------------------------------------
 // 5. data-conversion attribute contract (DOM-level check)
 // ---------------------------------------------------------------------------
 

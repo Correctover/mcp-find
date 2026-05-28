@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   },
   description:
     "Open-source directory of MCP servers. AI-agent optimized. Get instant install configs for Claude Desktop, Cursor, VS Code, Windsurf, and Claude Code.",
+  // Note: blog pages emit explicit absolute canonical URLs via SITE_URL.
+  // metadataBase below is for pages that use relative canonicals — do not rely on
+  // it for new blog/server routes; use ${SITE_URL}/path explicitly.
   metadataBase: new URL(SITE_URL),
   openGraph: {
     siteName: "MCP Find",

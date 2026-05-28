@@ -95,11 +95,11 @@ export async function RelatedServersForCategory({
 
   return (
     <aside
-      aria-labelledby="related-servers-heading"
+      aria-labelledby={`related-servers-${category}`}
       className="mt-12 border-t border-neutral-800 pt-10"
     >
       <h2
-        id="related-servers-heading"
+        id={`related-servers-${category}`}
         className="text-xl font-bold text-white mb-6 flex items-center gap-2"
       >
         <IconServer size={18} className="text-blue-400" aria-hidden="true" />

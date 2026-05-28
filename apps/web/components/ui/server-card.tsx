@@ -6,6 +6,7 @@ import { CategoryBadge } from "./category-badge";
 import { languageColors } from "./language-badge";
 import { formatNumber } from "./stat-badge";
 import { StaleServerBadge } from "@/components/StaleServerBadge";
+import { BrokenServerBadge } from "@/components/BrokenServerBadge";
 import { VerifiedServerBadge } from "@/components/VerifiedServerBadge";
 import {
   IconStar,
@@ -103,6 +104,7 @@ export function ServerCard({ server, qualityStatus, className }: ServerCardProps
       </p>
 
       {/* Quality badges — mutually exclusive: only one renders based on qualityStatus */}
+      <BrokenServerBadge qualityStatus={qualityStatus} className="mb-3" />
       <StaleServerBadge qualityStatus={qualityStatus} className="mb-3" />
       <VerifiedServerBadge qualityStatus={qualityStatus} className="mb-3" />
 
