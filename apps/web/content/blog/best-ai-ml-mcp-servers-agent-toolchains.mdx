@@ -45,11 +45,13 @@ howToDescription: "Step-by-step guide for selecting and wiring together MCP serv
 howToTotalTime: "PT20M"
 ---
 
-The [MCPFind ai-ml category](/categories/ai-ml) indexes 1,021 servers as of May 2026, with the highest average star count of any category in the directory at 93.11 stars per server. Most of those servers are model wrappers, inference endpoints, or vector stores. The agent-toolchain subset is narrower and more opinionated: servers built specifically for multi-agent orchestration, persistent memory across sessions, skill routing, and inter-agent communication. PraisonAI (5,725 stars) and Klavis Strata (5,675 stars) are the two highest-starred genuine agent-workflow tools in the category. Below them, AutoGen MCP, Memory MCP, and AgentSkb fill the orchestration, state, and knowledge-base layers. One honest note up front: dedicated tracing servers (Langfuse, Arize Phoenix, LangSmith) are not yet in the MCPFind HEALTHY tier. That gap is called out in the decision framework. See all servers in the [MCPFind ai-ml category](/categories/ai-ml).
+The [MCPFind ai-ml category](/categories/ai-ml) indexes 1,021 servers as of May 2026, and the average star count (93.11 per server) is the highest of any category in the directory. Most of those servers are model wrappers, inference endpoints, or vector stores. None of which I'd call an agent toolchain. The subset that actually qualifies is narrower: servers built for multi-agent orchestration, persistent memory across sessions, skill routing, and inter-agent communication. PraisonAI (5,725 stars) and Klavis Strata (5,675 stars) lead the pack as the two highest-starred agent-workflow tools in the category. Beneath them, AutoGen MCP, Memory MCP, and AgentSkb cover the orchestration, state, and knowledge-base layers.
+
+One honest caveat before getting into the picks. Dedicated tracing servers (Langfuse, Arize Phoenix, LangSmith) haven't reached the MCPFind HEALTHY tier yet. That's a real gap, and I'll come back to it in the decision framework. See all servers in the [MCPFind ai-ml category](/categories/ai-ml).
 
 ## Selection Criteria
 
-Three filters shaped the candidate list. First, HEALTHY classification in the MCPFind quality audit: 50+ GitHub stars (or vendor-official status) and a commit in the prior 90 days. Second, the server had to contribute directly to agent infrastructure, meaning orchestration, memory, skill routing, or inter-agent communication. Servers that wrap a foundation model's API without agent-coordination features were excluded. Third, vector store servers were excluded because that surface is covered in depth in the [databases listicle for vector and RAG stacks](/blog/best-databases-mcp-servers-vector-rag-stacks). Star counts come from the MCPFind directory snapshot on May 20, 2026. The comparison table uses a modified column set reflecting agent-toolchain-specific evaluation criteria.
+Three filters shaped the candidate list. First, HEALTHY classification in the MCPFind quality audit: 50+ GitHub stars (or vendor-official status) and a commit in the prior 90 days. Second, the server had to contribute directly to agent infrastructure: orchestration, memory, skill routing, or inter-agent communication. Servers that wrap a foundation model's API without any agent-coordination features were excluded. Third, vector store servers were excluded because that surface is covered in depth in the [databases listicle for vector and RAG stacks](/blog/best-databases-mcp-servers-vector-rag-stacks). Star counts come from the MCPFind directory snapshot on May 20, 2026. The comparison table uses a modified column set reflecting agent-toolchain-specific criteria.
 
 ## Comparison Table
 
@@ -63,19 +65,19 @@ Three filters shaped the candidate list. First, HEALTHY classification in the MC
 
 ## PraisonAI
 
-PraisonAI (github.com/MervinPraison/PraisonAI) is the second-highest-starred server in the entire MCPFind ai-ml category, trailing only Netdata, which belongs more properly to infrastructure monitoring. At 5,725 stars it is the clearest adoption signal for multi-agent orchestration in the directory. The core idea is structured delegation: you define agents by role, assign them tools, and let the framework route tasks between them through a configured pipeline. The MCP server exposes that orchestration surface so any MCP client can trigger and monitor these pipelines without embedding PraisonAI's Python runtime into the client directly. Active maintenance is strong, with regular commits through early 2026 and an engaged GitHub community.
+At 5,725 stars, PraisonAI (github.com/MervinPraison/PraisonAI) is the second-highest-starred server in the MCPFind ai-ml category, behind only Netdata (which is really an infrastructure-monitoring tool). For multi-agent orchestration specifically, it's the clearest adoption signal in the directory. The core pattern is structured delegation. You define agents by role, assign them tools, and the framework routes tasks between them through a configured pipeline. The MCP server exposes that orchestration surface so any MCP client can trigger and monitor pipelines without embedding PraisonAI's Python runtime in the client. Maintenance is active, with regular commits through early 2026 and a healthy GitHub community.
 
-The tool surface an agent sees through PraisonAI MCP covers the pipeline execution layer. A delegating agent calls a tool to start a multi-agent task and receives structured output as the subagents work through it. Internally, PraisonAI supports role-based agent definitions (researcher, writer, reviewer, executor), inter-agent communication channels, and task sequencing patterns including sequential, parallel, and hierarchical pipelines. The framework itself works alongside LangChain, LlamaIndex, and CrewAI rather than replacing them: those orchestration libraries define workflow logic, PraisonAI makes that logic reachable via MCP.
+What the calling agent actually sees is the pipeline-execution layer. A delegating agent calls a tool to kick off a multi-agent task and gets structured output back as the subagents work through it. Under the hood, PraisonAI handles role-based agent definitions (researcher, writer, reviewer, executor), inter-agent communication channels, and task-sequencing patterns: sequential, parallel, and hierarchical pipelines. The framework works alongside LangChain, LlamaIndex, and CrewAI rather than replacing them. Those libraries define workflow logic; PraisonAI makes that logic reachable via MCP.
 
-The workflow this fits best is a research-and-produce pattern: a primary agent receives a broad task, delegates research to a specialized subagent, passes the output to a writer agent, and routes the draft to a reviewer before surfacing the result. All of that delegation happens inside the PraisonAI runtime, exposed as a single MCP tool call from the client. Teams building Claude-orchestrated pipelines where Claude coordinates human-defined subagents will find this the most complete starting point in the HEALTHY tier.
+This server fits a research-and-produce workflow best. A primary agent gets a broad task, delegates research to a specialized subagent, hands the output to a writer agent, and routes the draft to a reviewer before surfacing the final result. All of that happens inside the PraisonAI runtime, exposed as a single MCP tool call from the client. If you're building Claude-orchestrated pipelines where Claude coordinates a set of subagents, this is the most complete starting point in the HEALTHY tier right now.
 
-Skip PraisonAI if what you need is a persistent memory layer or a tracing tool. It handles delegation and task routing well, but it does not manage agent state across sessions, and it does not expose structured traces of individual tool decisions. Those concerns need separate servers. PraisonAI also requires Python and a running instance to connect to, which is overhead compared to the local-only memory servers below.
+Skip PraisonAI if what you actually need is persistent memory or tracing. Delegation and task routing are handled well, but agent state doesn't persist across sessions, and you don't get structured traces of individual tool decisions. Those concerns need separate servers. PraisonAI also requires Python and a running instance to connect to, which is overhead compared to the local-only memory servers further down.
 
 5,725 stars, last push March 2026. MIT license. Self-hosted and cloud deployment options available. See the [PraisonAI docs](https://docs.praisonai.com) for MCP configuration details.
 
 ### Setup Snippet
 
-Auth and endpoint configuration depends on your PraisonAI deployment. The pattern below assumes a local instance running on the default port:
+Auth and endpoint configuration depend on how PraisonAI is deployed. The pattern below assumes a local instance on the default port:
 
 ```json
 {
@@ -91,19 +93,19 @@ Auth and endpoint configuration depends on your PraisonAI deployment. The patter
 }
 ```
 
-Verify the current startup command in the [PraisonAI MCP documentation](https://docs.praisonai.com) before deploying, as CLI flags change between minor versions.
+Confirm against the current PraisonAI MCP docs for any version-specific flags, since CLI options shift between minor versions.
 
 ---
 
 ## Klavis Strata
 
-Klavis Strata (ai.klavis.ai, slug `ai-klavis-strata`) holds 5,675 stars on MCPFind, placing it directly behind PraisonAI as the second-highest-starred agent-workflow tool in the category. Where PraisonAI builds multi-agent pipelines, Strata operates one level above that: it is an MCP gateway and routing layer that lets an agent discover and connect to other MCP servers dynamically, rather than requiring everything to be pre-configured in a single client config. If PraisonAI is about running the pipeline, Strata is about knowing which servers exist and routing calls to them at runtime.
+Sitting at 5,675 stars on MCPFind, Klavis Strata (ai.klavis.ai, slug `ai-klavis-strata`) lands right behind PraisonAI in the agent-workflow ranking. It operates a layer above pipeline execution. Strata is an MCP gateway and routing layer that lets an agent discover and connect to other MCP servers at runtime, instead of requiring every tool to be pre-configured in the client. PraisonAI runs the pipeline; Strata knows which servers exist and routes calls to them on demand.
 
-The Strata MCP surface exposes server discovery and call forwarding as tools. An agent using Strata can query which MCP servers are registered and reachable, invoke a tool on any of them by routing through Strata's gateway, and manage dynamic server connections without restarting the client. This is meaningful in agent architectures where the set of available tools changes with the task: a research task might need web search and document retrieval, while a coding task needs file access and a code execution server. Strata makes that context-switching programmatic rather than manual.
+The MCP surface here exposes server discovery and call forwarding as tools. An agent using Strata can query which MCP servers are registered and reachable, invoke a tool on any of them by going through Strata's gateway, and manage dynamic server connections without restarting the client. That matters in architectures where the available toolset shifts with the task. A research task might want web search and document retrieval, while a coding task needs file access and a code execution server. Strata makes that switching programmatic instead of manual.
 
-The practical value is largest in teams building multi-modal or multi-step agents where tool selection itself is part of the problem. If a primary agent's job is to figure out which specialized agent or tool to invoke, and then invoke it, Strata provides the registry and routing infrastructure for that decision. It also makes horizontal scaling of agent toolchains more tractable: adding a new MCP server to the pool does not require updating every agent's config individually.
+The practical value shows up most in teams building multi-modal or multi-step agents where tool selection is itself part of the problem. If a primary agent's job is to figure out which specialized agent or tool to invoke, then actually invoke it, Strata provides the registry and routing infrastructure for that decision. It also helps with horizontal scaling: adding a new MCP server to the pool doesn't require updating every agent's config individually.
 
-Where Strata is not the right pick: single-agent setups with a fixed toolset, or teams that don't need dynamic tool discovery. Strata adds a network hop and indirection layer. For a straightforward agent with a stable set of tools, that indirection is overhead, not an asset. The star count suggests broad interest in the gateway pattern; whether it belongs in a specific stack depends on how dynamic the agent's tool landscape actually is.
+Strata is not the right pick for single-agent setups with a fixed toolset, or teams that don't need dynamic discovery. It adds a network hop and an indirection layer. For a straightforward agent with a stable set of tools, that indirection is just overhead. The star count tells me there's broad interest in the gateway pattern. Whether it belongs in your stack depends on how dynamic your agent's tool landscape actually is.
 
 ~5,675 stars (MCPFind directory snapshot, May 2026). HTTP transport. Auth uses a Klavis API key. See the [Klavis documentation](https://docs.klavis.ai) for current endpoint details and MCP gateway configuration.
 
@@ -124,101 +126,75 @@ Klavis Strata uses HTTP transport. Point your MCP client at the Strata gateway e
 }
 ```
 
-The exact endpoint path and header format may vary between Klavis releases. Refer to the [current Klavis MCP docs](https://docs.klavis.ai) before configuring.
+The exact endpoint path and header format may vary between Klavis releases. Check the [current Klavis MCP docs](https://docs.klavis.ai) before configuring.
 
 ---
 
 ## AutoGen MCP
 
-Microsoft's AutoGen framework is one of the most widely used multi-agent orchestration libraries in production, and the AutoGen MCP server (slug `ai-smithery-dynamicendpoints-autogen-mcp`) exposes its core primitives through the MCP protocol. What AutoGen brings that PraisonAI does not is a more formalized group chat architecture: agents communicate in structured conversation threads with defined speaker-selection policies, which makes the orchestration logic more auditable and easier to reason about. The MCP wrapper puts that capability inside any MCP-capable client without requiring the client to run AutoGen code directly.
+Microsoft's AutoGen is one of the most widely used multi-agent orchestration libraries in production, and the AutoGen MCP server (slug `ai-smithery-dynamicendpoints-autogen-mcp`) exposes its core primitives through the MCP protocol. What AutoGen brings that PraisonAI doesn't is a structured group-chat architecture. Agents communicate in conversation threads with defined speaker-selection policies, which makes the orchestration logic more auditable and easier to reason about than free-form delegation. The MCP wrapper puts that capability inside any MCP-capable client without forcing the client to run AutoGen code itself.
 
-Through the MCP interface, an initiating agent can start an AutoGen group chat, add agents with specific roles and system prompts, and poll for results as the conversation progresses. AutoGen's built-in termination conditions (max rounds, user-defined stop signals) apply inside the server, so the calling agent does not need to implement loop control. The framework also supports human-in-the-loop patterns: AutoGen can pause a group chat and surface a request for human input through the MCP tool response, which the calling agent forwards to the user. That pattern is useful when an orchestrated workflow hits a decision point requiring judgment outside the agent's scope.
+Through the MCP interface, an initiating agent can start an AutoGen group chat, add agents with specific roles and system prompts, and poll for results as the conversation progresses. AutoGen's built-in termination conditions (max rounds, user-defined stop signals) apply inside the server, so the calling agent doesn't have to implement its own loop control. The framework also supports human-in-the-loop patterns. AutoGen can pause a group chat and surface a request for human input via the MCP tool response, which the calling agent then forwards to the user. That's useful when an orchestrated workflow hits a decision point requiring judgment outside the agent's scope.
 
-Reach for AutoGen MCP when your team is already using AutoGen for agent development and wants to connect those workflows to a Claude or Cursor session without rebuilding them. It is also a good fit when the group-chat communication model suits the problem: tasks that benefit from structured debate between agents (planner, critic, executor) rather than sequential delegation. The auditable conversation history that AutoGen maintains is useful when tracing what happened in a multi-agent run, which partly compensates for the tracing gap in the HEALTHY tier.
+Reach for AutoGen MCP when your team already uses AutoGen for agent development and wants to connect those workflows to a Claude or Cursor session without rebuilding them. It's also a good fit when the group-chat model suits the problem: tasks that benefit from structured debate between agents (planner, critic, executor) instead of sequential delegation. The auditable conversation history AutoGen maintains is useful when you need to trace what happened in a multi-agent run, which partly compensates for the missing tracing servers in the HEALTHY tier.
 
-The main limitation is that this server depends on a running AutoGen service, which adds infrastructure overhead compared to local-only servers. Teams not already on AutoGen will find less benefit here than PraisonAI, which has more standalone MCP documentation. Star count in the low hundreds in the MCPFind directory snapshot; the underlying AutoGen framework itself carries significant community adoption outside this specific MCP wrapper.
+The main limitation is that this server depends on a running AutoGen service, which adds infrastructure overhead versus local-only options. Teams not already on AutoGen will get less out of it than PraisonAI, which has more standalone MCP documentation. Star count is in the low hundreds in the MCPFind directory snapshot; the underlying AutoGen framework itself has significant community adoption outside this specific MCP wrapper.
 
-Low hundreds of stars (MCPFind directory snapshot, May 2026). HTTP transport. Auth uses an API key for the AutoGen service endpoint. License details: verify in the [repository](https://github.com/microsoft/autogen) before production use.
+Low hundreds of stars (MCPFind directory snapshot, May 2026). HTTP transport. Auth uses an API key for the AutoGen service endpoint. License details: check the [repository](https://github.com/microsoft/autogen) before production use.
 
 ### Setup Snippet
 
-Configuration requires a running AutoGen service. The general MCP client pattern is:
-
-```json
-{
-  "mcpServers": {
-    "autogen": {
-      "url": "https://your-autogen-endpoint/mcp",
-      "env": {
-        "AUTOGEN_API_KEY": "your-api-key"
-      }
-    }
-  }
-}
-```
-
-The exact endpoint format depends on your AutoGen deployment. See the [smithery.ai AutoGen MCP listing](https://smithery.ai) and the [AutoGen documentation](https://microsoft.github.io/autogen/) for current configuration details.
+Configuration requires a running AutoGen service, and the exact endpoint format depends on your deployment. See the [Smithery listing](https://smithery.ai/server/ai.smithery/dynamicendpoints-autogen-mcp) for the current HTTP endpoint and configuration, and the [AutoGen documentation](https://microsoft.github.io/autogen/) for service-side setup.
 
 ---
 
 ## Memory MCP
 
-Memory MCP (github.com/yuvalsuede/memory-mcp, slug `io-github-yuvalsuede-memory-mcp`) addresses the single most common gap in stateless agent workflows: an agent has no memory of what it did last session. Every conversation starts cold. Memory MCP provides a persistent key-value storage layer that an agent can write to and read from across sessions, implemented as a local server with no external dependencies. The design is deliberately minimal. It does not try to do semantic search or embedding-based retrieval. It stores and retrieves facts, task results, and session context by key, which is the right shape for most agent-state problems.
+The most common gap in stateless agent workflows is simple: the agent has no memory of what it did last session. Every conversation starts cold. Memory MCP (github.com/yuvalsuede/memory-mcp, slug `io-github-yuvalsuede-memory-mcp`) tackles that by providing a persistent key-value storage layer the agent can read from and write to across sessions, implemented as a local server with no external dependencies. The design is intentionally narrow. No semantic search, no embedding-based retrieval. Just storing and retrieving facts, task results, and session context by key. For most agent-state problems, that's the right shape.
 
-The tool surface reflects that minimal scope. `memory_set` stores a value under a key, associating it with an agent identifier or session label. `memory_get` retrieves it. `memory_list` enumerates what the agent has stored, which is useful when an agent needs to summarize its working memory before starting a new task. `memory_delete` handles cleanup. A coordination pattern that works well in practice: a primary agent starts a task, writes a task-state record to Memory MCP at each milestone, and reads that state at the start of the next session to resume where it left off. That pattern does not require vector search. It requires a reliable key-value store with an MCP interface.
+The tool surface stays small. `memory_set` stores a value under a key, associating it with an agent identifier or session label. `memory_get` retrieves it. `memory_list` enumerates what's been stored, which is useful when an agent needs to summarize its working memory before starting a new task. `memory_delete` handles cleanup. One coordination pattern that works well in practice: a primary agent starts a task, writes a task-state record to Memory MCP at each milestone, and reads that state at the start of the next session to resume where it left off. No vector search required. Just a reliable key-value store with an MCP interface.
 
-The workflows that benefit most are long-running tasks split across sessions, agent pipelines that need to share context between different invocations, and any situation where an agent's previous decisions should influence its current behavior without the user re-entering context. Pairing Memory MCP with PraisonAI or AutoGen MCP lets an orchestrated pipeline persist its working state, making the combination more useful than either server alone.
+The workflows that benefit most are long-running tasks split across sessions, agent pipelines that need to share context between invocations, and any situation where an agent's previous decisions should shape its current behavior without making the user re-enter context. Pair Memory MCP with PraisonAI or AutoGen MCP and you get an orchestrated pipeline that persists its working state, which is more useful than either server on its own.
 
-Skip it if what you need is semantic similarity retrieval over agent history. Memory MCP stores and retrieves by key, not by meaning. For embedding-based retrieval of past agent actions, a vector store like Qdrant or the Supabase pgvector setup from the [databases listicle](/blog/best-databases-mcp-servers-vector-rag-stacks) fits better. Memory MCP's value is simplicity and zero external dependencies, not advanced retrieval.
+Skip it if you need semantic similarity retrieval over agent history. Memory MCP retrieves by key, not by meaning. For embedding-based retrieval of past agent actions, a vector store like Qdrant or the Supabase pgvector setup from the [databases listicle](/blog/best-databases-mcp-servers-vector-rag-stacks) is the better fit. Memory MCP's pitch is simplicity and zero external dependencies, not advanced retrieval.
 
-Star count in the low hundreds (MCPFind directory snapshot, May 2026). stdio transport. No auth required for local use. MIT license (verify in the repository before production use). Runs entirely on the local machine.
+Star count in the low hundreds (MCPFind directory snapshot, May 2026). stdio transport. No auth required for local use. MIT license (check the repository before production use). Runs entirely on the local machine.
 
 ### Setup Snippet
 
-```json
-{
-  "mcpServers": {
-    "memory": {
-      "command": "npx",
-      "args": ["-y", "memory-mcp-server"]
-    }
-  }
-}
-```
-
-Install command is unverified. Check the [GitHub repository](https://github.com/yuvalsuede/memory-mcp) for the current npm package name and confirmed startup command before deploying.
+Check the [Memory MCP GitHub repo](https://github.com/yuvalsuede/memory-mcp) for the current install command. The npm package name isn't confirmed, so don't paste a stale snippet into your client config.
 
 ---
 
 ## AgentSkb
 
-AgentSkb (github.com/cranot/agentskb, slug `io-github-cranot-agentskb`) takes a different approach to agent memory than Memory MCP. Instead of a flat key-value store, it provides a structured knowledge base that an agent can query with natural-language questions. The distinction matters in agent toolchains where the stored data is not a task state record but a collection of facts, procedures, tool descriptions, or policies that the agent needs to consult during execution. Think of it as a tool the orchestrator reaches for when it needs to answer "what do I know about X" rather than "what did I store under key Y."
+Where Memory MCP gives you a flat key-value store, AgentSkb (github.com/cranot/agentskb, slug `io-github-cranot-agentskb`) takes a different approach. It provides a structured knowledge base the agent can query with natural-language questions. The distinction matters in agent toolchains where the stored data isn't a task-state record but a collection of facts, procedures, tool descriptions, or policies the agent needs to consult during execution. It's the kind of thing an orchestrator reaches for when it needs to answer "what do I know about X" rather than "what did I store under key Y."
 
-The tool surface is oriented around knowledge retrieval. `kb_search` accepts a natural-language query and returns the most relevant entries from the knowledge base. `kb_add` ingests a new fact or document. `kb_list` enumerates what's in the knowledge base. `kb_delete` removes entries. The retrieval pattern is designed for agent self-documentation: an agent can store its own tool descriptions, task patterns, and domain-specific facts in the knowledge base, then query them at runtime when it needs guidance on how to approach an unfamiliar subtask. That pattern makes AgentSkb a lightweight alternative to full vector store infrastructure for teams that don't need enterprise-scale embedding retrieval.
+The tool surface is oriented around knowledge retrieval. `kb_search` accepts a natural-language query and returns the most relevant entries from the knowledge base. `kb_add` ingests a new fact or document. `kb_list` enumerates what's in the knowledge base. `kb_delete` removes entries. The retrieval pattern is built for agent self-documentation. An agent can store its own tool descriptions, task patterns, and domain-specific facts in the knowledge base, then query them at runtime when it needs guidance on an unfamiliar subtask. That makes AgentSkb a lightweight alternative to full vector store infrastructure for teams that don't need enterprise-scale embedding retrieval.
 
-The teams that get the most value here are building agents that need to consult an evolving set of policies, procedures, or domain knowledge during task execution. A customer-support agent that needs to look up product policies. A code-generation agent that stores team conventions and architecture decisions in the knowledge base. A research agent that keeps a running record of prior findings. For these use cases, AgentSkb's natural-language query interface is more ergonomic than a raw key-value store while being simpler to operate than a full vector database deployment.
+The teams that get the most out of it are building agents that consult an evolving set of policies, procedures, or domain knowledge during task execution. A customer-support agent looking up product policies. A code-generation agent storing team conventions and architecture decisions. A research agent that keeps a running record of prior findings. For these cases, AgentSkb's natural-language query interface is more ergonomic than a raw key-value store, and easier to operate than a full vector database deployment.
 
-It is not the right fit for large-scale retrieval workloads or production RAG pipelines. AgentSkb is designed for agent-self-knowledge, not corpus-scale document retrieval. If the agent's knowledge base is expected to grow into the millions of entries, a purpose-built vector store handles that scale better. The server also runs locally only, which limits it to single-user deployments rather than shared agent infrastructure.
+It's not the right fit for large-scale retrieval workloads or production RAG pipelines. AgentSkb is built for agent self-knowledge, not corpus-scale document retrieval. If the knowledge base is going to grow into the millions of entries, a purpose-built vector store handles that scale better. The server also runs locally only, which limits it to single-user deployments rather than shared agent infrastructure.
 
 Star count in the low hundreds (MCPFind directory snapshot, May 2026). stdio transport. No auth required for local use. License: check the [GitHub repository](https://github.com/cranot/agentskb) before production use. Runs on the local machine with no external service dependencies.
 
 ### Setup Snippet
 
-Install command is unverified. Check the [AgentSkb repository](https://github.com/cranot/agentskb) for the current install path and startup flags before configuring your MCP client.
+No install command is included here on purpose. See [github.com/cranot/agentskb](https://github.com/cranot/agentskb) for the current install path and startup flags before configuring your MCP client.
 
 ---
 
 ## How to Choose: Decision Framework
 
-Start with what the agent actually needs to do across sessions and across agents. If the core problem is task delegation between specialized agents, PraisonAI is the most complete option in the HEALTHY tier. It ships with role-based agent definitions, inter-agent communication, and pipeline patterns (sequential, parallel, hierarchical) that cover most multi-agent use cases. Teams already on Microsoft's AutoGen framework will find AutoGen MCP the lower-friction path, since it exposes their existing pipelines through MCP without rebuilding them.
+Start with what the agent actually needs to do across sessions and across other agents. If the core problem is task delegation between specialized agents, PraisonAI is the most complete option in the HEALTHY tier. Role-based agent definitions, inter-agent communication, and pipeline patterns (sequential, parallel, hierarchical) cover most multi-agent use cases out of the box. Teams already on Microsoft's AutoGen will find AutoGen MCP the lower-friction path, since it exposes their existing pipelines through MCP without forcing a rebuild.
 
-For dynamic tool discovery, where the agent's toolset changes with the task and pre-configuring everything statically isn't practical, Klavis Strata is the gateway layer worth evaluating. It adds a routing hop but solves a real problem for teams running large, composable agent fleets. For smaller, more stable toolchains, the overhead of an MCP gateway probably isn't justified.
+If the agent's toolset shifts with the task and pre-configuring everything statically isn't practical, Klavis Strata is the gateway worth evaluating. It adds a routing hop, but it solves a real problem for teams running large, composable agent fleets. For smaller, more stable toolchains, the overhead of an MCP gateway probably isn't worth it. Honest take: most teams I talk to don't actually need a gateway yet. Their tool list is shorter than they think.
 
-The memory layer is orthogonal to the orchestration choice. Memory MCP is the right pick when the agent needs to persist key-value state across sessions with no infrastructure overhead. AgentSkb fits when the agent needs a queryable knowledge base of facts and procedures it can consult at runtime. Both run locally with no external dependencies, which makes them easy to layer on top of whichever orchestration server you pick. Running Memory MCP alongside PraisonAI is a common pattern: PraisonAI handles the delegation, Memory MCP holds the task state.
+The memory layer sits separately from the orchestration choice. Memory MCP is the right pick when the agent needs to persist key-value state across sessions with no infrastructure overhead. AgentSkb fits when the agent needs a queryable knowledge base of facts and procedures it can consult at runtime. Both run locally with no external dependencies, which makes them easy to bolt onto whichever orchestration server you pick. Running Memory MCP alongside PraisonAI is a common pattern: PraisonAI handles the delegation, Memory MCP holds the task state.
 
-One gap in the HEALTHY tier to acknowledge: dedicated LLM tracing and evaluation servers are not yet verified to MCPFind's HEALTHY classification. Tools like Langfuse, Arize Phoenix, and LangSmith have community MCP implementations, but their MCPFind entries haven't reached HEALTHY tier as of May 2026. If tracing what your agent did across a task is a hard requirement, check the community implementations on GitHub and the [MCPFind ai-ml category](/categories/ai-ml) for current status, as this gap is expected to close as those projects mature.
+One real gap in the HEALTHY tier. Dedicated LLM tracing and evaluation servers haven't reached MCPFind's HEALTHY classification yet. Langfuse, Arize Phoenix, and LangSmith all have community MCP implementations, but as of May 2026 those entries aren't in the HEALTHY tier. If tracing what your agent did across a task is a hard requirement, check the community implementations on GitHub and the [MCPFind ai-ml category](/categories/ai-ml) for current status. The gap is likely to close as those projects mature, but right now it's a real limitation.
 
-Browse the full [MCPFind ai-ml category](/categories/ai-ml) with the star filter set to 100+ to see the current HEALTHY-tier adoption leaders. The agent-toolchain subset is narrower than the category's overall 1,021 servers, but it is growing as orchestration becomes a first-class concern in production AI systems.
+Browse the full [MCPFind ai-ml category](/categories/ai-ml) with the star filter set to 100+ to see the current HEALTHY-tier adoption leaders. The agent-toolchain subset is narrower than the category's full 1,021 servers, but it's growing as orchestration becomes a first-class concern in production AI systems.
 
 ## Frequently Asked Questions
 
