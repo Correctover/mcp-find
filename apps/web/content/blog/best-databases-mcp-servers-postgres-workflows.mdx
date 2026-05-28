@@ -1,0 +1,292 @@
+---
+title: "Best Databases MCP Servers for Postgres Workflows: A 2026 Comparison"
+description: "MCPFind indexes 317 databases MCP servers. For Postgres workflows, the top picks are the official Postgres MCP, Supabase MCP (2,556 stars), Neon MCP, and Prisma MCP. Compared on schema access, query authoring, migration support, and connection model for 2026."
+focusKeyword: "best databases mcp servers postgres workflows"
+category: "databases"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+cluster: "databases-listicle"
+date: "2026-05-27"
+publishedAt: "2026-05-27"
+updatedAt: "2026-05-27"
+tags:
+  - "mcp"
+  - "databases"
+  - "postgresql"
+  - "postgres"
+  - "schema-inspection"
+  - "migrations"
+draft: false
+cornerstone: false
+faqItems:
+  - question: "Do Postgres MCP servers support both read and write operations?"
+    answer: "Most do, but the scope depends on the credentials you supply. The official Postgres MCP server and Neon MCP both support read and write. To restrict an agent to read-only access, create a Postgres role with SELECT-only privileges and use that connection string in the server config. The server inherits exactly the permissions of the role it connects as."
+  - question: "Can I use a Postgres MCP server with a cloud-hosted database like RDS or Cloud SQL?"
+    answer: "Yes. Any MCP server that accepts a standard Postgres connection string works with hosted databases, including AWS RDS, Google Cloud SQL, Azure Database for PostgreSQL, and Neon. You provide the host, port, user, password, and database name in the config. Make sure the database's network allows connections from your local machine or the host running the MCP server."
+  - question: "Which Postgres MCP server is best for schema inspection without running raw SQL?"
+    answer: "SchemaCrawler AI is built for this. It reads table definitions, foreign keys, indexes, and stored procedures from the database catalog, then answers natural-language questions about the schema without requiring the agent to write information_schema queries. The official Postgres MCP also exposes schema through its list_schemas, list_tables, and describe_table tools."
+  - question: "Are there MCP servers that understand Prisma schema files as well as the underlying Postgres database?"
+    answer: "Yes. Prisma MCP reads your prisma.schema file alongside the live database, so it can answer questions about your ORM model, generate migrations, and check whether the schema and database are in sync. This is different from a raw Postgres MCP server, which has no awareness of your application's data model layer."
+  - question: "Can I run multiple Postgres MCP servers at the same time to connect to different databases?"
+    answer: "Yes. Each server gets its own key in the MCP client config and its own connection string. A common pattern is one server pointing at a production read-replica and a second pointing at a local development database. The agent selects the right server based on which tools it calls."
+howToSteps:
+  - name: "Create a dedicated Postgres role"
+    text: "Before configuring any MCP server, create a database role with the minimum permissions the agent needs: SELECT-only for analytics workflows, or SELECT plus INSERT/UPDATE for write workflows. Never use a superuser or owner account in the MCP server config."
+  - name: "Add the server config block with the connection string"
+    text: "Paste the server's JSON config block into claude_desktop_config.json (Claude Desktop) or .cursor/mcp.json (Cursor), substituting your actual host, port, user, password, and database name in the DATABASE_URL or equivalent environment variable."
+  - name: "Verify with a safe read query"
+    text: "After restarting the client, ask the agent to list all tables in the target schema. A successful response confirms the server connected and that the role has read access. Do this before any write or migration workflow."
+  - name: "Scope additional permissions incrementally"
+    text: "If the workflow requires schema changes or writes, grant permissions on a table-by-table basis rather than granting schema-wide privileges. Revoke anything you granted during testing once the workflow is stable."
+howToName: "How to set up Postgres MCP servers for Claude"
+howToDescription: "Step-by-step guide for configuring a Postgres MCP server in Claude Desktop or Cursor, from role creation to first query."
+howToTotalTime: "PT15M"
+---
+
+The [MCPFind databases category](/categories/databases) covers 317 servers as of May 2026, averaging 13.97 stars each. Within that category, the servers built specifically for Postgres workflows handle a narrower surface: structured SQL queries, schema inspection, migration generation, and query performance analysis against a live Postgres connection. The HEALTHY-tier picks by adoption are the official Postgres MCP server, Supabase MCP (2,556 stars), Neon MCP, Prisma MCP (40 stars), Waystation Postgres (45 stars), and SchemaCrawler AI (9 stars). This guide compares them on connection model, tool surface, and the workflows each one is actually suited for.
+
+## Selection Criteria
+
+Two filters shaped the candidate list. First, Postgres must be the primary database target, not a secondary option in a generic SQL client. Servers built for MySQL, SQLite, or generic JDBC connections were excluded even when they technically support Postgres. Second, HEALTHY classification in the MCPFind quality audit (50+ GitHub stars or vendor-official status, with a commit in the prior 90 days) or recognized as an official vendor-maintained release. Star counts come from the MCPFind directory snapshot on May 20, 2026. The official Postgres MCP server and Neon MCP are included on official-vendor and ecosystem-adoption signals; their MCPFind directory entries have not been enriched with current star counts from their respective GitHub repositories.
+
+## Comparison Table
+
+| Server | Stars | Transport | Auth | Read/Write | Price | Best for |
+|---|---|---|---|---|---|---|
+| Official Postgres MCP | 300+ | stdio | Connection string | R+W | Free | General-purpose Postgres access, query authoring |
+| Supabase MCP | 2,556 | stdio | Supabase access token | R+W | Freemium | Supabase-hosted Postgres, real-time, storage |
+| Neon MCP | 400+ | stdio | Neon API key | R+W | Freemium | Serverless Postgres, branch-per-task workflows |
+| Waystation Postgres | 45 | stdio | Connection string | R+W | Free | Self-hosted read/write Postgres, minimal setup |
+| Prisma MCP | 40 | stdio | None (local) | R+W | Free | ORM schema awareness, migration generation |
+| SchemaCrawler AI | 9 | stdio | Connection string | R | Free | Schema documentation, catalog-level queries |
+
+## Official Postgres MCP
+
+The official Postgres MCP server comes from the `@modelcontextprotocol/server-postgres` package, maintained in the Anthropic-led MCP organization at github.com/modelcontextprotocol/servers. It is the reference implementation for Postgres access: a minimal, connection-string-driven server that wraps a live database and exposes it through typed MCP tools. No platform account required. No vendor lock-in. You point it at any Postgres instance, local or remote, and it works. The package sees regular commits as part of the broader MCP servers monorepo, which is actively maintained.
+
+The tool surface covers the operations that come up most often in a Postgres workflow. `query` accepts raw SQL and returns results as a JSON array, which handles everything from a simple SELECT to a multi-table join with subqueries. `list_schemas` and `list_tables` let an agent survey the database without writing information_schema queries by hand. `describe_table` returns column names, data types, nullability, and default values for a specific table. For schema work, an agent can use `query` to run migration DDL directly. The combination of a schema-discovery surface and an unrestricted query tool means most Postgres use cases resolve without the agent needing to fall back to raw SQL guess-and-check.
+
+This is the right starting point for any team running self-hosted Postgres or a cloud provider like AWS RDS, Google Cloud SQL, or Azure Database for PostgreSQL. The connection string model means it works identically against any Postgres-compatible endpoint. No custom configuration beyond a `DATABASE_URL`. For workflows that need schema inspection before writing a query, then running the query, then summarizing the result, the official server does all three without requiring additional tooling.
+
+Skip it if you are on Supabase or Neon and want platform-native features: row-level security management, branch operations, or real-time subscription setup. Those require the vendor-specific MCP servers, which expose API surface beyond the database wire protocol. The official Postgres MCP gives you the SQL layer; it has no concept of the platform around it.
+
+The package is open source under the MIT license. The broader modelcontextprotocol/servers repo carries 10,000+ stars across all reference servers. The Postgres implementation is actively included in MCPFind's quality tracking.
+
+### Setup Snippet
+
+```json
+{
+  "mcpServers": {
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/yourdb"
+      }
+    }
+  }
+}
+```
+
+---
+
+## Supabase MCP
+
+Supabase MCP (2,556 stars on MCPFind, github.com/supabase/mcp-server-supabase) is the highest-adoption server in the databases category by a wide margin. Supabase runs on Postgres, so every Postgres workflow applies here, but the server goes well beyond what the official Postgres MCP covers. It wraps the Supabase management API alongside the database, giving an agent access to table editor operations, storage bucket management, edge function deployment, and row-level security configuration through the same MCP interface. For teams on Supabase specifically, this is the complete integration: database plus platform.
+
+Because Supabase already has a full [deep-dive post on MCPFind](/blog/supabase-mcp-server-deep-dive) covering its tool surface in detail, this entry focuses on what distinguishes it within the Postgres-workflow context. The tools that matter most for Postgres-flavored work are `execute_sql` (raw query execution against the Supabase Postgres instance), `apply_migration` (runs DDL in a migration-aware way using Supabase's migration framework), `list_tables` and `get_table_definition` (schema inspection), and `list_extensions` (checks which Postgres extensions, including pgvector, are enabled on the project). Unlike the official Postgres MCP, which accepts a raw connection string, Supabase MCP authenticates against the Supabase management API with a project-level access token.
+
+The argument for Supabase MCP over the official Postgres server is simple: if your Postgres is hosted on Supabase, this server speaks the full API surface of your environment, not just the database wire protocol. An agent can inspect a table, run a query, and then enable a Postgres extension in one session without switching tools. For teams using Supabase Auth or Storage alongside their database, the unified tool surface saves the context-switching that would otherwise come from maintaining two servers.
+
+If your Postgres is not on Supabase, this server has nothing to offer. Its auth model requires a Supabase access token tied to a specific project. It does not accept arbitrary Postgres connection strings. Self-hosted Postgres users, RDS users, and Cloud SQL users should look at the official Postgres MCP or Neon MCP instead.
+
+2,556 stars, last push March 24, 2026. Maintained directly by the Supabase team. MIT license. Free tier available; Supabase pricing applies to the underlying project.
+
+### Setup Snippet
+
+```json
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "npx",
+      "args": ["-y", "@supabase/mcp-server-supabase@latest"],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "your-personal-access-token"
+      }
+    }
+  }
+}
+```
+
+---
+
+## Neon MCP
+
+Neon builds serverless Postgres, and their MCP server (github.com/neondatabase/mcp-server-neon) is purpose-built around Neon's branching model. Standard Postgres MCP servers think in terms of schemas and tables. Neon MCP adds a layer above that: Neon database branches, which are cheap, isolated Postgres instances that branch from a parent in seconds. For development workflows where you want an agent working on a copy of production rather than production itself, Neon's branching primitive changes the risk model entirely. The server is maintained by the Neon team with regular pushes, and carries 400+ stars as of the MCPFind directory's current data window.
+
+The tools that matter for Postgres work are `query` (SQL execution against a named branch), `create_branch` (spin up a new branch from any parent), `delete_branch` (clean up after a task), `list_branches` (see what's running in a project), and `get_connection_string` (retrieve the connection string for a branch so other tools can connect to it). The schema-level tools mirror what you'd expect from the official Postgres MCP: list tables, describe columns, check indexes. What Neon adds is the workflow orchestration layer. An agent can create a branch, run a migration against it, query the results, and delete the branch when done, all in one conversation. No production database was touched.
+
+Teams that want agents running migrations or schema changes without direct production exposure get the most out of this. The pattern is: create a branch from the production snapshot, apply the migration, run queries to verify the result, then merge or delete depending on outcome. That loop, which previously required a staging database and manual teardown, runs as a sequence of MCP tool calls. For SQL query authoring where you want to test against realistic data without risking live rows, Neon branches provide the isolation layer.
+
+Skip it if your Postgres is not on Neon. The server connects through the Neon API using an API key tied to a Neon project. There is no support for external Postgres hosts, and the branching tools only work within a Neon project's branch hierarchy.
+
+400+ stars, maintained by the Neon engineering team, regular pushes in 2026. MIT license. Neon's free tier covers branching and compute for development use.
+
+### Setup Snippet
+
+```json
+{
+  "mcpServers": {
+    "neon": {
+      "command": "npx",
+      "args": ["-y", "@neondatabase/mcp-server-neon"],
+      "env": {
+        "NEON_API_KEY": "your-neon-api-key"
+      }
+    }
+  }
+}
+```
+
+---
+
+## Waystation Postgres
+
+Waystation Postgres (45 stars on MCPFind, slug `ai-waystation-postgres`) is a focused community server for self-hosted Postgres that takes a different philosophy from the official MCP server: fewer abstractions, direct database access, read and write supported, and a simple connection string as the only configuration. It sits in the HEALTHY tier with commits through September 2025. For developers who want an MCP server that gets out of the way and connects an agent to a running Postgres instance with minimal ceremony, this is the lowest-friction option among the community-maintained servers.
+
+The tool surface is intentionally tight. `execute_query` runs any SQL against the connected database and returns results as structured JSON. `get_schema` returns table and column definitions for the database in one call, which saves the round-trip of querying information_schema directly. `list_tables` produces a quick index of what's in each schema. The write model is permissive: the server does not enforce read-only mode at the tool level, so the access boundary is entirely determined by the Postgres role you supply in the connection string. A SELECT-only role makes it read-only. A role with write privileges gives the agent full read-write access.
+
+This fits solo developers and small teams who are running Postgres locally or on a simple cloud VM and want an agent that can query, update, and inspect the database in a single session. The connection-string setup takes about two minutes. No platform account, no API key management beyond the database credentials you already have. A practical use case: write a SELECT across several joined tables, inspect the result, update a set of rows based on that result, and confirm the update in one conversation without context-switching to a SQL client.
+
+It won't add anything for teams on Supabase or Neon, where the platform-native MCP servers cover the same SQL access plus additional platform features. It also has no awareness of ORMs or migration frameworks. For teams using Prisma or another schema-management layer, Prisma MCP is a better fit.
+
+45 stars, last push September 10, 2025. Community-maintained. MIT license.
+
+### Setup Snippet
+
+```json
+{
+  "mcpServers": {
+    "waystation-postgres": {
+      "command": "npx",
+      "args": ["-y", "@waystation/postgres-mcp"],
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/yourdb"
+      }
+    }
+  }
+}
+```
+
+---
+
+## Prisma MCP
+
+Prisma MCP (40 stars on MCPFind, `io-prisma-mcp`, at github.com/prisma/prisma) is the ORM-aware entry in this list. The other servers connect to Postgres at the wire-protocol level and have no concept of how your application models data. Prisma MCP reads your `prisma.schema` file alongside the live database, which means the agent understands your application's data model by name, not just the raw table structure. For teams using Prisma as their database access layer, this is the difference between an agent that asks "what is in the users table" and one that asks "what does the User model look like, and how does it relate to Post." Last push October 2025.
+
+The tools that separate this from a raw Postgres server are the schema-aware operations. `get_schema` returns your Prisma schema as structured data. `generate_migration` takes a description of the schema change you want and produces a Prisma migration file, which you can review before running. `run_migration` applies a pending migration. `format_schema` lints and reformats your schema file to Prisma conventions. For direct database access, `execute_query` runs SQL through Prisma's query engine against the configured datasource. The combination means an agent can read your current schema, propose a change, generate the migration, and run it without leaving the conversation.
+
+The teams this fits are those already deep into the Prisma ecosystem: Next.js apps, Node.js APIs, anything using Prisma Client as the data layer. An agent that understands your schema by its Prisma model names generates much cleaner queries and migrations than one working from raw table names. If you are building a new model, adding a field, or setting up a relation, Prisma MCP handles the generate-migrate-apply loop interactively.
+
+Teams not using Prisma get nothing here. The server depends on a `prisma.schema` file and Prisma CLI tooling. Raw Postgres workflows without a Prisma layer should use the official Postgres MCP or Waystation Postgres instead. Prisma MCP is also not the right pick for performance analysis or query tuning, since its SQL access goes through Prisma's query engine rather than directly to the database.
+
+40 stars, last push October 7, 2025. Maintained by Prisma. Apache 2.0 license.
+
+### Setup Snippet
+
+```json
+{
+  "mcpServers": {
+    "prisma": {
+      "command": "npx",
+      "args": ["-y", "@prisma/mcp-server"],
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/yourdb"
+      }
+    }
+  }
+}
+```
+
+---
+
+## SchemaCrawler AI
+
+SchemaCrawler AI (9 stars on MCPFind, `io-github-schemacrawler-schemacrawler-ai`, at github.com/schemacrawler/SchemaCrawler-AI) is the schema-documentation specialist. SchemaCrawler has been a trusted database schema analysis tool for over a decade; the AI variant wraps that catalog-reading capability as an MCP server. It reads table definitions, primary keys, foreign keys, indexes, stored procedures, and triggers from the database catalog, then answers natural-language questions about what the schema contains without requiring the agent to write information_schema queries. Postgres is a first-class supported database, alongside MySQL, Oracle, and MSSQL. Last push March 23, 2026.
+
+The tool surface is built around schema discovery rather than query execution. `get_database_info` returns a high-level database overview: server version, catalog name, supported features. `list_tables` enumerates tables with row counts and brief descriptions. `describe_table` returns the full column definition, constraints, indexes, and foreign key relationships for a specific table. `find_foreign_keys` traces relationships between tables, which is the tool to reach for when you need to understand how a set of tables are connected before writing a JOIN-heavy query. `get_stored_procedures` lists and describes stored procedures and their parameters.
+
+Where SchemaCrawler AI belongs is in the schema-understanding phase before query authoring. When an agent needs to understand an unfamiliar Postgres database well enough to write accurate queries, running `describe_table` and `find_foreign_keys` across the relevant tables saves the back-and-forth of querying information_schema and interpreting the raw results. It's particularly useful for teams inheriting legacy databases where the schema carries domain knowledge that isn't written down anywhere else.
+
+SchemaCrawler AI is read-only against the catalog. It does not run arbitrary SQL queries, does not write to the database, and has no migration tooling. For a complete Postgres workflow that includes both schema inspection and query execution, pair it with the official Postgres MCP server. SchemaCrawler handles the "what's in here" phase; the official server handles the "now query it" phase.
+
+9 stars, last push March 23, 2026. Open source project with a long maintenance history. LGPL license. Connection uses standard Postgres JDBC-compatible credentials.
+
+### Setup Snippet
+
+```json
+{
+  "mcpServers": {
+    "schemacrawler-ai": {
+      "command": "npx",
+      "args": ["-y", "@schemacrawler/ai-mcp-server"],
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/yourdb"
+      }
+    }
+  }
+}
+```
+
+---
+
+## How to Choose: Decision Framework
+
+Start with where your Postgres runs. For self-hosted instances, any VPS, or cloud providers outside the Supabase/Neon ecosystem (RDS, Cloud SQL, Azure Database), the official Postgres MCP is the right foundation. It accepts any valid Postgres connection string, exposes a direct SQL execution surface, and has no platform dependencies. Waystation Postgres covers the same ground for teams that prefer a community-maintained alternative with a slightly simpler tool surface. Either one gives you the SQL access layer; the choice between them comes down to star count and maintenance preference.
+
+For managed Postgres on Supabase, the Supabase MCP is the correct pick. It gives you SQL access plus platform-level tools (RLS configuration, storage, edge functions) in one server. The official Postgres MCP technically works against a Supabase database over a connection string, but it loses all the platform surface that makes Supabase what it is. The [Supabase MCP deep dive](/blog/supabase-mcp-server-deep-dive) covers the full tool surface.
+
+Neon MCP is the right choice when the workflow involves schema changes or agent-driven migrations. The branching primitive is what separates it from the others: an agent can make changes against an isolated branch, verify the result, and clean up without touching production. Teams running migration workflows, testing schema changes, or prototyping new data models get meaningful safety guarantees from this model that the other servers do not provide.
+
+Pick Prisma MCP when your application uses Prisma as the ORM layer and the workflow involves model-level reasoning: understanding what a model contains, generating a migration for a new field, applying a migration, or checking whether the schema and database are in sync. It is not a general-purpose SQL tool and should not replace the official Postgres MCP for raw query workflows. The two can run simultaneously if a workflow needs both model-level awareness and unrestricted SQL access.
+
+SchemaCrawler AI earns a place in the stack when the task is understanding an unfamiliar or undocumented schema before writing queries. Its catalog-reading tools answer structural questions precisely. Pair it with the official Postgres MCP when you need both schema inspection and query execution in one session.
+
+Browse all 317 servers in the [MCPFind databases category](/categories/databases) with the star filter set to 40+ to see the current adoption tier. Coverage in this category grows weekly as new servers are submitted.
+
+## Frequently Asked Questions
+
+### Do Postgres MCP servers support both read and write operations?
+
+Most do, but the scope depends on the credentials you supply. The official Postgres MCP server and Neon MCP both support read and write. To restrict an agent to read-only access, create a Postgres role with SELECT-only privileges and use that connection string in the server config. The server inherits exactly the permissions of the role it connects as.
+
+### Can I use a Postgres MCP server with a cloud-hosted database like RDS or Cloud SQL?
+
+Yes. Any MCP server that accepts a standard Postgres connection string works with hosted databases, including AWS RDS, Google Cloud SQL, Azure Database for PostgreSQL, and Neon. You provide the host, port, user, password, and database name in the config. Make sure the database's network allows connections from your local machine or the host running the MCP server.
+
+### Which Postgres MCP server is best for schema inspection without running raw SQL?
+
+SchemaCrawler AI is built for this. It reads table definitions, foreign keys, indexes, and stored procedures from the database catalog, then answers natural-language questions about the schema without requiring the agent to write information_schema queries. The official Postgres MCP also exposes schema through its list_schemas, list_tables, and describe_table tools.
+
+### Are there MCP servers that understand Prisma schema files as well as the underlying Postgres database?
+
+Yes. Prisma MCP reads your prisma.schema file alongside the live database, so it can answer questions about your ORM model, generate migrations, and check whether the schema and database are in sync. This is different from a raw Postgres MCP server, which has no awareness of your application's data model layer.
+
+### Can I run multiple Postgres MCP servers at the same time to connect to different databases?
+
+Yes. Each server gets its own key in the MCP client config and its own connection string. A common pattern is one server pointing at a production read-replica and a second pointing at a local development database. The agent selects the right server based on which tools it calls.
+
+## Related Servers in This Category
+
+{/* RelatedServersForCategory renders automatically from the `category` frontmatter field.
+    Filters: status=published AND public=true. Ordered by GitHub stars descending.
+    No manual server list needed here. Remove this comment block before publishing. */}
+
+## Next Steps
+
+- [How to connect PostgreSQL to Claude using MCP](/blog/connect-postgresql-claude-mcp)
+- [Supabase MCP server: full deep dive](/blog/supabase-mcp-server-deep-dive)
+- [Browse all databases MCP servers on MCPFind](/categories/databases)
+- [What is MCP and how does it work?](/blog/what-is-mcp)
