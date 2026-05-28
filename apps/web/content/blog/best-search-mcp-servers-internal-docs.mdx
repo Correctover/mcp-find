@@ -1,0 +1,318 @@
+---
+title: "Best Search MCP Servers for Internal Docs in 2026"
+description: "MCPFind indexes 433 search MCP servers as of May 2026. For internal documentation search specifically, the HEALTHY-tier picks are the Atlassian MCP (official, covers Confluence and Jira), Better Notion MCP, Google Drive MCP, Glean MCP, Google Docs MCP, and Waystation Slack MCP. Compared on source coverage, ACL handling, auth model, and fit for private knowledge retrieval workflows in 2026."
+focusKeyword: "best search mcp servers for internal docs"
+category: "search"
+author: "Gus Marquez"
+authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
+authorSameAs:
+  - "https://www.linkedin.com/in/gustavoamarquez"
+cluster: "search-listicle"
+date: "2026-05-28"
+publishedAt: "2026-05-28"
+updatedAt: "2026-05-28"
+tags:
+  - "mcp"
+  - "search"
+  - "internal-docs"
+  - "notion"
+  - "confluence"
+  - "enterprise-search"
+draft: false
+cornerstone: false
+faqItems:
+  - question: "Do internal docs MCP servers respect my team's permission settings?"
+    answer: "It depends on the server. Servers that connect through OAuth (Notion, Google Drive, Atlassian) inherit whatever permissions the authenticated user already has in that system. They cannot access pages or documents the authenticated account cannot already see. Glean goes further: it indexes your connected sources and enforces ACLs at the retrieval layer, so a query only surfaces documents the querying user is permitted to view even in a multi-user environment."
+  - question: "What is the difference between an internal docs search server and a RAG server?"
+    answer: "An internal docs search server connects to a specific workspace (Notion, Confluence, Google Drive) and lets an agent query content that already lives there. A RAG server ingests documents into a separate vector store and retrieves by embedding similarity. For most teams, the internal docs approach is faster to set up because there is no ingestion pipeline to maintain. RAG makes more sense when the source data is unstructured, spread across many formats, or too large for direct API retrieval."
+  - question: "Can these servers search across multiple internal doc systems at once?"
+    answer: "Most single-platform servers (Notion MCP, Google Drive MCP) query only the platform they connect to. Glean is the exception: it is an enterprise search layer that indexes Confluence, Slack, Google Workspace, Notion, and dozens of other sources, and returns unified results across all of them in a single query. For multi-source retrieval without managing separate server connections, Glean is the strongest option in this tier."
+  - question: "Is it safe to give an AI agent access to internal documentation?"
+    answer: "The safety is bounded by the credential scope you configure. OAuth-based servers (Atlassian MCP, Google Drive MCP, Waystation Slack) inherit the permissions of the account or service credential used to authenticate. If that account has read-only access, the agent cannot write. If that account cannot see a document, the agent cannot retrieve it. The risk surface is the same as delegating a user account to a tool, not broader than that."
+  - question: "Does the official Notion MCP server work with Claude Desktop?"
+    answer: "The official Notion-published server (slug com-notion-mcp) is classified as STALE in the MCPFind directory as of May 2026, meaning no commit in the prior 90 days. The community-maintained Better Notion MCP (slug io-github-n24q02m-better-notion-mcp) is HEALTHY and actively maintained. Check the repository directly for the current package name and installation steps before adding it to your config."
+howToSteps:
+  - name: "Pick the right platform first"
+    text: "Match the server to where your documentation actually lives: Atlassian MCP for Confluence-heavy teams, Better Notion MCP for Notion workspaces, Google Drive MCP for Google Workspace, Glean MCP for multi-source enterprise search across all of the above."
+  - name: "Generate a scoped credential"
+    text: "For OAuth-based servers, create a service account or OAuth app in the relevant platform with the minimum permissions needed (read-only is enough for search), then copy the token or client credentials before editing any config."
+  - name: "Add the server config block to your MCP client"
+    text: "Paste the JSON config into ~/Library/Application Support/Claude/claude_desktop_config.json for Claude Desktop, or .cursor/mcp.json for Cursor, and fill in your credential in the env block."
+  - name: "Restart the client and verify with a specific query"
+    text: "After restarting, ask the agent a question that requires pulling context from your docs (for example, a specific policy name or RFC title) and confirm the right content surfaces before using it in a production workflow."
+howToName: "How to set up internal docs MCP servers for Claude"
+howToDescription: "Step-by-step guide for connecting internal documentation systems (Notion, Confluence, Google Drive, Glean) to Claude Desktop or your preferred MCP client."
+howToTotalTime: "PT15M"
+---
+
+The [MCPFind search category](/categories/search) indexes 433 servers as of May 2026. Most are wrappers around public search APIs: web index access, SERP data, AI-synthesized answers. The internal docs segment is smaller and more specific: servers that give an agent access to private knowledge, the Confluence space where your RFCs live, the Notion workspace your team uses for planning docs, the Google Drive folder where customer interview notes accumulate. For teams that want to ask an AI agent what a particular policy says, or find the billing architecture decision from last quarter without leaving a chat session, these are the servers that matter. The HEALTHY-tier options in this segment are the official Atlassian MCP (Confluence and Jira), Better Notion MCP, Google Drive MCP, Glean MCP, Google Docs MCP, and Waystation Slack MCP. See the full list at the [MCPFind search category](/categories/search).
+
+## Selection Criteria
+
+Four filters shaped this list. First: HEALTHY classification in the MCPFind quality audit, which means 50+ GitHub stars or vendor-official status, plus a commit within the prior 90 days. Second: the server must retrieve from a private or internal data source, not a public web index. Servers aimed at web research are covered separately in the [web research listicle](/blog/best-search-mcp-servers-web-research). Third: authentication and permission handling had to be documented well enough to evaluate without guesswork. Fourth: the source system had to be a realistic corporate knowledge store, not a personal productivity tool only. Star counts come from the MCPFind directory snapshot on May 20, 2026. One notable absence: the official Notion-published server (`com-notion-mcp`) is STALE as of May 2026 and was excluded from the HEALTHY tier.
+
+## Comparison Table
+
+| Server | Stars | Source | Auth | ACL Respect | Best for |
+|---|---|---|---|---|---|
+| Atlassian MCP | Official | Confluence + Jira | OAuth | Inherits user permissions | Atlassian-stack teams |
+| Better Notion MCP | low hundreds | Notion workspaces | API key / OAuth | Inherits integration scope | Notion-first teams |
+| Google Drive MCP | low hundreds | Google Drive files | OAuth | Inherits account permissions | Google Workspace teams |
+| Glean MCP | Official | Multi-source enterprise | OAuth | ACL enforced at retrieval | Enterprise multi-source search |
+| Google Docs MCP | low hundreds | Google Docs | OAuth | Inherits account permissions | Docs-centric reading workflows |
+| Waystation Slack MCP | Official | Slack messages + files | OAuth | Inherits user token scope | Slack-archived knowledge retrieval |
+
+## Atlassian MCP
+
+The official Atlassian MCP server (`com-atlassian-atlassian-mcp-server`) covers the two most common enterprise documentation platforms simultaneously: Confluence and Jira. Atlassian maintains this server directly, which means the API surface tracks the current Atlassian Cloud REST API rather than lagging behind it the way community wrappers can. For any team running an Atlassian stack, this is the starting point. If your engineering organization documents RFCs in Confluence and tracks work in Jira, a single server connection gives the agent access to both.
+
+The tool surface covers both systems. On the Confluence side: searching spaces and pages by query string, retrieving page content by title or ID, listing spaces and child pages, and pulling page metadata including authors, labels, and last update timestamps. On the Jira side: searching issues with JQL, retrieving issue details and comments, listing projects, and getting current sprint or board state. The ability to cross-reference a Jira ticket with its linked Confluence design doc in a single agent session is the pattern that sets this server apart from single-platform alternatives.
+
+The right use case is any Atlassian-stack team that wants an AI agent to retrieve institutional knowledge without switching tools. A developer asking Claude to summarize the auth migration RFC before a code review, a PM asking what was decided about the pricing model in last quarter's planning doc. For these workflows, the Atlassian MCP eliminates the context-switching step. Authentication uses OAuth, which means the agent inherits the permissions of the authenticated Atlassian account. Pages and issues the account cannot access do not surface in results.
+
+Skip it if your documentation lives primarily outside Atlassian. The server has no connector for Google Drive, Notion, or Slack. If only a fraction of your knowledge base is in Confluence, a multi-source retrieval tool like Glean may be a better fit than adding a separate server per platform.
+
+Official server maintained by Atlassian. HEALTHY classification in the MCPFind directory as of May 2026. Check the [Atlassian developer documentation](https://developer.atlassian.com/platform/mcp/) for the current OAuth setup flow, as the configuration steps may vary between Atlassian Cloud and Data Center deployments.
+
+### Setup Snippet
+
+```json
+{
+  "mcpServers": {
+    "atlassian": {
+      "command": "npx",
+      "args": ["-y", "@atlassian/mcp-atlassian"],
+      "env": {
+        "ATLASSIAN_OAUTH_TOKEN": "your-atlassian-oauth-token",
+        "ATLASSIAN_URL": "https://your-org.atlassian.net"
+      }
+    }
+  }
+}
+```
+
+Verify the exact package name and OAuth scope requirements from the [Atlassian MCP repository](https://developer.atlassian.com/platform/mcp/) before configuring, as field names may differ between releases.
+
+---
+
+## Better Notion MCP
+
+The official Notion-published MCP server (`com-notion-mcp`) is classified as STALE in the MCPFind directory as of May 2026. Better Notion MCP (`io-github-n24q02m-better-notion-mcp`) fills that gap. It is a community-maintained server built on top of the Notion API that has stayed current with Notion's block model, database structures, and search surface. The maintenance signal is good: active commits through 2026, an active issue tracker, and consistent compatibility with current Notion API versions. For teams that depend on Notion as their primary documentation platform, this is the HEALTHY option available right now.
+
+The tools cover Notion's two main structures: pages and databases. Search tools accept a query string and return matching pages or database entries across your workspace. Page retrieval tools pull full block content including nested blocks, which matters for long-form documentation where the information may be several levels deep in the page tree. Database query tools support filters and sorts, so an agent can retrieve "all RFCs tagged as approved" or "meeting notes from Q1 2026" without reading every row. There is also a tool for listing databases in a workspace, useful when the agent needs to discover what structured data exists before querying it.
+
+The Notion integration model gives precise control over what the agent can see. You create a Notion integration in your workspace settings and explicitly connect it to specific pages and databases. Nothing outside that connection is accessible. That makes it practical to give an agent access to a shared engineering wiki without exposing personal or sensitive workspace content. For teams that have already organized their Notion workspace carefully, that permission boundary is a natural fit.
+
+Skip it if your primary documentation system is not Notion. Better Notion MCP does not reach outside Notion. Teams using a mix of Notion and Google Drive, or Notion and Confluence, need either a separate server per platform or a multi-source tool like Glean. The community-maintained status also means the server may lag behind breaking changes in the Notion API more than an official server would.
+
+Star count in the low hundreds (MCPFind directory snapshot, May 2026). Community-maintained with active development through 2026. Check the [Better Notion MCP GitHub repository](https://github.com/n24q02m/better-notion-mcp) for the current license and installation instructions.
+
+### Setup Snippet
+
+```json
+{
+  "mcpServers": {
+    "better-notion": {
+      "command": "npx",
+      "args": ["-y", "better-notion-mcp"],
+      "env": {
+        "NOTION_API_KEY": "your-notion-integration-secret"
+      }
+    }
+  }
+}
+```
+
+Create a Notion integration at `https://www.notion.so/my-integrations` to get the API key, then connect the integration to each page or database you want the agent to access. Verify the package name against the repository before running.
+
+---
+
+## Google Drive MCP
+
+Google Drive MCP (`io-github-domdomegg-google-drive-mcp`) gives an agent the ability to search and retrieve files from a Google Drive account or shared workspace. For teams that live in Google Workspace, Drive is often where the real documentation accumulates: design specs in Docs, data in Sheets, slide decks from product reviews, PDFs of contracts or research. Most of this content is never formalized into a knowledge base. It just lives in Drive, findable by people who know where to look and invisible to AI agents that don't have a connection into the filesystem.
+
+The tools surface Drive's search API and file retrieval. The search tool accepts a query string and returns matching files with metadata: name, type, owner, last modified date, and a link. File content retrieval extracts the text content of Google Docs and readable file types, which is what an agent needs to actually answer a question rather than just locate a file. Folder listing gives the agent structural awareness, useful for discovery workflows where the goal is to understand what documentation exists in a given project directory before deciding what to retrieve.
+
+Use this when your documentation is not structured enough to live in a dedicated tool like Confluence or Notion. Shared Drive folders are how many teams accumulate knowledge informally: a folder per project, files updated as work progresses, no formal wiki structure required. Google Drive MCP meets that content where it lives. Authentication uses OAuth against a Google account or service account, and the agent inherits whatever file permissions the authenticated account already has. Files outside that scope do not appear in search results.
+
+Skip it if your team stores most documentation in a structured workspace like Notion or Confluence. Drive MCP is optimized for file-level search and retrieval, not for querying structured databases or navigating a wiki hierarchy. For workspaces that depend on Notion's database model or Confluence's space structure, the corresponding servers are a better fit. Teams that need to search across both Drive and another platform simultaneously are better served by Glean.
+
+Star count in the low hundreds (MCPFind directory snapshot, May 2026). Community-maintained, with active development through 2026. MIT license. Check the [Google Drive MCP GitHub repository](https://github.com/domdomegg/google-drive-mcp) for the current OAuth setup steps and service account configuration options.
+
+### Setup Snippet
+
+```json
+{
+  "mcpServers": {
+    "google-drive": {
+      "command": "npx",
+      "args": ["-y", "google-drive-mcp"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "your-client-id",
+        "GOOGLE_CLIENT_SECRET": "your-client-secret",
+        "GOOGLE_REFRESH_TOKEN": "your-refresh-token"
+      }
+    }
+  }
+}
+```
+
+OAuth credentials come from a Google Cloud project with the Drive API enabled. See the [repository README](https://github.com/domdomegg/google-drive-mcp) for the full OAuth setup flow. Confirm exact env variable names before saving your config.
+
+---
+
+## Glean MCP
+
+Glean is enterprise search for company knowledge. Rather than connecting to one platform at a time, Glean indexes across 100+ workplace apps, Confluence, Slack, Google Workspace, Notion, Jira, Salesforce, SharePoint, and dozens more, and returns unified results from all of them in a single query. The MCP server (`com-glean-mcp`) is maintained by Glean directly and connects the agent to Glean's retrieval API. If your organization already runs Glean, this server is the single most coverage-efficient option in this entire guide: one server, all your connected sources.
+
+The tool surface is a search call against Glean's enterprise index. The primary tool accepts a query string and optional filters (date range, source system, document type, author) and returns ranked results from across every connected source. Results include snippet context, source attribution, and a link to the original document. Glean handles permission enforcement at the index layer, not just at the credential layer, which is a meaningful distinction for multi-user enterprise environments. When an agent queries through Glean, results are filtered by what the querying user's account is permitted to see, even across platforms with different permission models.
+
+The use case is any team that needs cross-platform knowledge retrieval and already has Glean deployed. A query like "what did we decide about the pricing model" might surface a Confluence page, a Notion doc, and a Slack thread from the same planning cycle. Glean unified ranking surfaces the most relevant content across all of them without requiring separate tool calls per platform. For teams doing compliance research, pre-meeting context gathering, or onboarding new employees with access to the full knowledge base, that breadth changes the workflow.
+
+The blocker is the Glean deployment requirement. Glean is a paid enterprise product. Organizations that have not deployed it cannot use the MCP server, and the setup process is at the IT/admin level, not individual developer configuration. For small teams or those without an enterprise search budget, the single-platform servers in this guide are the practical path. Glean also processes your document content on Glean's infrastructure, which matters in high-security environments with strict data residency requirements.
+
+Official server maintained by Glean. HEALTHY classification as of May 2026. See [glean.com](https://glean.com) for enterprise licensing and [Glean's MCP documentation](https://docs.glean.com) for the API key and OAuth configuration steps.
+
+### Setup Snippet
+
+Glean MCP connects via HTTP transport to Glean's hosted API:
+
+```json
+{
+  "mcpServers": {
+    "glean": {
+      "url": "https://your-org.glean.com/mcp",
+      "headers": {
+        "Authorization": "Bearer your-glean-api-token"
+      }
+    }
+  }
+}
+```
+
+Your Glean API token and org-specific URL come from your Glean admin console. Confirm the exact endpoint and header format with your Glean administrator before configuring, as self-hosted Glean deployments may use a different base URL.
+
+---
+
+## Google Docs MCP
+
+Google Docs MCP (`io-github-gigabrain-observer-google-docs-mcp-server`) focuses on document content retrieval from Google Docs specifically, rather than the broader Drive filesystem. The distinction matters for teams where the primary documentation artifact is the Docs format: design docs, meeting notes, project specs, technical RFCs. Google Drive MCP surfaces files across all types, but Google Docs MCP targets the reading layer more precisely, extracting the full structured content of a document, headers, body text, comments, and revision notes, in a form that is easier for an agent to parse and reason over.
+
+The tool surface covers document search and content extraction. The search tool queries Google Docs within the authenticated account or shared drive and returns matching documents by title, content keywords, or metadata. The content retrieval tool fetches the full text of a document including nested structure, which matters for documents that contain multiple sections the agent may need to navigate. Access to document comments and suggestions is useful for design review workflows where the discussion on a document is as informative as the document itself.
+
+The right fit is a team that writes in Docs and wants an agent to retrieve specific documents or answer questions about them. A common pattern: ask Claude to summarize what the design doc for a particular feature says about the API contract, or find the meeting notes where the team decided on the current deployment approach. Google Docs MCP handles both retrieval and content extraction in those workflows without requiring the agent to handle raw Drive file responses. Auth is OAuth-based, inherited from the authenticated Google account.
+
+Skip it if your documentation lives in formats other than Google Docs. PDFs, Sheets, and non-Google files in Drive are outside the scope of this server. Google Drive MCP is more appropriate when the content spans multiple file types. For teams using Google Workspace but needing broader retrieval (spreadsheets, presentations, PDFs), pairing this server with Drive MCP or using Drive MCP alone covers more ground.
+
+Star count in the low hundreds (MCPFind directory snapshot, May 2026). Community-maintained, active through 2026. Check the [Google Docs MCP GitHub repository](https://github.com/gigabrain-observer/google-docs-mcp-server) for current auth setup instructions and license terms.
+
+### Setup Snippet
+
+```json
+{
+  "mcpServers": {
+    "google-docs": {
+      "command": "npx",
+      "args": ["-y", "google-docs-mcp"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "your-client-id",
+        "GOOGLE_CLIENT_SECRET": "your-client-secret",
+        "GOOGLE_REFRESH_TOKEN": "your-refresh-token"
+      }
+    }
+  }
+}
+```
+
+Requires a Google Cloud project with the Google Docs API enabled. See the repository README for the OAuth flow and confirm all env variable names before saving your config.
+
+---
+
+## Waystation Slack MCP
+
+Slack is where a lot of institutional knowledge lives that never makes it into a formal doc. The decision made in a DM thread. The architectural trade-off discussed in an incident channel. The onboarding context shared in a team channel two years ago. Waystation Slack MCP (`ai-waystation-slack`) connects an agent to Slack's message history and files, giving it the ability to search that informal knowledge layer.
+
+The tools cover search and retrieval across Slack's message surface. The primary search tool accepts a query and returns matching messages with full context: the channel, the thread, the timestamp, and the message content. Thread retrieval pulls the full message sequence for a given thread ID, which is important when the relevant information is in a reply rather than the top-level message. Channel and user listing give the agent structural awareness for scoped queries. Waystation's implementation goes through Slack's official OAuth flow, which means permissions are scoped to what the authenticated user or bot token can see.
+
+Use this when your team uses Slack for substantive decisions and wants an agent to retrieve that context without manual searching. Pre-meeting research (what was discussed in the engineering channel last week about this feature), post-incident analysis (summarize the thread from the outage), and onboarding context retrieval (find the messages where we decided on the current API versioning approach) all fit the pattern. For organizations that have made Slack their primary async communication layer, message history is a genuine knowledge source worth connecting.
+
+Skip it if your Slack workspace is primarily used for coordination messages rather than substantive decisions. Not every Slack workspace has the kind of content that makes AI retrieval valuable. The server also requires either a user OAuth token (which can have broad workspace access) or a properly scoped bot token. For teams with strict controls on bot access to message history, the permission configuration warrants careful review with your Slack admin before deployment.
+
+Official server maintained by Waystation. HEALTHY classification in the MCPFind directory as of May 2026. See [Waystation](https://waystation.ai) for current pricing and configuration details. The OAuth setup requires creating a Slack app in your workspace and authorizing the appropriate scopes.
+
+### Setup Snippet
+
+```json
+{
+  "mcpServers": {
+    "waystation-slack": {
+      "url": "https://mcp.waystation.ai/slack",
+      "headers": {
+        "Authorization": "Bearer your-waystation-token"
+      }
+    }
+  }
+}
+```
+
+Waystation handles the Slack OAuth flow on its end. Authentication setup is through the Waystation dashboard rather than direct Slack API configuration. Confirm the current endpoint and token format from the [Waystation documentation](https://waystation.ai) before adding this to your config.
+
+---
+
+## How to Choose: Decision Framework
+
+Start with where your documentation actually lives. If your team runs Atlassian products, the official Atlassian MCP is the lowest-friction path to both Confluence and Jira in a single server. If the primary workspace is Notion, Better Notion MCP is the HEALTHY option to reach for (the official Notion server is STALE as of May 2026). For Google Workspace teams whose knowledge is split between structured Docs and unstructured Drive files, Google Docs MCP and Google Drive MCP can run alongside each other in the same MCP config, each covering a different retrieval surface.
+
+Permission handling should weigh heavily in the decision for shared or enterprise environments. The single-platform servers (Atlassian, Notion, Google Drive, Google Docs) all work through OAuth and inherit the permissions of the authenticated account. An agent using those servers cannot see content the credential account cannot see. Glean is the exception: it enforces ACLs at the retrieval layer rather than only at the auth layer, which means it handles multi-user enterprise scenarios more cleanly when multiple users share an agent deployment. If your use case involves a shared AI assistant that different team members will query against a shared knowledge base, Glean's permission model is the most robust option here.
+
+For teams whose knowledge is split across multiple platforms, Glean handles the fan-out in a single query, but it requires an enterprise deployment. The practical alternative for non-Glean organizations is to run multiple servers simultaneously. MCP clients including Claude Desktop and Cursor support multiple server connections, so connecting Atlassian MCP alongside Waystation Slack MCP alongside Google Drive MCP is a valid configuration. The agent can query each when it needs that source. It is more setup but does not require an enterprise contract.
+
+One server worth knowing about that is not in this list: Airweave Search, covered in depth in the [databases listicle for vector and RAG stacks](/blog/best-databases-mcp-servers-vector-rag-stacks). Airweave is a full RAG retrieval pipeline with 50+ integrations including Confluence, Notion, Slack, and Google Drive. It falls in the databases category rather than search because it ingests and indexes your content rather than querying it in place. For teams that need semantic retrieval over large unstructured corpora, Airweave covers that angle without requiring a Glean deployment.
+
+Browse all servers in the [MCPFind search category](/categories/search) with the star filter set to 50+ to see the full HEALTHY-tier picture. The category has 433 servers total; the internal docs subset is small but the HEALTHY signal narrows the practical candidates quickly.
+
+## Frequently Asked Questions
+
+### Do internal docs MCP servers respect my team's permission settings?
+
+It depends on the server. Servers that connect through OAuth (Notion, Google Drive, Atlassian) inherit whatever permissions the authenticated user already has in that system. They cannot access pages or documents the authenticated account cannot already see. Glean goes further: it indexes your connected sources and enforces ACLs at the retrieval layer, so a query only surfaces documents the querying user is permitted to view even in a multi-user environment.
+
+### What is the difference between an internal docs search server and a RAG server?
+
+An internal docs search server connects to a specific workspace (Notion, Confluence, Google Drive) and lets an agent query content that already lives there. A RAG server ingests documents into a separate vector store and retrieves by embedding similarity. For most teams, the internal docs approach is faster to set up because there is no ingestion pipeline to maintain. RAG makes more sense when the source data is unstructured, spread across many formats, or too large for direct API retrieval.
+
+### Can these servers search across multiple internal doc systems at once?
+
+Most single-platform servers (Notion MCP, Google Drive MCP) query only the platform they connect to. Glean is the exception: it is an enterprise search layer that indexes Confluence, Slack, Google Workspace, Notion, and dozens of other sources, and returns unified results across all of them in a single query. For multi-source retrieval without managing separate server connections, Glean is the strongest option in this tier.
+
+### Is it safe to give an AI agent access to internal documentation?
+
+The safety is bounded by the credential scope you configure. OAuth-based servers (Atlassian MCP, Google Drive MCP, Waystation Slack) inherit the permissions of the account or service credential used to authenticate. If that account has read-only access, the agent cannot write. If that account cannot see a document, the agent cannot retrieve it. The risk surface is the same as delegating a user account to a tool, not broader than that.
+
+### Does the official Notion MCP server work with Claude Desktop?
+
+The official Notion-published server (slug com-notion-mcp) is classified as STALE in the MCPFind directory as of May 2026, meaning no commit in the prior 90 days. The community-maintained Better Notion MCP (slug io-github-n24q02m-better-notion-mcp) is HEALTHY and actively maintained. Check the repository directly for the current package name and installation steps before adding it to your config.
+
+## Related Servers in This Category
+
+{/* RelatedServersForCategory renders automatically from the `category` frontmatter field.
+    Filters: status=published AND public=true. Ordered by GitHub stars descending.
+    No manual server list needed here. Remove this comment block before publishing. */}
+
+## More in This Series
+
+This is the final post in the Phase 3 listicle series. The full series covers the four categories with the deepest HEALTHY-tier coverage in the MCPFind directory:
+
+- [Best Devtools MCP Servers for Repo Intelligence in 2026](/blog/best-devtools-mcp-servers-repo-intelligence)
+- [Best Devtools MCP Servers for Code Review in 2026](/blog/best-devtools-mcp-servers-code-review)
+- [Best Databases MCP Servers for Postgres Workflows](/blog/best-databases-mcp-servers-postgres-workflows)
+- [Best Databases MCP Servers for Vector and RAG Stacks](/blog/best-databases-mcp-servers-vector-rag-stacks)
+- [Best AI-ML MCP Servers for Agent Toolchains in 2026](/blog/best-ai-ml-mcp-servers-agent-toolchains)
+- [Best Search MCP Servers for Web Research in 2026](/blog/best-search-mcp-servers-web-research)
+
+## Next Steps
+
+- [Best search MCP servers for web research](/blog/best-search-mcp-servers-web-research)
+- [Best databases MCP servers for vector and RAG stacks](/blog/best-databases-mcp-servers-vector-rag-stacks)
+- [Browse all search MCP servers on MCPFind](/categories/search)
+- [What is MCP and how does it work?](/blog/what-is-mcp)
