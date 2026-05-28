@@ -1,0 +1,268 @@
+---
+title: "Best Databases MCP Servers for Vector and RAG Stacks: A 2026 Comparison"
+description: "MCPFind indexes 317 databases MCP servers. For vector and RAG stacks, the HEALTHY-tier picks are Airweave Search (6,092 stars), Supabase MCP (2,556 stars with pgvector), ArcadeDB (762 stars), FalkorDB QueryWeaver (786 stars), and Apple RAG MCP (112 stars). Compared on vector storage, hybrid search, hosted vs self-hosted, and RAG pipeline fit for 2026."
+focusKeyword: "best databases mcp servers vector rag stacks"
+category: "databases"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+cluster: "databases-listicle"
+date: "2026-05-27"
+publishedAt: "2026-05-27"
+updatedAt: "2026-05-27"
+tags:
+  - "mcp"
+  - "databases"
+  - "vector-database"
+  - "rag"
+  - "pgvector"
+  - "semantic-search"
+draft: false
+cornerstone: false
+faqItems:
+  - question: "Do vector database MCP servers support hybrid search out of the box?"
+    answer: "It depends on the server. Airweave Search and Apple RAG MCP expose explicit hybrid search tools that combine vector similarity with keyword matching in a single call. Supabase MCP and ArcadeDB give you the primitives (pgvector and vector embedding queries respectively), but you construct the hybrid logic yourself in SQL. FalkorDB QueryWeaver focuses on graph-schema retrieval rather than raw vector similarity."
+  - question: "Can I use Supabase MCP to run pgvector queries from Claude?"
+    answer: "Yes. Supabase MCP's execute_sql tool accepts any valid PostgreSQL, including queries that use the <-> cosine distance operator against a vector column. You need the pgvector extension enabled on your Supabase project, which you can verify and enable through the list_extensions and execute_sql tools. For a broader look at Supabase MCP beyond vector use cases, the Postgres workflows listicle in this series covers it in depth."
+  - question: "What is the difference between a vector database MCP server and a RAG MCP server?"
+    answer: "A vector database MCP server exposes a storage engine (collection management, upsert, similarity search). A RAG MCP server is higher-level: it handles ingestion, chunking, indexing, and retrieval as a pipeline, often connecting to multiple source systems. Airweave Search is a RAG server. Supabase MCP and ArcadeDB are database servers you can use to build a RAG pipeline."
+  - question: "Are there MCP servers for Qdrant, Weaviate, Pinecone, or Chroma?"
+    answer: "Community implementations exist on GitHub but are not indexed in the MCPFind HEALTHY tier as of May 2026. The MCPFind ai-ml category post covers Qdrant, Weaviate, and Chroma from an ML workflow angle. If you need a purpose-built vector store MCP server with active maintenance, check that post alongside this one."
+  - question: "Can I run a vector search MCP server locally without sending data to an external service?"
+    answer: "Yes. ArcadeDB runs fully self-hosted: you spin it up via Docker or Java, and the MCP server is built in. Airweave can also be self-hosted via its Docker Compose setup. Supabase MCP requires a Supabase project (cloud or self-hosted Supabase). Apple RAG MCP calls a hosted endpoint and is not self-hostable."
+howToSteps:
+  - name: "Decide whether you need a storage engine or a full retrieval pipeline"
+    text: "If your team is building a RAG stack from scratch, choose Airweave for a managed retrieval layer. If you already have a database (Postgres, ArcadeDB) and want vector capabilities on top, add the corresponding MCP server alongside your existing stack."
+  - name: "Enable the vector extension or model in your chosen database"
+    text: "For Supabase MCP, use execute_sql to run CREATE EXTENSION vector and confirm with list_extensions. For ArcadeDB, no extension is needed: the vector embedding model is built into the database engine."
+  - name: "Add the server config block to your MCP client"
+    text: "Paste the JSON config into claude_desktop_config.json (Claude Desktop) or .cursor/mcp.json (Cursor), filling in your access token, API key, or connection string. Restart the client."
+  - name: "Run a read-only similarity query to verify the connection"
+    text: "Ask the agent to return the top five nearest vectors to a sample embedding. A successful response with similarity scores confirms the vector index is reachable and the agent can use it in retrieval workflows."
+howToName: "How to set up a vector database MCP server for RAG workflows"
+howToDescription: "Step-by-step guide for selecting and configuring a vector-capable MCP server for semantic search and retrieval-augmented generation pipelines."
+howToTotalTime: "PT20M"
+---
+
+The [MCPFind databases category](/categories/databases) covers 317 servers as of May 2026. The vector and RAG subset is smaller than the Postgres and SQL workflows landscape, and the picture is worth stating plainly: purpose-built vector store servers for Qdrant, Weaviate, Pinecone, and Chroma are not yet indexed in the directory's HEALTHY tier. What the directory does have is a set of HEALTHY servers that address the RAG data layer from different angles. Airweave Search (6,092 stars) is a full open-source retrieval pipeline backed by Vespa vector storage. Supabase MCP (2,556 stars) brings pgvector into Claude through a single connection. ArcadeDB (762 stars) ships a multi-model engine with a native vector embedding model. FalkorDB QueryWeaver (786 stars) brings graph-schema retrieval into natural-language database queries. Apple RAG MCP (112 stars) demonstrates what a production hybrid search implementation looks like through MCP. This guide compares them on how they fit the RAG data layer, not the orchestration layer (LangChain, LlamaIndex, and friends are out of scope here). See all servers in the [MCPFind databases category](/categories/databases).
+
+## Selection Criteria
+
+Two filters shaped this list. First, HEALTHY classification in the MCPFind quality audit: at least 50 GitHub stars (or vendor-official status) plus a commit in the prior 90 days. Second, the server had to contribute to a vector search or retrieval pipeline in a concrete way. Servers that mention vectors only as one of many supported data types without explicit vector tool coverage were excluded. Star counts come from the MCPFind directory snapshot on May 20, 2026. The comparison table uses a modified column set from the Postgres listicle: Hybrid Search replaces Read/Write, and Max Dimensions and Best for columns are specific to the vector use case.
+
+## Comparison Table
+
+| Server | Stars | Hosting | Transport | Auth | Hybrid Search | Best for |
+|---|---|---|---|---|---|---|
+| Airweave Search | 6,092 | Cloud / self-host | HTTP | API key | Yes | Multi-source RAG retrieval pipeline |
+| Supabase MCP | 2,556 | Cloud (Supabase) | stdio | Access token | Manual (SQL) | pgvector on Postgres, existing Supabase stacks |
+| ArcadeDB MCP | ~762 | Self-host | HTTP | Credentials | Manual (query) | Multi-model + vector in one engine |
+| FalkorDB QueryWeaver | ~786 | Cloud / self-host | HTTP | None (local) | No (graph) | NL2SQL with graph-schema context |
+| Apple RAG MCP | ~112 | Hosted only | HTTP | Optional token | Yes | Reference RAG pattern, Apple docs corpus |
+
+## Airweave Search
+
+Airweave describes itself as an open-source context retrieval layer for AI agents and RAG systems, and the description is accurate. It sits between your data sources (50+ integrations including GitHub, Confluence, Notion, Airtable, Slack, and Dropbox) and your AI agent, handling ingestion, chunking, syncing, and retrieval so you do not rebuild that pipeline for every integration or every agent. Under the hood it uses Vespa for vector storage, PostgreSQL for metadata, and Temporal for orchestration. The cloud version is available at app.airweave.ai; self-hosted deploys via Docker Compose with a single `./start.sh` command. At 6,092 GitHub stars, it is the highest-starred server in this guide and among the top HEALTHY entries across all categories in the MCPFind directory.
+
+The MCP surface exposes retrieval, not storage management. The primary tool is a natural-language search call against one or more Airweave collections. A collection is a synchronized view of one or more connected data sources, already chunked and indexed. An agent sends a query string and receives the most semantically relevant chunks, ranked by Vespa's vector similarity. The search call accepts source filters (limit retrieval to specific integrations or document types) and can return full chunk text alongside source metadata. There is no tool for directly inserting raw vectors: Airweave manages indexing on the pipeline side.
+
+This one belongs at the base of your stack when the retrieval problem spans multiple source systems. If your agent needs to pull relevant context from a mix of GitHub issues, Confluence pages, and a Slack archive in a single query, Airweave handles the fan-out and unified ranking without bespoke connectors per source. The natural-language query model also means you do not need to manage embedding generation client-side. Airweave handles embedding at ingest time, so the agent sends text and gets ranked chunks back. For teams already using LlamaIndex or LangChain as an orchestration layer, Airweave fits as the retrieval backend those frameworks call through, not a replacement for them.
+
+Skip it if your retrieval surface is a single database or file store that you already control. Airweave is designed for the multi-source problem. If your RAG corpus is one Postgres table with a vector column, Supabase MCP or ArcadeDB MCP gives you direct access without standing up a separate service. The hosted version also means Airweave manages embedding and sync timing on their infrastructure, which is a benefit for most teams and a dependency for the few that require fully air-gapped operation.
+
+6,092 stars. Last push March 25, 2026. MIT license. Self-hosted option available via Docker Compose.
+
+### Setup Snippet
+
+Airweave MCP uses HTTP transport. The endpoint is the same whether you are on the cloud version or self-hosted:
+
+```json
+{
+  "mcpServers": {
+    "airweave": {
+      "url": "https://mcp.airweave.ai",
+      "env": {
+        "AIRWEAVE_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}
+```
+
+For self-hosted deployments, replace the URL with your local instance address (default `http://localhost:8080`). See the [Airweave docs](https://docs.airweave.ai) for the current MCP endpoint path and authentication header format.
+
+---
+
+## Supabase MCP
+
+Supabase runs on Postgres, and Postgres with the pgvector extension is one of the most widely deployed vector stores in production. Supabase MCP (2,556 stars, github.com/supabase-community/supabase-mcp) wraps the Supabase management API alongside the database wire protocol, giving an agent access to both SQL execution and Supabase platform features in one server. For vector workloads, the path is: enable pgvector through the Supabase extensions system, create a table with a vector column, and then query similarity through `execute_sql`. All three steps are available inside a single MCP session. Supabase MCP is covered in depth in the [Postgres workflows listicle](/blog/best-databases-mcp-servers-postgres-workflows) for its broader database capabilities. This entry focuses on the vector-specific use case.
+
+The vector-relevant tool surface is `execute_sql`, `list_extensions`, and `apply_migration`. `list_extensions` returns all extensions currently enabled on the project, including whether pgvector is active. `execute_sql` accepts any valid Postgres SQL, so a cosine similarity search looks exactly the same through MCP as it does through any other Postgres client: `SELECT id, content, embedding <=> $1 AS distance FROM documents ORDER BY distance LIMIT 5`. `apply_migration` handles the schema changes needed to add a vector column to an existing table. One session can confirm pgvector is enabled, create the embedding column, run a similarity query, and inspect the results, without switching to a SQL client.
+
+This is the right choice when your team already uses Supabase as the primary database and does not want to introduce a separate vector store. A Postgres table with a vector column is straightforward to maintain and integrates with row-level security, real-time subscriptions, and the rest of the Supabase stack you already have. For teams starting a new RAG project and evaluating whether to use pgvector versus a dedicated vector store, Supabase MCP's ease of setup (no separate service to operate) is often the deciding factor at early scale. Hybrid search is possible by combining vector similarity with `tsvector` full-text search in the same query, though you construct that query yourself.
+
+The limitation compared to purpose-built vector stores is scale and indexing control. At tens of millions of vectors, pgvector becomes harder to tune than a purpose-built engine like Qdrant or Weaviate, which expose explicit index configuration through their APIs. If your corpus exceeds a few million chunks or if query latency at scale is a hard requirement, plan for the migration path before you start. For most early-to-mid-stage RAG stacks, Supabase on pgvector handles the load without issue.
+
+2,556 stars, last push March 24, 2026. Apache 2.0 license. Supabase free tier covers development workloads; production pgvector at scale runs on Pro or higher.
+
+### Setup Snippet
+
+```json
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "npx",
+      "args": ["-y", "@supabase/mcp-server-supabase@latest"],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "your-personal-access-token"
+      }
+    }
+  }
+}
+```
+
+---
+
+## ArcadeDB MCP
+
+ArcadeDB (github.com/ArcadeData/arcadedb) is a multi-model database that combines graph, document, key-value, time-series, search engine, and vector embedding models in a single engine. The built-in MCP server ships with ArcadeDB itself: no separate package to install. You start ArcadeDB, and the MCP surface is live. The vector model supports cosine, dot product, and Euclidean distance metrics with configurable dimensions. The database accepts SQL, Cypher, Gremlin, GraphQL, and MongoDB query language. For teams that want vector retrieval alongside graph traversals or document storage without running separate services, this is the only HEALTHY-tier server in this guide that delivers all three in one process.
+
+The MCP tools follow ArcadeDB's command structure: `query` accepts SQL, Cypher, or Gremlin and returns results as JSON. `command` executes DDL or DML. For a vector similarity search in ArcadeDB SQL, you create a type with a FLOAT array property and a vector index, then query it with the `vectorNeighbors()` function: `SELECT @rid, content, vectorNeighbors('embeddings', $embedding, 5) AS score FROM Document`. The graph traversal layer sits alongside this: if your documents have relationships encoded as graph edges, a single query can combine nearest-neighbor retrieval with path traversal across the graph. That combination is not available in pgvector or in dedicated vector stores without external join logic.
+
+The strongest case for ArcadeDB MCP is the multi-model RAG pattern: documents with embeddings AND explicit relationships between them. Knowledge graphs where edges encode citation relationships, code repositories where files have both vector embeddings and explicit dependency edges, or product catalogs where items have embeddings and taxonomy links. In those scenarios, ArcadeDB's graph + vector hybrid query capabilities eliminate join operations that would otherwise require multiple round trips. ArcadeDB runs from a Raspberry Pi to multi-server cloud deployments, per the project's documentation.
+
+Pure vector-store workflows without relational or graph structure get less benefit here. ArcadeDB requires more setup than a managed vector database (Java 17 or 21 runtime, self-hosted, no managed cloud tier as of this writing). Teams that want zero-ops vector storage should look at Supabase MCP or Airweave. The AGPL-compatible Apache 2.0 license means commercial use is allowed without requiring source disclosure.
+
+~762 stars (MCPFind directory snapshot, May 2026). Last push March 24, 2026. Apache 2.0 license. Self-hosted only. See [docs.arcadedb.com/#mcp-server](https://docs.arcadedb.com/#mcp-server) for the current MCP configuration reference.
+
+### Setup Snippet
+
+ArcadeDB's MCP server is built into the database. Configure your client to connect to the ArcadeDB HTTP endpoint:
+
+```json
+{
+  "mcpServers": {
+    "arcadedb": {
+      "url": "http://localhost:2480/api/v1/mcp"
+    }
+  }
+}
+```
+
+Replace `localhost:2480` with your ArcadeDB host and port. The HTTP endpoint requires ArcadeDB 26.x or later. Refer to [docs.arcadedb.com](https://docs.arcadedb.com/#mcp-server) for auth configuration and available query tools.
+
+---
+
+## FalkorDB QueryWeaver
+
+QueryWeaver (github.com/FalkorDB/QueryWeaver) converts plain-English questions into SQL using a graph representation of your database schema. The graph layer is the distinguishing detail: instead of passing raw DDL to a language model and hoping it maps table relationships correctly, QueryWeaver builds a graph of your schema (tables as nodes, foreign keys as edges) and uses that graph to resolve ambiguous query intent before generating SQL. The result is that natural-language queries across normalized schemas with multiple joins tend to produce more accurate SQL than approaches that rely on the model's prior training to infer join paths. FalkorDB, which maintains QueryWeaver, is itself a graph database built on Redis.
+
+The MCP tools QueryWeaver exposes cover the NL2SQL workflow: `list_databases` enumerates connected databases, `connect_database` sets the active connection, `database_schema` returns the schema graph, and `query_database` takes a natural-language question, generates SQL, executes it, and returns results. For teams exploring RAG over structured data (where the "corpus" is a relational database rather than a document store), graph-schema-aware SQL generation is a meaningfully different retrieval pattern from embedding-based search. Retrieval here means finding the right rows, not the nearest vectors.
+
+QueryWeaver belongs in the stack when the retrieval problem is structured: "which customers placed orders above $500 in Q1" rather than "find documents related to customer churn." It also belongs when your team has tried using a language model for NL2SQL against a complex schema and found that join resolution was the failure mode. The graph-schema intermediate representation addresses that specific failure mode directly. For teams already using FalkorDB as a graph store, QueryWeaver extends that investment into the query authoring layer.
+
+It is not a vector similarity tool. There is no embedding index, no nearest-neighbor search, and no semantic retrieval in the vector sense. Teams building document-retrieval RAG pipelines should look at Airweave or Supabase pgvector instead. QueryWeaver's AGPL-3.0 license also requires attention for commercial deployments: the AGPL requires making source available if you modify and distribute the software.
+
+~786 stars (MCPFind directory snapshot, May 2026). Last push March 22, 2026. AGPL-3.0 license. Cloud at app.falkordb.cloud, self-hosted via Docker.
+
+### Setup Snippet
+
+QueryWeaver exposes an HTTP MCP surface. The simplest way to run it locally is via Docker:
+
+```bash
+docker run -p 5000:5000 -it falkordb/queryweaver
+```
+
+Then add it to your MCP client config:
+
+```json
+{
+  "mcpServers": {
+    "queryweaver": {
+      "url": "http://localhost:5000/mcp"
+    }
+  }
+}
+```
+
+For production or the managed cloud endpoint, refer to the [QueryWeaver documentation](https://github.com/FalkorDB/QueryWeaver) for the current MCP URL and required environment variables.
+
+---
+
+## Apple RAG MCP
+
+Apple RAG MCP (github.com/BingoWon/apple-rag-mcp, slug `com-apple-rag-mcp-server`) is a domain-specific server that indexes 370,000+ Apple Developer documentation pages and 1,300+ WWDC video transcripts, then exposes them through three search modes over MCP: semantic (vector similarity), keyword (BM25-style term matching), and hybrid (both combined with reranking). The corpus is Apple docs only, which makes it a specialist tool rather than a general-purpose RAG server. What makes it worth including here is that it is the most complete example in the MCPFind directory of what a well-built RAG MCP implementation looks like in production: the hybrid search pipeline, the reranking step, and the structured chunk response format are all patterns that apply to any RAG stack.
+
+The tool surface is intentionally narrow. One search tool handles all three modes: pass a query string and a mode flag (semantic, keyword, or hybrid), receive ranked chunks with source URLs and relevance scores. Hybrid mode runs both retrieval paths and applies AI reranking to the merged result list. The tool is designed to produce minimal, token-efficient responses: no boilerplate metadata, no large context dumps, just the chunks the query needs. The server runs as a hosted HTTP endpoint at mcp.apple-rag.com. No API token required for development-volume queries; an optional MCP Token (from apple-rag.com) unlocks higher rate limits.
+
+The use case is narrow: iOS and macOS developers using Claude or Cursor who want agents that know about the latest SwiftUI APIs, deprecations, or framework changes without hallucinating based on training data that predates the current SDK version. For that specific use case, it is the lowest-friction option in the directory: one config block, no account required, instant results. The hybrid search implementation is also worth studying if your team is building a RAG server from scratch and wants a reference for how to expose all three retrieval modes cleanly through a single MCP tool.
+
+Skip this if your RAG corpus is anything other than Apple Developer documentation. The server has no ingestion API, no collection management, and no support for custom data. For a general-purpose hybrid search MCP server, Airweave is the correct choice.
+
+~112 stars (MCPFind directory snapshot, May 2026). Last push March 20, 2026. License not specified in the MCPFind directory entry. Hosted endpoint only.
+
+### Setup Snippet
+
+Apple RAG MCP uses HTTP transport via the hosted endpoint. No package installation needed:
+
+```json
+{
+  "mcpServers": {
+    "apple-rag-mcp": {
+      "url": "https://mcp.apple-rag.com"
+    }
+  }
+}
+```
+
+For higher rate limits, add your MCP Token from [apple-rag.com](https://apple-rag.com) to the request headers. Claude Desktop and Cursor both handle this through the `headers` field in the MCP config. Refer to your client's documentation for the exact config format.
+
+---
+
+## How to Choose: Decision Framework
+
+The split that matters first is managed retrieval versus database-level vector storage. If your team does not want to operate a retrieval pipeline, Airweave handles ingestion, chunking, syncing, and search as a managed layer. Connect your data sources, point the MCP server at your Airweave instance, and retrieval is available through a single natural-language query tool. If your team already operates a database and wants to add vector capabilities on top, Supabase MCP (pgvector) or ArcadeDB MCP (built-in vector model) give you retrieval primitives without a separate service. The choice between those two comes down to whether you are already on Postgres (Supabase MCP, covered in depth in the [Postgres workflows listicle](/blog/best-databases-mcp-servers-postgres-workflows)) or need multi-model capabilities alongside vectors (ArcadeDB).
+
+FalkorDB QueryWeaver addresses a structurally different retrieval problem: natural-language queries over structured relational data with complex joins. If your RAG corpus is a normalized database rather than a document store, and if join-path resolution has been the failure mode in previous NL2SQL attempts, QueryWeaver's graph-schema approach is worth evaluating. It does not replace the other servers in this list; it covers a different retrieval pattern.
+
+For iOS and macOS teams specifically, Apple RAG MCP resolves one persistent problem: AI agents hallucinating about deprecated APIs or missing framework changes. Its hybrid search implementation (semantic plus keyword plus reranking) demonstrates the retrieval pattern that production RAG stacks use. Studying how it structures its tool surface is useful regardless of whether you deploy it yourself.
+
+One gap worth naming directly: dedicated vector store MCP servers for Qdrant, Weaviate, Pinecone, Milvus, and Chroma are not yet in the MCPFind HEALTHY tier as of May 2026. Community implementations for these stores exist on GitHub and are covered from an ML workflow angle in the [MCPFind ai-ml category post](/blog/best-mcp-servers-ai-machine-learning). If you need a purpose-built vector store MCP server with collection management, index configuration, and bulk upsert tools, that post covers the state of those options alongside the rest of the ML toolchain.
+
+Browse all 317 servers in the [MCPFind databases category](/categories/databases) with the star filter set to 40+ to see the current adoption tier. The vector and RAG subset is growing as more purpose-built servers reach production quality.
+
+## Frequently Asked Questions
+
+### Do vector database MCP servers support hybrid search out of the box?
+
+It depends on the server. Airweave Search and Apple RAG MCP expose explicit hybrid search tools that combine vector similarity with keyword matching in a single call. Supabase MCP and ArcadeDB give you the primitives (pgvector and vector embedding queries respectively), but you construct the hybrid logic yourself in SQL. FalkorDB QueryWeaver focuses on graph-schema retrieval rather than raw vector similarity.
+
+### Can I use Supabase MCP to run pgvector queries from Claude?
+
+Yes. Supabase MCP's execute_sql tool accepts any valid PostgreSQL, including queries that use the distance operator against a vector column. You need the pgvector extension enabled on your Supabase project, which you can verify and enable through the list_extensions and execute_sql tools. For a broader look at Supabase MCP beyond vector use cases, the Postgres workflows listicle in this series covers it in depth.
+
+### What is the difference between a vector database MCP server and a RAG MCP server?
+
+A vector database MCP server exposes a storage engine (collection management, upsert, similarity search). A RAG MCP server is higher-level: it handles ingestion, chunking, indexing, and retrieval as a pipeline, often connecting to multiple source systems. Airweave Search is a RAG server. Supabase MCP and ArcadeDB are database servers you can use to build a RAG pipeline.
+
+### Are there MCP servers for Qdrant, Weaviate, Pinecone, or Chroma?
+
+Community implementations exist on GitHub but are not indexed in the MCPFind HEALTHY tier as of May 2026. The MCPFind ai-ml category post covers Qdrant, Weaviate, and Chroma from an ML workflow angle. If you need a purpose-built vector store MCP server with active maintenance, check that post alongside this one.
+
+### Can I run a vector search MCP server locally without sending data to an external service?
+
+Yes. ArcadeDB runs fully self-hosted: you spin it up via Docker or Java, and the MCP server is built in. Airweave can also be self-hosted via its Docker Compose setup. Supabase MCP requires a Supabase project (cloud or self-hosted Supabase). Apple RAG MCP calls a hosted endpoint and is not self-hostable.
+
+## Related Servers in This Category
+
+{/* RelatedServersForCategory renders automatically from the `category` frontmatter field.
+    Filters: status=published AND public=true. Ordered by GitHub stars descending.
+    No manual server list needed here. Remove this comment block before publishing. */}
+
+## Next Steps
+
+- [Best databases MCP servers for Postgres workflows](/blog/best-databases-mcp-servers-postgres-workflows)
+- [Best MCP servers for AI and machine learning workflows](/blog/best-mcp-servers-ai-machine-learning)
+- [Browse all databases MCP servers on MCPFind](/categories/databases)
+- [What is MCP and how does it work?](/blog/what-is-mcp)
