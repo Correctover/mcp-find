@@ -8,7 +8,7 @@
  * 4. Graceful no-op when window.gtag is absent.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   trackSubmitFormCompleted,
   trackBlogToServersClick,
@@ -244,13 +244,20 @@ describe("graceful no-op when gtag absent", () => {
 // ---------------------------------------------------------------------------
 
 describe("guardPii — production sanitizer", () => {
-  it("sanitizes PII values from prod console.error output", () => {
-    const consoleErrorSpy = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     // Switch to production so guardPii logs instead of throws
     vi.stubEnv("NODE_ENV", "production");
+  });
 
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    consoleErrorSpy.mockRestore();
+  });
+
+  it("sanitizes PII values from prod console.error output", () => {
     // trackServerOutboundClick passes the payload through guardPii → assertNoPii.
     // Injecting an email-shaped value on a non-PII key triggers PII_VALUE_PATTERN.
     // In prod, this is caught and sanitized before logging — must NOT throw.
@@ -263,13 +270,16 @@ describe("guardPii — production sanitizer", () => {
 
     // console.error must have been called (violation was detected and logged)
     expect(consoleErrorSpy).toHaveBeenCalled();
-    const loggedMessage = String(consoleErrorSpy.mock.calls[0]?.[0] ?? "");
-    // The raw email must NOT appear in the log output
-    expect(loggedMessage).not.toContain("leakuser@example.com");
-    expect(loggedMessage).not.toContain("@example.com");
 
-    // Restore
-    vi.unstubAllEnvs();
-    consoleErrorSpy.mockRestore();
+    // console.error is called as: console.error("<static prefix>", sanitizedPayload)
+    // The sanitized payload is the SECOND argument (index 1), not the static prefix.
+    const loggedPayload = String(consoleErrorSpy.mock.calls[0]?.[1] ?? "");
+
+    // The raw email must NOT appear in the sanitized payload
+    expect(loggedPayload).not.toContain("leakuser@example.com");
+    expect(loggedPayload).not.toContain("@example.com");
+
+    // Positive assertion: the sanitizer must have actually run
+    expect(loggedPayload).toContain("<redacted>");
   });
 });
