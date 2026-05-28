@@ -49,7 +49,7 @@ import {
 export const metadata: Metadata = {
   title: "MCPFind — Open-Source MCP Server Directory",
   description:
-    "Browse, search, and install 7,299+ MCP servers across 21 categories. One-click configs for Claude Desktop, Cursor, VS Code, Windsurf, and GitHub Copilot.",
+    "Browse, search, and install 3,300+ verified MCP servers across 21 categories. One-click configs for Claude Desktop, Cursor, VS Code, Windsurf, and GitHub Copilot.",
   alternates: {
     canonical: "https://mcpfind.org",
   },

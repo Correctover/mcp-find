@@ -2,7 +2,7 @@ import { SITE_URL } from '@mcpfind/shared';
 
 export const dynamic = 'force-dynamic';
 
-const TOTAL_SERVER_BATCHES = 2; // batch 0 (0-4999) and batch 1 (5000-9999) covers 7,299+ servers
+const TOTAL_SERVER_BATCHES = 1; // batch 0 (0-4999) covers all 3,300+ servers post 2026-05-28 cleanup
 
 export async function GET() {
   const today = new Date().toISOString().split('T')[0];

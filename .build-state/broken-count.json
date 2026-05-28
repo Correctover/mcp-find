@@ -1,7 +1,7 @@
 {
-  "broken_count": 5,
-  "total_entries": 8990,
+  "broken_count": 0,
+  "total_entries": 2305,
   "manifest_version": 1,
-  "recorded_at": "2026-05-21T00:00:00Z",
-  "note": "Snapshot updated 2026-05-27: +1 BROKEN for io-github-jpazvd-unicefstats-mcp (UNICEF SDMX URL noindex \u2014 GSC impression cleanup). See seo-geo-overhaul spec Task 11."
+  "recorded_at": "2026-05-28T00:00:00Z",
+  "note": "Baseline updated 2026-05-28: deleted 6,685 BROKEN/LOW-CREDIBILITY entries. Directory: 9,990 -> 2,305. banksync upgraded to HEALTHY (commercial product, dedicated review). BROKEN entries removed from map (were 4) so BROKEN count is 0."
 }
