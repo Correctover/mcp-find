@@ -7,6 +7,7 @@ import type { Category } from '@mcpfind/shared';
 import { CategoryFaq } from '@/components/ui/category-faq';
 import { ServerCard } from '@/components/ui/server-card';
 import { Navbar } from '@/components/ui/navbar';
+import { RelatedServersForCategory } from '@/components/RelatedServersForCategory';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
@@ -77,6 +78,13 @@ export default async function CategoryPage({
         <CategoryFaq
           categoryLabel={label}
           faqs={CATEGORY_FAQS[category as Category] || []}
+        />
+
+        {/* Related servers block — all statuses, degraded cards visually muted */}
+        <RelatedServersForCategory
+          category={category}
+          includeDegraded={true}
+          limit={8}
         />
       </main>
     </div>

@@ -1,15 +1,25 @@
 /**
  * RelatedServersForCategory — Server Component
  *
- * Renders a "Related MCP servers in [category]" aside block inside blog posts.
- * Filters to HEALTHY entries only — never exposes stale/broken servers in
- * editorial context. Emits data-conversion attributes for future GA4 tracking.
+ * Renders a "Related MCP servers in [category]" aside block. Supports two
+ * contexts:
+ *   - Blog post embed (default): HEALTHY entries only, aside with border-top.
+ *   - Category page block: all statuses, degraded cards visually muted.
  *
- * This is intentionally a Server Component so it is rendered at build/request
- * time with no client-side JS overhead.
+ * Props:
+ *   category        — slug of the category (e.g. "developer-tools")
+ *   currentSlug?    — slug to exclude (self-exclusion on server detail pages)
+ *   includeDegraded — when true, STALE and BROKEN servers are included with
+ *                     visual muting; default false (blog context)
+ *   limit?          — max cards to display (default 6)
+ *
+ * This is intentionally a Server Component so it renders at build/request
+ * time with no client-side JS overhead. All data fetching is SSR-only.
+ * Emits data-conversion attributes for GA4 funnel tracking.
  */
 
 import Link from "next/link";
+import { IconServer, IconArrowRight } from "@tabler/icons-react";
 import { getServersByCategory } from "@/lib/queries";
 import { getQualityStatus } from "@/lib/quality-status";
 import { ServerCard } from "@/components/ui/server-card";
@@ -17,21 +27,32 @@ import { CATEGORY_LABELS } from "@mcpfind/shared";
 import type { Category } from "@mcpfind/shared";
 
 interface RelatedServersForCategoryProps {
+  /** Category slug (e.g. "developer-tools"). */
   category: string;
+  /** Slug of the current page's server — excluded from results. */
   currentSlug?: string;
-  maxItems?: number;
+  /**
+   * When true, STALE and BROKEN servers are included with visual muting.
+   * Use in category page context. Default false (blog post context = HEALTHY only).
+   */
+  includeDegraded?: boolean;
+  /** Maximum number of cards to display. Default 6. */
+  limit?: number;
 }
+
+/** Sort order for quality_status: HEALTHY first, STALE second, BROKEN last. */
+const STATUS_ORDER = { HEALTHY: 0, STALE: 1, BROKEN: 2, "LOW-CREDIBILITY": 3 } as const;
 
 export async function RelatedServersForCategory({
   category,
   currentSlug,
-  maxItems = 5,
+  includeDegraded = false,
+  limit = 6,
 }: RelatedServersForCategoryProps) {
-  // Guard: if category is absent or not a known category, render nothing.
+  // Guard: absent category → render nothing.
   if (!category) return null;
 
-  // Guard: Supabase credentials may be absent in CI / local static builds.
-  // Rather than crashing the blog post prerender, degrade gracefully.
+  // Guard: degrade gracefully when Supabase credentials are absent (CI / static builds).
   let allServers;
   try {
     allServers = await getServersByCategory(category);
@@ -39,30 +60,38 @@ export async function RelatedServersForCategory({
     return null;
   }
 
-  // Pre-build status map — one getQualityStatus call per server (not 2N).
+  // Build status map — one getQualityStatus call per server (avoids 2N lookups).
   const statusMap = new Map(allServers.map((s) => [s.slug, getQualityStatus(s.slug)]));
 
-  // Filter to HEALTHY entries only, excluding the current blog post's slug.
-  // Explicit category guard ensures no cross-category bleed if the data layer ever returns extras.
-  const filtered = allServers.filter((server) => {
+  // Filter candidates: correct category, not self, status gate.
+  const candidates = allServers.filter((server) => {
     if (server.category !== category) return false;
     if (currentSlug && server.slug === currentSlug) return false;
-    return statusMap.get(server.slug) === "HEALTHY";
+    const status = statusMap.get(server.slug);
+    if (!includeDegraded) {
+      return status === "HEALTHY";
+    }
+    // includeDegraded: include all statuses (undefined treated as available)
+    return true;
   });
 
-  // Sort by stars descending (getServersByCategory already does this, but we
-  // re-sort here to be explicit after filtering).
-  filtered.sort((a, b) => b.github_stars - a.github_stars);
+  // Sort: HEALTHY first, STALE second, BROKEN last; then by stars descending.
+  candidates.sort((a, b) => {
+    const aStatus = statusMap.get(a.slug) ?? "LOW-CREDIBILITY";
+    const bStatus = statusMap.get(b.slug) ?? "LOW-CREDIBILITY";
+    const orderDiff =
+      (STATUS_ORDER[aStatus] ?? 99) - (STATUS_ORDER[bStatus] ?? 99);
+    if (orderDiff !== 0) return orderDiff;
+    return b.github_stars - a.github_stars;
+  });
 
-  const servers = filtered.slice(0, maxItems);
+  const servers = candidates.slice(0, limit);
 
-  // Return null for empty state — don't render a hollow section.
+  // Empty state — do not render a hollow section.
   if (servers.length === 0) return null;
 
-  const categoryLabel =
-    CATEGORY_LABELS[category as Category] ?? category;
-
-  const totalCount = filtered.length;
+  const categoryLabel = CATEGORY_LABELS[category as Category] ?? category;
+  const totalCount = candidates.length;
 
   return (
     <aside
@@ -71,44 +100,50 @@ export async function RelatedServersForCategory({
     >
       <h2
         id="related-servers-heading"
-        className="text-xl font-bold text-white mb-6"
+        className="text-xl font-bold text-white mb-6 flex items-center gap-2"
       >
+        <IconServer size={18} className="text-blue-400" aria-hidden="true" />
         Related MCP servers in {categoryLabel}
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {servers.map((server) => (
-          <div
-            key={server.slug}
-            // Wrap the card in a div so we can attach data-conversion without
-            // clashing with ServerCard's internal <Link>.
-          >
-            {/* The data-conversion anchor sits outside ServerCard so we don't
-                alter the card component. We use a wrapper div with a data tag
-                that the future GA4 script can read via closest('[data-conversion]'). */}
+        {servers.map((server) => {
+          const status = statusMap.get(server.slug);
+          const isStale = status === "STALE";
+          const isBroken = status === "BROKEN";
+
+          // Opacity wrapper for degraded cards — applied to wrapper div, not
+          // the Link inside ServerCard, so pointer events remain active.
+          const wrapperOpacity = isBroken
+            ? "opacity-50"
+            : isStale
+              ? "opacity-70"
+              : undefined;
+
+          return (
             <div
-              data-conversion="blog_to_servers_click"
+              key={server.slug}
+              className={wrapperOpacity}
+              data-conversion="related_servers_click"
               data-source={currentSlug ?? ""}
               data-target={server.slug}
               data-category={category}
+              data-status={status ?? "unknown"}
             >
-              <ServerCard
-                server={server}
-                qualityStatus={statusMap.get(server.slug)}
-              />
+              <ServerCard server={server} qualityStatus={status} />
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {totalCount > maxItems && (
+      {totalCount > limit && (
         <div className="mt-6">
           <Link
             href={`/categories/${category}`}
             className="inline-flex items-center gap-1.5 text-sm text-blue-400 hover:text-blue-300 transition-colors"
           >
             Browse all {totalCount} {categoryLabel} servers
-            <span aria-hidden="true">→</span>
+            <IconArrowRight size={14} aria-hidden="true" />
           </Link>
         </div>
       )}
