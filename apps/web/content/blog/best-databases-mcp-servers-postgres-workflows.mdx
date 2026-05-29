@@ -10,7 +10,7 @@ authorSameAs:
 cluster: "databases-listicle"
 date: "2026-05-27"
 publishedAt: "2026-05-27"
-updatedAt: "2026-05-27"
+updatedAt: "2026-05-28"
 tags:
   - "mcp"
   - "databases"
@@ -244,6 +244,19 @@ SchemaCrawler AI earns a place in the stack when the task is understanding an un
 
 Browse all 317 servers in the [MCPFind databases category](/categories/databases) with the star filter set to 40+ to see the current adoption tier. Coverage grows weekly as new servers get submitted.
 
+## Related Servers in This Category
+
+{/* RelatedServersForCategory renders automatically from the `category` frontmatter field.
+    Filters: status=published AND public=true. Ordered by GitHub stars descending.
+    No manual server list needed here. Remove this comment block before publishing. */}
+
+## Next Steps
+
+- [How to connect PostgreSQL to Claude using MCP](/blog/connect-postgresql-claude-mcp)
+- [Supabase MCP server: full deep dive](/blog/supabase-mcp-server-deep-dive)
+- [Browse all databases MCP servers on MCPFind](/categories/databases)
+- [What is MCP and how does it work?](/blog/what-is-mcp)
+
 ## Frequently Asked Questions
 
 ### Do Postgres MCP servers support both read and write operations?
@@ -265,16 +278,3 @@ Yes. Prisma MCP reads your prisma.schema file alongside the live database, so it
 ### Can I run multiple Postgres MCP servers at the same time to connect to different databases?
 
 Yes. Each server gets its own key in the MCP client config and its own connection string. A common pattern is one server pointing at a production read-replica and a second pointing at a local development database. The agent selects the right server based on which tools it calls.
-
-## Related Servers in This Category
-
-{/* RelatedServersForCategory renders automatically from the `category` frontmatter field.
-    Filters: status=published AND public=true. Ordered by GitHub stars descending.
-    No manual server list needed here. Remove this comment block before publishing. */}
-
-## Next Steps
-
-- [How to connect PostgreSQL to Claude using MCP](/blog/connect-postgresql-claude-mcp)
-- [Supabase MCP server: full deep dive](/blog/supabase-mcp-server-deep-dive)
-- [Browse all databases MCP servers on MCPFind](/categories/databases)
-- [What is MCP and how does it work?](/blog/what-is-mcp)
