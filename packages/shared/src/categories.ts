@@ -16,9 +16,7 @@ export const CATEGORIES = [
   'search',
   'ai-ml',
   'finance',
-  'crm',
   'productivity',
-  'maps',
   'other',
 ] as const;
 
@@ -42,9 +40,7 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   search: 'Search & Knowledge',
   'ai-ml': 'AI & ML',
   finance: 'Finance',
-  crm: 'CRM',
   productivity: 'Productivity',
-  maps: 'Maps & Location',
   other: 'Other',
 };
 
@@ -66,9 +62,7 @@ export const CATEGORY_KEYWORDS: Record<Category, string[]> = {
   search: ['brave', 'search', 'google', 'web', 'scraping', 'wikipedia', 'crawl'],
   'ai-ml': ['openai', 'model', 'vector', 'embedding', 'llm', 'ai', 'ml', 'huggingface'],
   finance: ['stripe', 'payment', 'banking', 'finance', 'invoice'],
-  crm: ['salesforce', 'hubspot', 'crm', 'customer'],
   productivity: ['notion', 'calendar', 'todoist', 'trello', 'asana', 'productivity'],
-  maps: ['mapbox', 'openstreetmap', 'geocoding', 'coordinates', 'geospatial', 'location', 'places'],
   other: [],
 };
 
@@ -255,16 +249,6 @@ export const CATEGORY_FAQS: Record<Category, Array<{ question: string; answer: s
       answer: 'Finance MCP servers like Stripe integrations can create invoices, check payment status, and manage subscriptions. Sensitive operations typically require explicit confirmation steps.',
     },
   ],
-  crm: [
-    {
-      question: 'Which CRM platforms have MCP servers?',
-      answer: 'Salesforce, HubSpot, and other CRM platforms have MCP server integrations. Agents can look up contacts, update deal stages, and pull reports directly from your CRM.',
-    },
-    {
-      question: 'How do CRM MCP servers handle sensitive customer data?',
-      answer: 'CRM servers authenticate via OAuth or API keys with scoped permissions. You control which objects and fields the agent can read or modify, just like any other API integration.',
-    },
-  ],
   productivity: [
     {
       question: 'What productivity tools have MCP servers?',
@@ -277,16 +261,6 @@ export const CATEGORY_FAQS: Record<Category, Array<{ question: string; answer: s
     {
       question: 'Do productivity MCP servers work across multiple apps?',
       answer: 'You can install multiple productivity MCP servers at once. An agent could check your Notion docs, create a Trello card, and add a calendar reminder — all in one conversation.',
-    },
-  ],
-  maps: [
-    {
-      question: 'What mapping and location MCP servers are available?',
-      answer: 'Google Maps, Mapbox, OpenStreetMap, and geocoding APIs all have MCP integrations. Agents can resolve addresses, calculate routes, find nearby places, and work with geospatial data.',
-    },
-    {
-      question: 'Can an AI agent build location-aware features through MCP?',
-      answer: 'Maps MCP servers provide geocoding, routing, and place search capabilities. Agents can convert addresses to coordinates, estimate travel times, and query points of interest.',
     },
   ],
   other: [
@@ -319,9 +293,7 @@ export const CATEGORY_DESCRIPTIONS: Record<Category, string> = {
   search: 'Give your agent the ability to find things. This category includes web search engines (Brave, Tavily, Exa), semantic and vector search, knowledge bases, and Wikipedia/docs integrations. Use these when your agent needs to look something up rather than rely solely on what\'s already in its context.',
   'ai-ml': 'Servers for integrating AI services directly into your agent workflows. Image generation, speech-to-text, embeddings, model APIs, and vector stores all live here. Useful when you\'re building agents that chain multiple AI capabilities together or need to call specialized models for specific subtasks.',
   finance: 'Financial data and services for your agent stack — market data feeds, stock prices, crypto APIs, accounting platforms like QuickBooks, and payment processors. Building a trading assistant? An expense tracker? Something that generates financial reports? Start here.',
-  crm: 'Your CRM and sales tools, connected to agents: Salesforce, HubSpot, Pipedrive, and the like. These integrations let agents read contacts, update records, log activities, and pull pipeline data. They\'re most valuable for sales automation and customer research — especially keeping CRM data accurate without someone doing manual entry.',
   productivity: 'The catch-all for tools that help people get work done: Notion, Airtable, Todoist, Google Workspace, and more. If you want an agent that can manage tasks, update project trackers, or coordinate information across your productivity stack, this is the place to look.',
-  maps: 'Mapping and location services: Google Maps, Mapbox, OpenStreetMap, geocoding APIs, and routing engines. Good for resolving addresses, calculating distances, finding nearby places, or building anything location-aware. Also covers geospatial data services for more advanced use cases.',
   other: "Servers that don't fit neatly into a specific category. Browse these to find integrations that span multiple domains or cover niche use cases.",
 };
 
@@ -343,7 +315,5 @@ export const CATEGORY_LLM_DESCRIPTIONS: Record<Exclude<Category, 'other'>, strin
   search: 'Brave Search, Tavily, Exa, vector search, Wikipedia, and knowledge base MCP integrations for information retrieval.',
   'ai-ml': 'OpenAI, Replicate, Hugging Face, Pinecone, and AI model/embedding/image-generation MCP integrations.',
   finance: 'Stock market data, crypto APIs, QuickBooks, Stripe, and financial data platform MCP integrations.',
-  crm: 'Salesforce, HubSpot, Pipedrive, and customer relationship management platform MCP integrations.',
   productivity: 'Notion, Airtable, Google Workspace, Todoist, Asana, and productivity tool MCP integrations.',
-  maps: 'Google Maps, Mapbox, OpenStreetMap, geocoding APIs, and location/routing service MCP integrations.',
 };

@@ -24,6 +24,20 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/categories/crm',
+        destination: '/servers',
+        permanent: true,
+      },
+      {
+        source: '/categories/maps',
+        destination: '/servers',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

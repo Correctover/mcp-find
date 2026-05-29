@@ -11,7 +11,6 @@ const categoryColors: Record<string, string> = {
   "ai-ml": "bg-orange-500/10 text-orange-400 border-orange-500/20",
   cloud: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
   finance: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  crm: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
   productivity: "bg-teal-500/10 text-teal-400 border-teal-500/20",
   monitoring: "bg-red-500/10 text-red-400 border-red-500/20",
   security: "bg-rose-500/10 text-rose-400 border-rose-500/20",
@@ -22,7 +21,6 @@ const categoryColors: Record<string, string> = {
   documentation: "bg-sky-500/10 text-sky-400 border-sky-500/20",
   social: "bg-pink-500/10 text-pink-400 border-pink-500/20",
   ecommerce: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  maps: "bg-stone-500/10 text-stone-400 border-stone-500/20",
   other: "bg-neutral-500/10 text-neutral-400 border-neutral-500/20",
 };
 

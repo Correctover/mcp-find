@@ -34,7 +34,6 @@ import {
   IconDownload,
   IconBriefcase,
   IconCurrencyDollar,
-  IconUsers,
   IconActivityHeartbeat,
   IconTestPipe,
   IconChartBar,
@@ -43,7 +42,6 @@ import {
   IconFileText,
   IconShare,
   IconShoppingCart,
-  IconMapPin,
 } from "@tabler/icons-react";
 
 // Fallback displayed when Supabase count is unavailable (e.g., at build time).
@@ -80,7 +78,6 @@ const categoryIconMap: Record<string, React.ReactNode> = {
   "ai-ml": <IconBrain size={20} className="text-orange-400" />,
   cloud: <IconCloud size={20} className="text-cyan-400" />,
   finance: <IconCurrencyDollar size={20} className="text-emerald-400" />,
-  crm: <IconUsers size={20} className="text-indigo-400" />,
   productivity: <IconCheckbox size={20} className="text-teal-400" />,
   monitoring: <IconActivityHeartbeat size={20} className="text-red-400" />,
   security: <IconShield size={20} className="text-amber-400" />,
@@ -91,7 +88,6 @@ const categoryIconMap: Record<string, React.ReactNode> = {
   documentation: <IconFileText size={20} className="text-slate-400" />,
   social: <IconShare size={20} className="text-blue-300" />,
   ecommerce: <IconShoppingCart size={20} className="text-rose-400" />,
-  maps: <IconMapPin size={20} className="text-emerald-300" />,
   other: <IconBriefcase size={20} className="text-neutral-400" />,
 };
 
