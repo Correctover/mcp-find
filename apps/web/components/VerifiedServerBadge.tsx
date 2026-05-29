@@ -51,7 +51,7 @@ export function VerifiedServerBadge({ qualityStatus, className }: VerifiedServer
           "focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black",
           "cursor-default"
         )}
-        aria-label={`Verified active: ${TOOLTIP_TEXT}`}
+        aria-label={TOOLTIP_TEXT}
         aria-describedby={tooltipId}
         onMouseEnter={showTooltip}
         onMouseLeave={hideTooltip}
