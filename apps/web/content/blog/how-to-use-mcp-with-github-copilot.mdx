@@ -3,7 +3,7 @@ title: "How to Use MCP Servers with GitHub Copilot in VS Code"
 description: "Set up MCP servers in GitHub Copilot's VS Code agent mode. Connect Copilot to databases, APIs, and dev tools through the Model Context Protocol."
 excerpt: "GitHub Copilot now supports MCP servers in VS Code agent mode. This guide walks through configuration, server selection from a directory of 5,778 indexed servers, and practical tips for getting Copilot connected to external tools through the Model Context Protocol."
 date: "2026-04-08"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-28"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -63,7 +63,7 @@ We looked at the MCPFind directory data to identify high-value servers for Copil
 
 ## What Are the Limitations of MCP in Copilot Agent Mode?
 
-Copilot's MCP support is still maturing, and we found several constraints worth noting. First, only the stdio transport is supported. Servers that require SSE or Streamable HTTP connections will not work until GitHub adds those transports. Second, agent mode is required. Standard Copilot completions and inline suggestions do not trigger MCP tools. Third, there is no built-in server marketplace inside VS Code for Copilot. You need to find servers yourself, which is where a directory like [MCPFind](/) becomes useful for browsing 5,778 indexed options across 21 categories. Finally, Copilot does not yet support MCP resources or prompts, only tools. This means servers that primarily expose data through the resource protocol will not surface their content in Copilot conversations. These gaps are expected to close as both GitHub and the MCP specification continue to evolve through 2026.
+Copilot's MCP support is still maturing, and we found several constraints worth noting. First, only the stdio transport is supported. Servers that require SSE or Streamable HTTP connections will not work until GitHub adds those transports. Second, agent mode is required. Standard Copilot completions and inline suggestions do not trigger MCP tools. Third, there is no built-in server marketplace inside VS Code for Copilot. You need to find servers yourself, which is where a directory like [MCPFind](/) becomes useful for browsing 5,778 indexed options across 21 categories. Finally, Copilot does not yet support MCP resources or prompts, only tools. This means servers that primarily expose data through the resource protocol will not surface their content in Copilot conversations. These gaps are expected to close as both GitHub and the MCP specification continue to evolve through 2026. For a curated list of the top devtools servers that pair well with Copilot agent mode, see [the best devtools MCP servers for code review](/blog/best-devtools-mcp-servers-code-review).
 
 ## Frequently Asked Questions
 

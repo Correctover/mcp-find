@@ -3,7 +3,7 @@ title: "How to Configure MCP Servers in Windsurf IDE (2026)"
 description: "Configure MCP servers in Windsurf IDE step by step. Set up devtools, database, and search servers in mcp_config.json to extend the Cascade agent's reach."
 excerpt: "Windsurf's Cascade agent supports MCP through a dedicated config file. This guide covers the config file location, transport modes (stdio vs HTTP), adding your first server, and which of MCPFind's 5,296 indexed servers make the most sense for a developer workflow in Windsurf."
 date: "2026-04-07"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-28"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -79,7 +79,7 @@ The JSON config format is identical across Windsurf, Cursor, and VS Code. Any se
 
 Cursor's Agent mode runs MCP servers as background processes per workspace. VS Code's Copilot agent supports the same transports but requires enabling MCP explicitly in settings; support was added later than in either Cursor or Windsurf. Both editors are covered in detail in the guides for [MCP in Cursor](/blog/how-to-use-mcp-with-cursor) and [MCP in VS Code](/blog/how-to-use-mcp-with-vscode).
 
-Windsurf's Cascade agent handles autonomous multi-step work well out of the box. For workflows where the agent queries a database, consults documentation, and runs tests in sequence without manual prompting between steps, Windsurf's runtime suits that pattern. The server configs you write are portable across editors. The decision comes down to which agentic runtime fits how you work.
+Windsurf's Cascade agent handles autonomous multi-step work well out of the box. For workflows where the agent queries a database, consults documentation, and runs tests in sequence without manual prompting between steps, Windsurf's runtime suits that pattern. The server configs you write are portable across editors. The decision comes down to which agentic runtime fits how you work. For a curated roundup of the top devtools servers that work well in Windsurf's agentic runtime, see [the best devtools MCP servers for code review](/blog/best-devtools-mcp-servers-code-review).
 
 ## Frequently Asked Questions
 

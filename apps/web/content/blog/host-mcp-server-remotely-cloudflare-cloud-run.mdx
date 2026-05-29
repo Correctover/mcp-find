@@ -3,7 +3,7 @@ title: "How to Host an MCP Server Remotely: Cloudflare, Cloud Run, Vercel"
 description: "Compare Cloudflare Workers, Google Cloud Run, and Vercel for hosting remote MCP servers. Includes setup steps, cost tradeoffs, and directory data on production deployments."
 excerpt: "Stdio MCP servers only work on the local machine where Claude Desktop runs. Remote hosting changes that: your server becomes a persistent endpoint any authorized client can reach. This guide compares Cloudflare Workers, Cloud Run, and Vercel for MCP deployments, with cost tradeoffs and real examples from the directory."
 date: "2026-04-24"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-28"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -109,7 +109,7 @@ The free hobby plan includes up to 100 GB-hours of compute per month, which is g
 
 The decision comes down to three factors: state requirements, latency sensitivity, and team size. For personal tools with no persistent state, Cloudflare Workers is the right default -- zero cold starts, generous free tier, and the most community examples to reference in the MCPFind [cloud category](/categories/cloud). For servers that maintain session state or call long-running external processes, Cloud Run gives you a full container with configurable memory and concurrency. For teams that already use Vercel for their web stack, the Vercel adapter is the fastest path to production because it slots into an existing deployment pipeline.
 
-The one pattern to avoid across all three: storing secrets in code or in environment variables baked into your container image. Use each platform's secret management -- Cloudflare Workers Secrets, Cloud Run Secret Manager integration, or Vercel Environment Variables -- and rotate them independently of deployments.
+The one pattern to avoid across all three: storing secrets in code or in environment variables baked into your container image. Use each platform's secret management -- Cloudflare Workers Secrets, Cloud Run Secret Manager integration, or Vercel Environment Variables -- and rotate them independently of deployments. For a curated list of devtools servers that work well in remote deployment scenarios, see [the best devtools MCP servers for repo intelligence](/blog/best-devtools-mcp-servers-repo-intelligence).
 
 ## Frequently Asked Questions
 

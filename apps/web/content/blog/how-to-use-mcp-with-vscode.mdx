@@ -3,7 +3,7 @@ title: "How to Set Up MCP Servers in VS Code"
 description: "Configure MCP servers VS Code setup with exact JSON snippets, workspace vs global scope, and the best devtools and search servers to connect first in 2026."
 excerpt: "VS Code supports MCP servers through its AI extension layer. This guide covers the config file location, JSON format, workspace vs user scope, and which servers from the MCPFind devtools and search categories are worth connecting first."
 date: "2026-04-02"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-28"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -95,7 +95,7 @@ For debugging workflows, the Chrome DevTools MCP server (31,292 GitHub stars) le
 
 After saving your config, reload VS Code with "Developer: Reload Window" from the command palette.
 
-Open a new Copilot or Claude chat panel inside VS Code and send a prompt that requires the server you just configured. If the tool call appears in the response, the connection is working. If not, open the VS Code output panel (View > Output) and select the MCP or Copilot channel to read connection logs. The most common failure modes are a `type` field missing from the config (VS Code requires it, Cursor does not), an `npx` binary not found in the PATH that VS Code inherits (fix with an absolute path like `/usr/local/bin/npx`), and JSON syntax errors from a trailing comma. A JSON linter catches that last one in under a second.
+Open a new Copilot or Claude chat panel inside VS Code and send a prompt that requires the server you just configured. If the tool call appears in the response, the connection is working. If not, open the VS Code output panel (View > Output) and select the MCP or Copilot channel to read connection logs. The most common failure modes are a `type` field missing from the config (VS Code requires it, Cursor does not), an `npx` binary not found in the PATH that VS Code inherits (fix with an absolute path like `/usr/local/bin/npx`), and JSON syntax errors from a trailing comma. A JSON linter catches that last one in under a second. For a curated roundup of the top devtools servers that pair well with VS Code's agent mode, see [the best devtools MCP servers for code review](/blog/best-devtools-mcp-servers-code-review).
 
 ## Frequently Asked Questions
 

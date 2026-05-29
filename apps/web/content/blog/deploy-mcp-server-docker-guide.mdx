@@ -3,7 +3,7 @@ title: "How to Deploy an MCP Server with Docker"
 description: "Step-by-step guide to containerizing MCP servers with Docker for Node.js and Python, with production best practices and real directory examples."
 excerpt: "Most MCP servers fail in production because they depend on local system state that Docker eliminates. This guide shows how to write Dockerfiles for Node.js and Python MCP servers, expose the right ports, and push to a container registry for reliable remote deployment."
 date: "2026-04-22"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-28"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -106,7 +106,7 @@ gcloud run deploy my-mcp-server \
   --allow-unauthenticated
 ```
 
-Cloud Run scales to zero when no requests arrive, which keeps costs low for servers with intermittent usage. Add `--min-instances=1` if your server needs to be ready instantly without a cold-start delay. For servers that maintain persistent state or WebSocket connections, a VPS or Kubernetes deployment is more appropriate than a managed serverless runner. The MCPFind [cloud category](/categories/cloud) indexes 158 hosted MCP servers averaging 61.87 stars each -- browsing the top entries shows which deployment targets the community has validated in production. Once your server is running remotely, our guide on [monitoring MCP servers in production](/blog/mcp-server-monitoring-production) covers health checks and log access.
+Cloud Run scales to zero when no requests arrive, which keeps costs low for servers with intermittent usage. Add `--min-instances=1` if your server needs to be ready instantly without a cold-start delay. For servers that maintain persistent state or WebSocket connections, a VPS or Kubernetes deployment is more appropriate than a managed serverless runner. The MCPFind [cloud category](/categories/cloud) indexes 158 hosted MCP servers averaging 61.87 stars each -- browsing the top entries shows which deployment targets the community has validated in production. Once your server is running remotely, our guide on [monitoring MCP servers in production](/blog/mcp-server-monitoring-production) covers health checks and log access. For a look at the devtools servers that teams deploy most often alongside Docker-hosted MCP, see [the best devtools MCP servers for repo intelligence](/blog/best-devtools-mcp-servers-repo-intelligence).
 
 ## Frequently Asked Questions
 

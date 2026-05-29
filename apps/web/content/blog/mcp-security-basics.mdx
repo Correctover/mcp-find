@@ -3,7 +3,7 @@ title: "MCP Security Basics: What to Know Before Adding Servers"
 description: "Understand MCP server security risks before you connect one to Claude. Covers permissions, trust, prompt injection, and what verified means on MCPFind."
 excerpt: "Every MCP server you add to Claude gets access to tools that can read files, call APIs, or query databases. Before connecting one, you should understand the permission model, what prompt injection looks like in practice, and how to evaluate whether a server is trustworthy. This guide covers the basics without requiring a security background."
 date: "2026-04-07"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-28"
 author: "Adam Bush"
 authorUrl: "https://www.linkedin.com/in/adam-bush/"
 authorSameAs:
@@ -67,7 +67,7 @@ A few habits reduce risk without requiring deep security expertise. First, disco
 
 For teams deploying MCP in shared environments, network-accessible MCP servers (HTTP transport instead of stdio) introduce additional concerns around authentication and access control. Every client that can reach the server URL can potentially use its tools. Treat network-accessible MCP servers with the same access control rigor you would apply to any internal API: authentication tokens, IP allowlisting, and audit logs for tool calls.
 
-The [security category on MCPFind](/categories/security) has 171 servers designed to help with exactly these challenges, from audit logging tools to access control layers built on top of existing MCP servers. Browse the category if you are configuring MCP for a production environment rather than personal use.
+The [security category on MCPFind](/categories/security) has 171 servers designed to help with exactly these challenges, from audit logging tools to access control layers built on top of existing MCP servers. Browse the category if you are configuring MCP for a production environment rather than personal use. If you are building or deploying agent workflows and want to understand which AI and machine learning servers follow strong security practices, see [the best AI and machine learning MCP servers for agent toolchains](/blog/best-ai-ml-mcp-servers-agent-toolchains).
 
 ## Frequently Asked Questions
 

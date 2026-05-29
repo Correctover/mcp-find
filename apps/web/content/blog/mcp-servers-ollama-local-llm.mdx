@@ -3,7 +3,7 @@ title: "How to Use MCP Servers With Ollama and Local LLMs"
 description: "Connect MCP servers to Ollama and local LLMs using MCPHost or compatible bridges. Covers model requirements, tool-calling setup, and which servers work best offline."
 excerpt: "Ollama does not natively speak MCP, but bridge tools like MCPHost let local models call MCP tools over stdio. MCPFind indexes 832 servers in the ai-ml category. This guide covers which models support tool calling, how to wire MCPHost to any local model, and which server categories are worth running offline."
 date: "2026-04-17"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-28"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -75,7 +75,7 @@ Not all servers are equally useful offline. We grouped the [devtools category](/
 
 ## Limitations and When to Use a Cloud Client Instead
 
-Three constraints matter when running MCP with Ollama. First, tool-calling reliability: open-weight models produce malformed tool calls more often than frontier models. Complex tool schemas with nested objects or many optional fields are particularly prone to errors. Simplify your tool definitions when building for local use. Second, context length: long MCP tool responses eat into the model's context window. A server that returns a 10,000-token file listing may cause later turns to lose earlier context. Truncate large responses at the server level before returning them. Third, latency: a tool call adds one round trip, so multi-step agentic tasks accumulate latency. On consumer hardware, expect 2-10 seconds per tool call depending on model size and quantization. If your workflow requires frequent multi-tool calls or long responses, a Claude-backed client with a subset of the same MCP servers will be faster. Start with [what MCP is](/blog/what-is-mcp) if you want the protocol background before optimizing your setup.
+Three constraints matter when running MCP with Ollama. First, tool-calling reliability: open-weight models produce malformed tool calls more often than frontier models. Complex tool schemas with nested objects or many optional fields are particularly prone to errors. Simplify your tool definitions when building for local use. Second, context length: long MCP tool responses eat into the model's context window. A server that returns a 10,000-token file listing may cause later turns to lose earlier context. Truncate large responses at the server level before returning them. Third, latency: a tool call adds one round trip, so multi-step agentic tasks accumulate latency. On consumer hardware, expect 2-10 seconds per tool call depending on model size and quantization. If your workflow requires frequent multi-tool calls or long responses, a Claude-backed client with a subset of the same MCP servers will be faster. Start with [what MCP is](/blog/what-is-mcp) if you want the protocol background before optimizing your setup. For a curated comparison of the highest-rated servers in this space, see [the best AI and machine learning MCP servers for agent toolchains](/blog/best-ai-ml-mcp-servers-agent-toolchains).
 
 ## Frequently Asked Questions
 

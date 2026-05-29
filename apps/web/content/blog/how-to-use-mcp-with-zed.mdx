@@ -3,7 +3,7 @@ title: "How to Set Up MCP Servers in Zed Editor (2026 Guide)"
 description: "Configure MCP servers in Zed editor using context_servers settings. Step-by-step guide for developers with working JSON examples and troubleshooting tips."
 excerpt: "Zed added native MCP support via its context_servers configuration block. This guide walks you through connecting any of the 2,824 devtools servers MCPFind indexes to your Zed workspace, with troubleshooting for common setup failures."
 date: "2026-04-13"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-28"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -72,7 +72,7 @@ We analyzed the devtools category on MCPFind, where the 2,824 servers average 38
 
 ## Troubleshooting MCP in Zed
 
-Three failure modes account for most setup problems. The first is a missing binary: Zed resolves the command path using your login shell's `$PATH`, which differs from your interactive shell on macOS. If `npx` works in your terminal but not in Zed, add the full path, typically `/usr/local/bin/npx` or wherever `which npx` resolves. The second is an incorrect args format: each argument must be a separate string in the array. Passing `"-y @modelcontextprotocol/server-github"` as one string fails silently. The third is environment variable scope: variables set with `export` in `.bashrc` are not automatically available to Zed on macOS. Use the `env` block in the config instead of relying on shell exports. When in doubt, test the server manually in a terminal first with the exact command and args from your Zed config before debugging the editor integration.
+Three failure modes account for most setup problems. The first is a missing binary: Zed resolves the command path using your login shell's `$PATH`, which differs from your interactive shell on macOS. If `npx` works in your terminal but not in Zed, add the full path, typically `/usr/local/bin/npx` or wherever `which npx` resolves. The second is an incorrect args format: each argument must be a separate string in the array. Passing `"-y @modelcontextprotocol/server-github"` as one string fails silently. The third is environment variable scope: variables set with `export` in `.bashrc` are not automatically available to Zed on macOS. Use the `env` block in the config instead of relying on shell exports. When in doubt, test the server manually in a terminal first with the exact command and args from your Zed config before debugging the editor integration. For a curated look at the top devtools servers to pair with Zed, see [the best devtools MCP servers for code review](/blog/best-devtools-mcp-servers-code-review).
 
 ## Frequently Asked Questions
 

@@ -3,7 +3,7 @@ title: "How to Connect PostgreSQL to Claude Using MCP"
 description: "Step-by-step guide to connect Postgres with MCP and Claude. Covers config setup, connection strings, client options, and database alternatives across 227 servers."
 excerpt: "You can connect Claude directly to a PostgreSQL database using an MCP server. This guide walks through the exact config, connection string format, and how PostgreSQL compares to Supabase, MySQL, and SQLite in the database category."
 date: "2026-04-02"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-28"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -89,7 +89,7 @@ Ask "which customers signed up last week and have not placed an order" and Claud
 
 The practical limit is query complexity. Claude is good at straightforward SELECT and JOIN queries against schemas it has inspected. For multi-step migrations or complex aggregations, it helps to provide the schema upfront by asking Claude to run `list_tables` first so it has context before you ask the substantive question.
 
-This is a step up from pasting data into chat manually. If your data lives in a tool like Notion rather than a database, see our guide on [connecting Notion to AI agents](/blog/connect-notion-mcp-ai-agents). If you are new to MCP and want to understand the full protocol before configuring your first server, read [what is MCP](/blog/what-is-mcp) first. For Cursor-specific setup, see [how to use MCP with Cursor](/blog/how-to-use-mcp-with-cursor). If you want to go further and write your own MCP server for a custom database schema, [building your first MCP server in Python](/blog/building-your-first-mcp-server) walks through the full process.
+This is a step up from pasting data into chat manually. If your data lives in a tool like Notion rather than a database, see our guide on [connecting Notion to AI agents](/blog/connect-notion-mcp-ai-agents). If you are new to MCP and want to understand the full protocol before configuring your first server, read [what is MCP](/blog/what-is-mcp) first. For Cursor-specific setup, see [how to use MCP with Cursor](/blog/how-to-use-mcp-with-cursor). If you want to go further and write your own MCP server for a custom database schema, [building your first MCP server in Python](/blog/building-your-first-mcp-server) walks through the full process. For a curated roundup of the top-ranked options in this category, see [the best database MCP servers for PostgreSQL workflows](/blog/best-databases-mcp-servers-postgres-workflows).
 
 ## Frequently Asked Questions
 

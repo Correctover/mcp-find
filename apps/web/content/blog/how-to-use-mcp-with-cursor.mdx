@@ -3,7 +3,7 @@ title: "How to Configure MCP Servers in Cursor (2026 Guide)"
 description: "Step-by-step guide to how to configure MCP in Cursor. Exact JSON config examples, top devtools servers, and troubleshooting tips for developers in 2026."
 excerpt: "Cursor supports MCP natively. This guide shows you the exact JSON config format, which servers work best with Cursor's agent mode, and how to verify your setup is working correctly."
 date: "2026-04-02"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-28"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -93,7 +93,7 @@ For most Cursor setups, start with one database server and one search server. Ad
 
 After saving your config file, reload Cursor with Cmd+Shift+P and select "Developer: Reload Window." Then open a new composer session and type a prompt that requires the server you just added.
 
-If the server is connected, you will see tool call entries appear in the composer output as the agent runs. If nothing appears, open the Cursor output panel (View > Output) and select "MCP" from the dropdown to see connection errors. The most common issues are a missing `npx` in PATH (fix by using the full path like `/usr/local/bin/npx`) and malformed JSON in your config file. Validate your JSON with a linter before reloading.
+If the server is connected, you will see tool call entries appear in the composer output as the agent runs. If nothing appears, open the Cursor output panel (View > Output) and select "MCP" from the dropdown to see connection errors. The most common issues are a missing `npx` in PATH (fix by using the full path like `/usr/local/bin/npx`) and malformed JSON in your config file. Validate your JSON with a linter before reloading. For a curated list of the top devtools servers to add once Cursor's MCP connection is working, see [the best devtools MCP servers for code review](/blog/best-devtools-mcp-servers-code-review).
 
 ## Frequently Asked Questions
 

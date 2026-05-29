@@ -3,7 +3,7 @@ title: "Salesforce MCP Server: Enterprise CRM Meets AI Agents"
 description: "Set up the Salesforce MCP server to query contacts, opportunities, and accounts in Claude or Cursor. Includes Connected App setup, OAuth config, and security guidance."
 excerpt: "The Salesforce MCP server connects Claude and Cursor to your Salesforce org through OAuth 2.1. We cover Connected App setup, available CRM tools, record-level security behavior, and common pipeline automation use cases for enterprise sales teams."
 date: "2026-05-15"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-28"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -90,7 +90,7 @@ This is the question that matters most for enterprise deployments. The Salesforc
 
 If a sales rep authenticates the server, the agent can only see and modify the records that rep has access to in the Salesforce UI. Opportunities owned by other reps that are not shared through a sharing rule are invisible to the agent. This behavior is enforced at the Salesforce API layer, not at the MCP server layer, so it cannot be bypassed by prompt engineering.
 
-For enterprise deployments where multiple team members use a shared agent tool backed by Salesforce MCP, each user should authenticate separately. Sharing a single Connected App credential across users effectively gives every user the permissions of whoever authenticated first, which violates the intended access model and creates audit trail problems. Each user's individual authentication ensures the event log shows the correct user for each API call.
+For enterprise deployments where multiple team members use a shared agent tool backed by Salesforce MCP, each user should authenticate separately. Sharing a single Connected App credential across users effectively gives every user the permissions of whoever authenticated first, which violates the intended access model and creates audit trail problems. Each user's individual authentication ensures the event log shows the correct user for each API call. For AI agent toolchains that pair well with Salesforce in enterprise workflows, see [the best AI and machine learning MCP servers for agent toolchains](/blog/best-ai-ml-mcp-servers-agent-toolchains).
 
 ## Frequently Asked Questions
 

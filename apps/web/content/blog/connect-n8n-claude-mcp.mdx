@@ -3,7 +3,7 @@ title: "How to Connect n8n Workflows to Claude Using MCP"
 description: "Connect n8n automation workflows to Claude through MCP servers. Step-by-step setup for triggering n8n nodes from AI agents via the Model Context Protocol."
 excerpt: "n8n is one of the most popular open-source workflow automation tools, and it now has an MCP server that lets Claude trigger n8n workflows directly. This guide covers setup, configuration, and how n8n fits into the broader automation category of 41 indexed MCP servers on MCPFind."
 date: "2026-04-07"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-28"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -65,7 +65,7 @@ Not every n8n workflow is a good fit for MCP triggering. We found three patterns
 
 ## How Does n8n Compare to Other Automation MCP Servers?
 
-We compared n8n against the other 40 servers in MCPFind's automation category. Most automation servers are single-purpose: they connect to one service or expose one type of trigger. n8n's strength is its generality. A single n8n MCP server can expose dozens of workflows that each integrate with different services, all through one configuration entry. The tradeoff is complexity. You need a running n8n instance, you need to build and maintain the workflows, and debugging failures means checking both the MCP connection and the n8n execution log. For developers who already use n8n, the MCP server is a natural extension of their existing setup. For those starting fresh, a dedicated single-service MCP server from the [MCPFind directory](/) might be simpler to configure and maintain. The 460 servers in the [search category](/categories/search) and 244 in [databases](/categories/databases), for instance, provide direct access without the workflow abstraction layer.
+We compared n8n against the other 40 servers in MCPFind's automation category. Most automation servers are single-purpose: they connect to one service or expose one type of trigger. n8n's strength is its generality. A single n8n MCP server can expose dozens of workflows that each integrate with different services, all through one configuration entry. The tradeoff is complexity. You need a running n8n instance, you need to build and maintain the workflows, and debugging failures means checking both the MCP connection and the n8n execution log. For developers who already use n8n, the MCP server is a natural extension of their existing setup. For those starting fresh, a dedicated single-service MCP server from the [MCPFind directory](/) might be simpler to configure and maintain. The 460 servers in the [search category](/categories/search) and 244 in [databases](/categories/databases), for instance, provide direct access without the workflow abstraction layer. For a curated list of the AI and machine learning MCP servers that pair well with automation workflows, see [the best AI and machine learning MCP servers for agent toolchains](/blog/best-ai-ml-mcp-servers-agent-toolchains).
 
 ## Frequently Asked Questions
 

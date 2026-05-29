@@ -3,7 +3,7 @@ title: "Installing MCP Desktop Extensions: The .mcpb File Explained"
 description: "Learn what .mcpb files are, how to install MCP desktop extensions in Claude Desktop, and which servers ship as one-click bundles."
 excerpt: "The .mcpb format packages an entire MCP server into a single installable bundle for Claude Desktop. This guide explains what the format does, how to install it, and how it differs from manual server configuration. No terminal required."
 date: "2026-04-07"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-28"
 author: "Adam Bush"
 authorUrl: "https://www.linkedin.com/in/adam-bush/"
 authorSameAs:
@@ -61,7 +61,7 @@ Desktop extensions are more reliable than manual setup, but a few failure modes 
 
 Permission errors happen when a bundle tries to access folders Claude Desktop is not allowed to reach. On macOS, Full Disk Access settings control this. On Windows, the issue usually involves UAC restrictions on certain directories. Granting the necessary permission in System Settings and reinstalling the extension typically resolves it.
 
-If an extension installs but its tools do not appear in conversation, try toggling it off and on in Settings > Extensions. Claude Desktop caches tool definitions at startup, and a manual toggle forces a refresh. If the problem persists, removing and reinstalling the extension clears any corrupted state in the local extensions directory.
+If an extension installs but its tools do not appear in conversation, try toggling it off and on in Settings > Extensions. Claude Desktop caches tool definitions at startup, and a manual toggle forces a refresh. If the problem persists, removing and reinstalling the extension clears any corrupted state in the local extensions directory. Once extensions are running, [the best devtools MCP servers for repo intelligence](/blog/best-devtools-mcp-servers-repo-intelligence) covers the highest-rated options to add next.
 
 ## Frequently Asked Questions
 

@@ -3,7 +3,7 @@ title: "Best Database MCP Servers: PostgreSQL, MySQL, SQLite, Supabase"
 description: "MCPFind indexes 267 database MCP servers. Compare top options for PostgreSQL, MySQL, SQLite, and Supabase by star count, transport type, and read-write access."
 excerpt: "If you want to connect Claude or another AI agent to a relational database, you need a database MCP server. MCPFind indexes 267 of them across PostgreSQL, MySQL, SQLite, and Supabase. This guide compares the top options by star count, access model, and transport type so you can pick the right one for your stack."
 date: "2026-04-20"
-updatedAt: "2026-05-26"
+updatedAt: "2026-05-28"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -83,7 +83,7 @@ Read-write access is a configuration decision made at the database user level, n
 
 For production databases, the right default is a read-only database user. Grant Claude SELECT access to the tables needed for analytics, debugging, or data exploration. If a workflow requires write access, create a second configuration with scoped permissions for those specific tables. Mixing broad write access with an agent generating queries from natural language is a risk profile that requires explicit approval in most engineering environments.
 
-Some MCP servers support a read-only flag in the config itself, adding a second protection layer beyond database user permissions. Check the server's documentation for this option before connecting to any database with production data. A server that enforces read-only at the protocol level is safer than one that relies entirely on database role configuration, particularly in shared team setups where connection strings get reused.
+Some MCP servers support a read-only flag in the config itself, adding a second protection layer beyond database user permissions. Check the server's documentation for this option before connecting to any database with production data. A server that enforces read-only at the protocol level is safer than one that relies entirely on database role configuration, particularly in shared team setups where connection strings get reused. For a deeper comparison of the top PostgreSQL-focused options specifically, see [the best database MCP servers for PostgreSQL workflows](/blog/best-databases-mcp-servers-postgres-workflows).
 
 ## Frequently Asked Questions
 

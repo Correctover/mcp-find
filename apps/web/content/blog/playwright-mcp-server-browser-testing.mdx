@@ -3,7 +3,7 @@ title: "Playwright MCP Server: Why Accessibility-Tree Automation Beats Screensho
 description: "Microsoft's Playwright MCP server uses the browser accessibility tree, not screenshots, to give AI agents 25+ automation tools. Compare it to browser-use, Puppeteer MCPs, and direct Playwright code."
 excerpt: "Microsoft's Playwright MCP server exposes 25+ browser automation tools to AI agents using the accessibility tree rather than screenshots. MCPFind indexes 82 testing servers. This guide covers setup, tool reference, and practical development use cases."
 date: "2026-05-15"
-updatedAt: "2026-05-27"
+updatedAt: "2026-05-28"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -116,7 +116,7 @@ In practice, we see four scenarios where the Playwright MCP server provides clea
 
 **Test script generation.** Use Claude with Playwright MCP to explore a user flow and then ask it to generate a Playwright test file for that same sequence. The agent has live context from the browser, so the generated selectors are grounded in real page structure rather than guesses.
 
-These use cases work best when paired with a running local dev server. Playwright MCP is not a replacement for your CI test suite but a fast exploration and debugging tool that complements it.
+These use cases work best when paired with a running local dev server. Playwright MCP is not a replacement for your CI test suite but a fast exploration and debugging tool that complements it. For a curated list of the top devtools servers that pair with testing and browser automation workflows, see [the best devtools MCP servers for code review](/blog/best-devtools-mcp-servers-code-review).
 
 ## Frequently Asked Questions
 

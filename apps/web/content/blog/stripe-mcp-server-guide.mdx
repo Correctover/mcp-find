@@ -3,7 +3,7 @@ title: "Stripe MCP Server Security: Restricted API Keys, OAuth, and Prompt Injec
 description: "Set up the Stripe MCP server safely. Covers restricted API key scoping, OAuth considerations, prompt injection risks, and PCI scope implications for Claude and Cursor."
 excerpt: "The Stripe MCP server connects Claude and Cursor to your Stripe account, exposing payment data as callable tools. We cover installation, API key scoping, available payment operations, and security practices to keep production access locked down."
 date: "2026-05-11"
-updatedAt: "2026-05-27"
+updatedAt: "2026-05-28"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -93,7 +93,7 @@ Third, rotate keys on a quarterly schedule. Restricted keys can be revoked and r
 
 The practical difference comes down to iteration speed. When a developer writes a script to pull customer data, they define the exact query upfront and run it in one step. When the same developer uses Stripe MCP with Claude, they can ask follow-up questions in natural language without writing additional code. The first query might return a customer record; the second might ask Claude to identify which of those customers have active disputes and open subscriptions simultaneously. Claude assembles the multi-step query from Stripe's tools without the developer specifying each API call.
 
-The tradeoff is auditability. Direct scripts leave a clear code trail. MCP tool calls are logged differently, and the prompts that trigger them are not always reproducible in the exact same form. For workflows where audit trails matter, keep write operations in scripted form and use MCP for the read-heavy lookup work where the human reviews results before acting. Teams already using Stripe's official libraries should treat Stripe MCP as a complement to their existing integration, not a replacement. The server works alongside existing code and does not affect how your application calls the Stripe API outside of Claude sessions.
+The tradeoff is auditability. Direct scripts leave a clear code trail. MCP tool calls are logged differently, and the prompts that trigger them are not always reproducible in the exact same form. For workflows where audit trails matter, keep write operations in scripted form and use MCP for the read-heavy lookup work where the human reviews results before acting. Teams already using Stripe's official libraries should treat Stripe MCP as a complement to their existing integration, not a replacement. The server works alongside existing code and does not affect how your application calls the Stripe API outside of Claude sessions. For AI and machine learning servers that pair well with payment and commerce workflows, see [the best AI and machine learning MCP servers for agent toolchains](/blog/best-ai-ml-mcp-servers-agent-toolchains).
 
 ## Frequently Asked Questions
 

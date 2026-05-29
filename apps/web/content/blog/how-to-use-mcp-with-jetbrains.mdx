@@ -3,7 +3,7 @@ title: "How to Set Up MCP Servers in JetBrains IDEs (2026 Guide)"
 description: "JetBrains AI Assistant supports MCP servers in IntelliJ IDEA, WebStorm, PyCharm, and GoLand. Configure MCP with the 2,971 devtools servers in MCPFind's directory."
 excerpt: "JetBrains IDEs added MCP support through their AI Assistant plugin, giving IntelliJ IDEA, WebStorm, PyCharm, and GoLand users access to the same MCP server ecosystem as Cursor and VS Code. This guide covers how to configure MCP in JetBrains, which devtools servers work well, and how the experience compares to other MCP-enabled IDEs."
 date: "2026-04-24"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-28"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -92,7 +92,7 @@ The core MCP protocol is identical across clients. A server that works in Cursor
 
 Cursor was the earliest IDE with deep MCP integration and has the most refined tool-calling UI. You can see which tools the agent is considering before it calls them, and interrupt at specific points. VS Code's MCP support through GitHub Copilot follows a similar model but is newer. JetBrains' implementation is more recent and focuses on the AI chat panel rather than agentic inline editing.
 
-For teams standardized on JetBrains IDEs (common in Java, Kotlin, Python, and Go shops), the choice is not Cursor vs JetBrains. It is whether MCP servers add enough value in the JetBrains workflow to configure. Based on our analysis of the 2,971-server devtools category, the answer for most backend developers is yes. Database connections, GitHub integration, and external API access are the three server types that make AI assistance genuinely faster for production development work. The [how-to-use-mcp-with-cursor guide](/blog/how-to-use-mcp-with-cursor) covers the Cursor-specific configuration if you use both editors and want a comparison baseline.
+For teams standardized on JetBrains IDEs (common in Java, Kotlin, Python, and Go shops), the choice is not Cursor vs JetBrains. It is whether MCP servers add enough value in the JetBrains workflow to configure. Based on our analysis of the 2,971-server devtools category, the answer for most backend developers is yes. Database connections, GitHub integration, and external API access are the three server types that make AI assistance genuinely faster for production development work. The [how-to-use-mcp-with-cursor guide](/blog/how-to-use-mcp-with-cursor) covers the Cursor-specific configuration if you use both editors and want a comparison baseline. For a curated list of the top devtools servers in this space, see [the best devtools MCP servers for code review](/blog/best-devtools-mcp-servers-code-review).
 
 ## Frequently Asked Questions
 

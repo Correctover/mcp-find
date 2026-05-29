@@ -3,7 +3,7 @@ title: "How to Use the GitHub MCP Server with Claude Code"
 description: "Configure the official GitHub MCP server with Claude Code for AI-assisted issue management, PR reviews, and code search. Full setup guide with config examples."
 excerpt: "The official GitHub MCP server gives Claude Code protocol-level access to your repositories, exposing tools for issues, pull requests, and code search. We cover the full configuration, permission scoping, and how it differs from the gh CLI workflow that most Claude Code users already rely on."
 date: "2026-05-07"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-28"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -89,7 +89,7 @@ For team environments, consider GitHub Apps over personal access tokens. A GitHu
 
 Review your active MCP servers periodically. Unused servers with write permissions represent unnecessary risk. If you add the GitHub MCP server for a one-time workflow, remove it from your config when you are done, the same way you would revoke an API key after a project ends. The [MCPFind devtools category](/categories/devtools) lists 3,463 servers; knowing which ones are active in your environment is basic hygiene.
 
-Pair the GitHub MCP server with the [Figma MCP server](/blog/figma-mcp-server-design-to-code) for a complete design-to-ship pipeline, and check out [Best MCP Servers for DevOps and CI/CD](/blog/best-mcp-servers-devops-cicd) for the full stack of tools used in AI-native engineering teams.
+Pair the GitHub MCP server with the [Figma MCP server](/blog/figma-mcp-server-design-to-code) for a complete design-to-ship pipeline, and check out [Best MCP Servers for DevOps and CI/CD](/blog/best-mcp-servers-devops-cicd) for the full stack of tools used in AI-native engineering teams. For a curated list of the top devtools servers that complement the GitHub MCP server, see [the best devtools MCP servers for code review](/blog/best-devtools-mcp-servers-code-review).
 
 ## Frequently Asked Questions
 

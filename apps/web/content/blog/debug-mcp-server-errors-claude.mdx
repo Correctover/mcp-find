@@ -3,7 +3,7 @@ title: "Fix MCP Server Errors in Claude Desktop: Every Common Error Explained"
 description: "Step-by-step fixes for connection refused, tool not found, auth failures, and transport errors. Stop guessing — resolve MCP issues in Claude Desktop fast."
 excerpt: "MCP server errors in Claude Desktop can be frustrating, especially when the error messages are vague. This guide walks through the most common failures, from connection refused to tool not found, and shows you exactly where to look and what to fix. Tested against real servers from a directory of 5,778 MCP servers."
 date: "2026-04-10"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-28"
 author: "Adam Bush"
 authorUrl: "https://www.linkedin.com/in/adam-bush/"
 authorSameAs:
@@ -48,7 +48,7 @@ Authentication errors show up as "unauthorized," "403," or "invalid API key" mes
 
 ## How Do You Read MCP Server Logs Effectively?
 
-The fastest path to fixing any MCP error is reading the right log file. Claude Desktop writes logs to `~/Library/Logs/Claude/` on macOS. Each MCP server gets its own log file named after the server key in your config. Open the log file and scroll to the bottom for the most recent error. Look for lines containing "error," "exception," or "ENOENT" (which means a file or binary was not found). If the log is empty, the server never started. Go back to your config file and verify the command and args fields. You can also enable verbose logging on many servers by adding a `--verbose` or `--debug` flag to the args array. The MCPFind directory at [mcpfind.org](/) lists transport type and configuration details for each of its 5,778 indexed servers, which helps you verify you are using the right setup before you start debugging.
+The fastest path to fixing any MCP error is reading the right log file. Claude Desktop writes logs to `~/Library/Logs/Claude/` on macOS. Each MCP server gets its own log file named after the server key in your config. Open the log file and scroll to the bottom for the most recent error. Look for lines containing "error," "exception," or "ENOENT" (which means a file or binary was not found). If the log is empty, the server never started. Go back to your config file and verify the command and args fields. You can also enable verbose logging on many servers by adding a `--verbose` or `--debug` flag to the args array. The MCPFind directory at [mcpfind.org](/) lists transport type and configuration details for each of its 5,778 indexed servers, which helps you verify you are using the right setup before you start debugging. For a curated look at the best devtools servers to add once everything is working, see [the best devtools MCP servers for repo intelligence](/blog/best-devtools-mcp-servers-repo-intelligence).
 
 ## Frequently Asked Questions
 

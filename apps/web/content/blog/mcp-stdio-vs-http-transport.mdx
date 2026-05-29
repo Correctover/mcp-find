@@ -3,7 +3,7 @@ title: "MCP stdio vs HTTP Transport: What's the Difference?"
 description: "When to use stdio versus Streamable HTTP in MCP servers. Covers architecture, config examples, and decision rules based on 6,105 indexed servers."
 excerpt: "The choice between stdio and Streamable HTTP transport shapes how your MCP server handles concurrency, authentication, and deployment. This guide explains both options with config examples and decision rules drawn from 6,105 servers in the MCPFind directory."
 date: "2026-04-06"
-updatedAt: "2026-05-21"
+updatedAt: "2026-05-28"
 author: "Gus Marquez"
 authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
 authorSameAs:
@@ -103,7 +103,7 @@ Consider starting with stdio even if HTTP is your long-term target. stdio server
 
 If your server belongs to a category targeting teams or enterprises, HTTP is the standard. The MCPFind [databases category](/categories/databases) holds 251 servers, and its top server, [Supabase](/servers/com-supabase-mcp) with 2,556 GitHub stars, supports both transports to cover developer and SaaS deployment scenarios. That flexibility is the goal: start with stdio, add HTTP when the use case demands it.
 
-To understand the broader MCP server classification model, read [What Is MCP?](/blog/what-is-mcp) for full context before making transport decisions. For a deeper look at when MCP servers make sense versus direct API integration, see [MCP vs API Integration](/blog/mcp-vs-api-integration).
+To understand the broader MCP server classification model, read [What Is MCP?](/blog/what-is-mcp) for full context before making transport decisions. For a deeper look at when MCP servers make sense versus direct API integration, see [MCP vs API Integration](/blog/mcp-vs-api-integration). For a curated look at the best devtools servers that pair well with either transport, see [the best devtools MCP servers for repo intelligence](/blog/best-devtools-mcp-servers-repo-intelligence).
 
 ## Frequently Asked Questions
 
