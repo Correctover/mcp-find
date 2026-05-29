@@ -90,4 +90,10 @@ describe("data-integrity: quality-status-map.json", () => {
     }
     expect(invalid.length).toBe(0);
   });
+
+  it("VALID_STATUSES has no extras beyond QUALITY_STATUS_VALUES", () => {
+    for (const v of VALID_STATUSES) {
+      expect(QUALITY_STATUS_VALUES.includes(v)).toBe(true);
+    }
+  });
 });

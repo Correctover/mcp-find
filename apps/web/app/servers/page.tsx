@@ -12,10 +12,13 @@ import { parseFilterParams } from "@/lib/filter-utils";
 import { safeJsonLd } from "@/lib/json-ld";
 import { getQualityStatus } from "@/lib/quality-status";
 
+// Keep in sync with FALLBACK_SERVER_COUNT_DISPLAY in app/page.tsx
+const FALLBACK_SERVER_COUNT_DISPLAY = "2,000+";
+
 export const metadata: Metadata = {
   title: `Browse MCP Servers | ${SITE_NAME}`,
   description:
-    "Search and filter 2000+ MCP servers. Get instant install configs for Claude Desktop, Cursor, VS Code, Windsurf, and Claude Code.",
+    `Search and filter ${FALLBACK_SERVER_COUNT_DISPLAY} MCP servers. Get instant install configs for Claude Desktop, Cursor, VS Code, Windsurf, and Claude Code.`,
   alternates: { canonical: `${SITE_URL}/servers` },
 };
 
@@ -194,7 +197,7 @@ export default async function ServersPage({
                 "@id": `${SITE_URL}/servers`,
                 name: "MCP Server Directory",
                 url: `${SITE_URL}/servers`,
-                description: "Browse 2000+ MCP servers with instant install configs for Claude Desktop, Cursor, VS Code, Windsurf, and Claude Code.",
+                description: `Browse ${FALLBACK_SERVER_COUNT_DISPLAY} MCP servers with instant install configs for Claude Desktop, Cursor, VS Code, Windsurf, and Claude Code.`,
                 mainEntity: {
                   "@type": "ItemList",
                   numberOfItems: result.total,
