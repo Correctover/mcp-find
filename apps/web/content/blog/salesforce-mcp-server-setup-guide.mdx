@@ -30,7 +30,7 @@ faqItems:
     answer: "Yes. The server supports stdio transport, which both Claude Desktop and Cursor handle natively. Enterprise deployments may require OAuth configuration approval from a Salesforce system administrator before the server can connect."
 ---
 
-Salesforce launched its official MCP server in January 2026, making it one of the first enterprise CRM platforms to publish native MCP support. MCPFind's CRM category now indexes 15 servers, but Salesforce MCP stands apart because it connects to the widest object model of any CRM in the category. Contacts, accounts, opportunities, leads, cases, and custom objects are all accessible through the server. This guide covers the Connected App setup required for OAuth authentication, how to configure the server in Claude Desktop and Cursor, what CRM operations are available, and how Salesforce's record-level security model carries over when an AI agent holds the connection.
+Salesforce launched its official MCP server in January 2026, making it one of the first enterprise CRM platforms to publish native MCP support. MCPFind's productivity category now indexes 15 servers, but Salesforce MCP stands apart because it connects to the widest object model of any CRM in the category. Contacts, accounts, opportunities, leads, cases, and custom objects are all accessible through the server. This guide covers the Connected App setup required for OAuth authentication, how to configure the server in Claude Desktop and Cursor, what CRM operations are available, and how Salesforce's record-level security model carries over when an AI agent holds the connection.
 
 ## What Does the Salesforce MCP Server Give Claude Access To?
 
@@ -38,7 +38,7 @@ The Salesforce MCP server connects Claude, Cursor, and other MCP clients to your
 
 The server exposes standard CRM objects: contacts, accounts, opportunities, leads, tasks, events, and cases. It also supports custom objects and custom fields, which is a significant advantage in enterprise deployments where the standard data model has been extended to match specific business processes. For developer workflows, the server handles both the query side and the write side, so agents can retrieve a list of stale opportunities and then update their next-step fields or log call notes.
 
-MCPFind's CRM category indexes 15 servers. Salesforce MCP is the only option in the category targeting full enterprise org access. For a broader comparison of CRM MCP options including HubSpot and Pipedrive, see the [best CRM MCP servers roundup](/blog/best-mcp-servers-crm-sales). If you are new to the protocol, [What Is MCP?](/blog/what-is-mcp) gives the foundation before diving into Salesforce configuration.
+MCPFind's productivity category indexes 15 servers. Salesforce MCP is the only option in the category targeting full enterprise org access. For a broader comparison of CRM MCP options including HubSpot and Pipedrive, see the [best CRM MCP servers roundup](/blog/best-mcp-servers-crm-sales). If you are new to the protocol, [What Is MCP?](/blog/what-is-mcp) gives the foundation before diving into Salesforce configuration.
 
 ## How Do You Set Up a Salesforce Connected App for MCP Authentication?
 
