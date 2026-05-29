@@ -1,0 +1,147 @@
+---
+title: "Testing Your MCP Server: Inspector, Unit Tests, and CI"
+description: "How to test MCP servers using MCP Inspector, in-memory unit tests, and GitHub Actions CI. Covers TypeScript and Python with working config examples."
+excerpt: "Most MCP servers ship without a test strategy. MCPFind indexes 35 testing-category servers averaging just 0.3 stars. This guide covers three layers: interactive inspection, in-memory unit tests, and automated CI checks you can wire into GitHub Actions today."
+date: "2026-05-19"
+updatedAt: "2026-05-19"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+tags:
+  - "mcp"
+  - "developer"
+  - "testing"
+  - "ci-cd"
+  - "devops"
+category: "testing"
+focusKeyword: "MCP server testing tutorial"
+draft: false
+cornerstone: false
+topic_source: new_topic
+cluster: devops
+faqItems:
+  - question: "Can you test an MCP server without a running AI client?"
+    answer: "Yes. MCP Inspector provides a standalone browser UI that lets you invoke tools directly without Claude or any other client running. For automated tests, in-memory transports remove the need for any external process."
+  - question: "Does MCP Inspector work with remote HTTP servers as well as local stdio servers?"
+    answer: "Yes. Inspector supports stdio, SSE, and HTTP transports. For a remote server, pass the URL directly to the inspector command and authenticate with required headers using the --header flag."
+  - question: "What testing framework works best for TypeScript MCP servers?"
+    answer: "Vitest is the most common choice in the TypeScript MCP ecosystem. It supports in-memory transport testing through direct imports and runs faster than Jest for TypeScript projects that use ESM."
+  - question: "How do you handle async tool calls in MCP server unit tests?"
+    answer: "Use async/await with a timeout wrapper to prevent hanging tests. Most MCP testing utilities expose a callTool method that returns a Promise, so standard async test patterns apply directly."
+---
+
+If you've built an MCP server and shipped it without a test plan, bugs show up inside AI conversations where stack traces are hard to read and tool invocations are difficult to reproduce in isolation. MCPFind's [testing category](/categories/testing) indexes 35 servers with an average of just 0.3 stars, which tells you something important about the current state of the ecosystem: most servers ship untested. If you want to understand [what MCP is](/blog/what-is-mcp) and how servers fit into the protocol before diving into testing, that guide covers the basics. This post covers the three layers that make a production-grade MCP server reliable: interactive inspection with MCP Inspector, unit tests using in-memory transports, and automated checks in your CI pipeline that catch regressions before users hit them.
+
+## What Is the MCP Inspector and How Do You Run It?
+
+MCP Inspector is the official debugging tool from Anthropic for testing MCP servers interactively. You run it with one command, point it at your server, and it opens a browser UI showing your full tool catalog, resource list, and live request and response log. If you want a quick sanity check that your server declares tools correctly before writing any tests, Inspector is where you start.
+
+Run it against a TypeScript server by passing the startup command directly:
+
+```bash
+npx @modelcontextprotocol/inspector npx -y your-server-package
+```
+
+The UI shows every tool your server declares, including input schemas and descriptions. You can invoke any tool with custom arguments, see the exact JSON-RPC payload sent, and inspect the raw response. Inspector supports all three MCP transports: stdio for local servers, SSE and HTTP for remote endpoints. Validation errors surface immediately in the response panel rather than silently failing during an AI session. Use it during development to verify tool schemas match your handler logic before any test code is written.
+
+## How Do You Write Unit Tests for MCP Server Tools?
+
+Unit testing MCP servers uses in-memory transports that connect a client and server instance in the same process. No network, no subprocess, no external dependencies. Tests run in milliseconds and failures trace directly back to specific tool definitions.
+
+For TypeScript, wire a client to your server using the SDK's `InMemoryTransport`:
+
+```typescript
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
+import { MyMcpServer } from "./server.js";
+
+test("search tool returns results", async () => {
+  const [clientTransport, serverTransport] =
+    InMemoryTransport.createLinkedPair();
+  const server = new MyMcpServer();
+  await server.connect(serverTransport);
+  const client = new Client({ name: "test-client", version: "1.0" }, {});
+  await client.connect(clientTransport);
+  const result = await client.callTool({
+    name: "search",
+    arguments: { query: "test" },
+  });
+  expect(result.content[0].type).toBe("text");
+});
+```
+
+This pattern covers the full JSON-RPC round trip without any I/O. You can test error paths, validate response shapes, and confirm that tool argument validation rejects bad input before it reaches your handler logic. The highest-quality open-source servers in MCPFind's [devtools category](/categories/devtools) separate business logic from transport so that unit tests stay fast and isolated from network state.
+
+## How Do You Test Tool Argument Validation in MCP Servers?
+
+Argument validation is where most MCP server bugs hide. A tool that accepts a `date` argument should reject non-ISO strings before they reach your API, not silently pass malformed input through to a downstream service that returns an opaque error. Testing validation means writing explicit negative test cases alongside happy-path tests.
+
+For TypeScript servers built on the official SDK, define input schemas with Zod and test rejection behavior directly:
+
+```typescript
+test("date tool rejects non-ISO input", async () => {
+  const result = await client.callTool({
+    name: "get_events",
+    arguments: { date: "next monday" },
+  });
+  expect(result.isError).toBe(true);
+  expect(result.content[0].text).toContain("Invalid");
+});
+```
+
+For Python servers using FastMCP, Pydantic model validation applies automatically when the input does not match the declared schema. Test that invalid inputs return a structured error response rather than a Python exception. The difference matters to callers: a JSON-RPC error is handled gracefully by the client, while an unhandled exception closes the transport and kills the connection. Write one test for each input that your tool schema rejects, not just one generic invalid-input case.
+
+## How Do You Add MCP Server Testing to a CI Pipeline?
+
+CI integration for MCP servers has two parts: running unit tests on every pull request, and smoke-testing the packaged server before a release. The unit test part is straightforward since in-memory transport tests carry no external dependencies.
+
+For GitHub Actions, add a standard test step to your workflow file:
+
+```yaml
+- name: Run MCP server tests
+  run: npx vitest run --reporter=verbose
+```
+
+For smoke testing the published package, use Inspector's `--cli` mode to invoke a tool and assert on the output:
+
+```bash
+npx @modelcontextprotocol/inspector --cli \
+  --server "npx your-published-package" \
+  --call-tool "health_check" \
+  --tool-args '{}' | grep '"status": "ok"'
+```
+
+A non-zero exit code fails the pipeline step. Wire this into a post-publish job to catch broken packages before users pick them up. Teams building servers that integrate with the [GitHub MCP server](/blog/github-mcp-server-claude-code-tutorial) in production often combine both patterns: unit tests block merges, smoke tests block releases. The [best DevOps MCP servers](/blog/best-mcp-servers-devops-cicd) guide covers additional toolchain options for teams running more complex deployment pipelines alongside MCP servers.
+
+## What Are the Most Common MCP Server Test Failures?
+
+Knowing which failure categories appear most often helps you prioritize test coverage before shipping. Four patterns repeat across high-starred servers in the MCPFind catalog.
+
+Schema drift is the most common: the input schema declared in your tool definition diverges from what the handler actually accepts, so valid-looking calls fail at runtime. Prevent this by generating schemas directly from your Zod or Pydantic types rather than writing JSON Schema by hand.
+
+Transport mismatch failures appear when a server works over stdio but breaks over HTTP because the code assumes synchronous execution. Test both transports if you plan to offer a remote endpoint alongside the local version.
+
+Unhandled async errors cause transport closure without a useful error message back to the caller. Wrap every async tool handler in a try/catch that returns a structured MCP error object rather than letting the promise reject.
+
+Rate limit and timeout failures surface when tests hit real external APIs. Use dependency injection or a mock layer for any external calls so tests run in a fixed, predictable time. Understanding how failures manifest in production is also covered in the [MCP server monitoring guide](/blog/mcp-server-monitoring-production), which covers log locations, health checks, and observability patterns.
+
+One additional failure mode specific to MCP is tool count drift: a server declares more tools than a client is configured to display, so some tools silently disappear from the catalog at runtime. Many AI clients cap the number of visible tools per session. A catalog assertion at the top of your test suite, checking that the tools you expect to call are present after connection, catches this before CI reports a false pass. The [testing category](/categories/testing) on MCPFind has 35 servers indexed, and the pattern of low star counts reflects how often this kind of silent failure goes uncaught in community-maintained servers.
+
+## Frequently Asked Questions
+
+### Can you test an MCP server without a running AI client?
+
+Yes. MCP Inspector provides a standalone browser UI that lets you invoke tools directly without Claude or any other client running. For automated tests, in-memory transports remove the need for any external process.
+
+### Does MCP Inspector work with remote HTTP servers as well as local stdio servers?
+
+Yes. Inspector supports stdio, SSE, and HTTP transports. For a remote server, pass the URL directly to the inspector command and authenticate with required headers using the --header flag.
+
+### What testing framework works best for TypeScript MCP servers?
+
+Vitest is the most common choice in the TypeScript MCP ecosystem. It supports in-memory transport testing through direct imports and runs faster than Jest for TypeScript projects that use ESM.
+
+### How do you handle async tool calls in MCP server unit tests?
+
+Use async/await with a timeout wrapper to prevent hanging tests. Most MCP testing utilities expose a callTool method that returns a Promise, so standard async test patterns apply directly.

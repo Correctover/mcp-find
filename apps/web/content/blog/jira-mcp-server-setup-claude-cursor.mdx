@@ -1,0 +1,119 @@
+---
+title: "Jira MCP Server Setup: Manage Tickets in Claude and Cursor"
+description: "Set up the Atlassian MCP server to manage Jira issues in Claude Desktop or Cursor. Covers OAuth setup, official vs community servers, and permission scoping."
+excerpt: "Atlassian's remote MCP server went GA in February 2026 and covers Jira, Confluence, and Compass over OAuth. MCPFind's devtools category indexes 1,394 servers. This guide covers setup in Claude Desktop and Cursor, official vs community server trade-offs, and permission scoping for team-managed projects."
+date: "2026-05-21"
+updatedAt: "2026-05-21"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+tags:
+  - "mcp"
+  - "developer"
+  - "devtools"
+  - "jira"
+  - "atlassian"
+category: "devtools"
+focusKeyword: "Jira MCP server Claude"
+draft: false
+cornerstone: false
+topic_source: new_topic
+cluster: devops
+faqItems:
+  - question: "Does the Atlassian MCP server work with all Jira project types?"
+    answer: "It works with team-managed and company-managed Jira Cloud projects. Server and Data Center editions are not supported by the official remote server. Community servers like mcp-atlassian support all editions through local API key auth."
+  - question: "Can Claude create and assign Jira tickets automatically?"
+    answer: "Yes. The Atlassian MCP server exposes create and update operations for issues, including assignee and priority fields. Claude can create a ticket from a description you provide and assign it to a team member by name."
+  - question: "Is the Atlassian MCP server free to use?"
+    answer: "Yes. The Atlassian remote MCP server is free for all Atlassian Cloud users. Access requires a Claude plan that supports MCP connectors (Pro, Max, Team, or Enterprise) and an Atlassian account on a supported cloud site."
+  - question: "What Confluence features does the Atlassian MCP server expose?"
+    answer: "The server exposes Confluence page search, page reading, and page creation. You can ask Claude to find a Confluence page by topic, read its content, or draft a new page in a specified space."
+---
+
+If you want Claude or Cursor to query open bugs, draft a ticket from a conversation, or find which sprint a feature landed in without switching tabs, the Jira MCP server makes that possible through a direct connection to your Atlassian workspace. MCPFind's [devtools category](/categories/devtools) indexes 1,394 servers with an average of 77.6 stars each, and Atlassian's officially maintained server represents a mature, production-ready integration for teams already using Jira Cloud. If you're new to how MCP servers fit into AI workflows, the [what-is-mcp guide](/blog/what-is-mcp) covers the protocol basics. This guide covers the official Atlassian remote server setup, Cursor-specific configuration, and how it compares to community-maintained alternatives.
+
+## What Does the Atlassian Remote MCP Server Cover?
+
+Atlassian's remote MCP server went generally available in February 2026 with Claude as its first partner integration. It exposes three Atlassian products through a single OAuth-authenticated connection: Jira for issue tracking, Confluence for documentation, and Compass for service catalog management.
+
+The Jira surface includes issue search using JQL, reading issue details and comments, creating new issues, and updating fields like status, assignee, priority, and labels. The Confluence surface includes page search, reading page content, and creating new pages in a specified space. Compass support allows reading service definitions and dependencies for teams that use it for microservice tracking.
+
+All operations respect the permission model of your Atlassian account. Claude only sees what the authenticated user can see, so existing board restrictions, project permissions, and field-level access controls apply without any additional configuration. If your account cannot view a private project in Jira, the MCP server returns no results for that project rather than an error that exposes its existence.
+
+## How Do You Set Up the Atlassian MCP Server in Claude Desktop?
+
+The official Atlassian remote MCP server requires a Claude plan that supports MCP connectors (Pro, Max, Team, or Enterprise). The connection goes through Cloudflare's edge network and uses OAuth 2.0 for authentication, so you do not install anything locally.
+
+In Claude Desktop or Claude.ai, go to Settings and find the Connectors or MCP Servers section. Add a custom connector with these details:
+
+- **Server name**: Atlassian
+- **Remote MCP URL**: `https://mcp.atlassian.com/v1/mcp/authv2`
+- **Auth type**: OAuth 2.0
+
+Claude opens an Atlassian OAuth consent screen where you authorize access to your workspace. For personal and team-managed sites, you complete this yourself. For company-managed Atlassian instances, your Atlassian admin must first whitelist MCP clients under Security in the admin panel before the OAuth flow completes.
+
+Once connected, test the integration by asking Claude to "find my open Jira issues in the current sprint" or "show me the Jira backlog for project KEY." A successful response returns structured issue data including summaries, status, and assignees. For context on how this server fits alongside other devops integrations, the [DevOps MCP servers guide](/blog/best-mcp-servers-devops-cicd) covers GitHub, Docker, and Terraform options alongside Atlassian.
+
+## How Do You Connect the Jira MCP Server to Cursor?
+
+Cursor uses the same MCP configuration format as Claude Desktop but reads from a different config file location. The Atlassian remote MCP server works in Cursor through the `mcp-remote` proxy tool, which handles the OAuth callback on localhost before forwarding requests to the remote endpoint.
+
+Add the following to your Cursor MCP settings (Settings > MCP Servers):
+
+```json
+{
+  "mcpServers": {
+    "atlassian": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.atlassian.com/v1/mcp/authv2"
+      ]
+    }
+  }
+}
+```
+
+When Cursor starts, `mcp-remote` opens a local OAuth callback server on port 3334. Your browser opens the Atlassian consent screen automatically and redirects back to localhost after you approve access. After the first authorization, the token is cached locally and the flow does not repeat on subsequent Cursor sessions.
+
+Once connected, you can ask the Cursor agent to look up a Jira issue number inline while writing code, create a bug ticket from an error you see in the editor, or check whether a feature is already tracked in Jira before starting work. The [GitHub MCP server guide](/blog/github-mcp-server-claude-code-tutorial) shows a similar pattern for connecting repository context to Cursor alongside your project management data.
+
+## What Is the Difference Between the Official and Community Jira MCP Servers?
+
+Two major Jira MCP server options exist: the official Atlassian remote server and the community-maintained `mcp-atlassian` project by sooperset on GitHub. They solve different problems and are not direct substitutes.
+
+The official server is remote, requires no local setup, runs over Cloudflare infrastructure, and is supported by Atlassian. It works only with Jira Cloud, requires a paid Claude plan for MCP connectors, and limits which operations are available to those in Atlassian's published tool set.
+
+The `mcp-atlassian` community server runs locally, authenticates using API tokens or Personal Access Tokens, and supports Jira Server and Data Center in addition to Cloud. It also exposes a wider set of operations including bulk updates and custom field access. The trade-off is that it requires Node.js installed locally, an API token you generate in your Atlassian account, and ongoing maintenance of the local package.
+
+For most Claude Desktop and Cursor users on Jira Cloud, the official server is the right choice: no local dependency, OAuth-managed credentials, and support from Atlassian's team. If you run Jira Server, Data Center, or need operations that the official tool set does not cover, `mcp-atlassian` is the community server to evaluate.
+
+## What Permissions Does the Atlassian MCP Server Use?
+
+Understanding what permissions the Atlassian MCP server requests helps you make an informed decision before approving the OAuth consent screen, especially for business accounts.
+
+The server requests read access to your Jira projects, issues, and boards. It requests write access for issue creation and updates. Confluence access requests read on pages and spaces, plus write for page creation. Compass access is read-only.
+
+The server does not request access to billing information, user management, site administration, or content outside the authenticated user's permission scope. It operates with your user identity, so any issue you create through Claude appears as created by your account in Jira's audit log.
+
+For teams with sensitive project data, you can restrict which projects the MCP integration can access by adjusting your Atlassian user permissions before authorizing. Create a dedicated Atlassian user with access only to the projects you want Claude to see, then authorize the MCP server using that account. The [Figma MCP server guide](/blog/figma-mcp-server-design-to-code) uses a similar pattern of scoping a dedicated user for design-to-code workflows where you do not want the AI agent to touch production assets. For a broader view of what the devtools category covers, the [MCPFind devtools catalog](/categories/devtools) lists all 1,394 servers sorted by star count and last updated date.
+
+## Frequently Asked Questions
+
+### Does the Atlassian MCP server work with all Jira project types?
+
+It works with team-managed and company-managed Jira Cloud projects. Server and Data Center editions are not supported by the official remote server. Community servers like mcp-atlassian support all editions through local API key auth.
+
+### Can Claude create and assign Jira tickets automatically?
+
+Yes. The Atlassian MCP server exposes create and update operations for issues, including assignee and priority fields. Claude can create a ticket from a description you provide and assign it to a team member by name.
+
+### Is the Atlassian MCP server free to use?
+
+Yes. The Atlassian remote MCP server is free for all Atlassian Cloud users. Access requires a Claude plan that supports MCP connectors (Pro, Max, Team, or Enterprise) and an Atlassian account on a supported cloud site.
+
+### What Confluence features does the Atlassian MCP server expose?
+
+The server exposes Confluence page search, page reading, and page creation. You can ask Claude to find a Confluence page by topic, read its content, or draft a new page in a specified space.

@@ -1,0 +1,128 @@
+---
+title: "MCP Server for Email: Set Up Gmail and Outlook in Claude"
+description: "Connect Claude to Gmail or Outlook using an email MCP server. Learn what each server enables, how to configure OAuth, and which tasks AI agents can do safely."
+excerpt: "Email MCP servers let Claude read threads, draft replies, and label messages without you switching apps. MCPFind's communication category indexes 67 servers. This guide covers Gmail MCP and Outlook MCP setup, permission scoping, and safe automation boundaries for business inboxes."
+date: "2026-05-20"
+updatedAt: "2026-05-20"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+tags:
+  - "mcp"
+  - "beginner"
+  - "communication"
+  - "gmail"
+  - "email"
+category: "communication"
+focusKeyword: "MCP server for email Claude"
+draft: false
+cornerstone: false
+topic_source: new_topic
+cluster: communication
+faqItems:
+  - question: "Does an email MCP server have access to my full inbox?"
+    answer: "It depends on the OAuth scopes you grant. Gmail MCP requests scopes you approve during setup. You can limit access to specific labels, read-only operations, or draft creation without giving send permissions."
+  - question: "Can Claude send emails automatically through an email MCP server?"
+    answer: "Claude can draft emails and place them in your drafts folder. Whether it can send depends on the server and the scopes you authorize. Most email MCP servers require an explicit send permission you can withhold."
+  - question: "What is the difference between Gmail MCP and Outlook MCP for Claude?"
+    answer: "Gmail MCP connects to Google Workspace using OAuth and the Gmail API. Outlook MCP connects to Microsoft 365 through the Microsoft Graph API. Both work with Claude Desktop but have different auth flows and tool coverage."
+  - question: "Are email MCP servers safe to use with a business email account?"
+    answer: "They can be, but check your company's IT policy first. OAuth-based servers do not store your password. For business accounts, use read-only scopes and draft-only permissions unless your IT team approves broader access."
+---
+
+If you want Claude to help draft a reply to a long email thread, summarize your inbox before a meeting, or create a label for every invoice it finds, an email MCP server is the connection that makes that possible. MCPFind's [communication category](/categories/communication) indexes 67 servers with an average of 3.4 stars each, covering email, messaging, and team chat integrations. Email MCP servers are among the most practical connections you can add to Claude because email is where a large share of daily work actually happens. If you're new to how MCP works as a protocol, the [what-is-mcp guide](/blog/what-is-mcp) explains the basics before you configure any server. This guide covers Gmail MCP, Outlook MCP, what each one enables, and how to set safe permission boundaries for business use.
+
+## What Can You Do With an Email MCP Server in Claude?
+
+An email MCP server gives Claude a set of tools it can call to interact with your inbox. The exact tools depend on which server you use and which permissions you grant during OAuth setup, but the common capabilities across both Gmail and Outlook include reading message content and thread history, searching by sender, subject, date range, or label, creating draft replies or new messages, and applying or removing labels.
+
+What you do not get by default is automatic sending. Most email MCP servers treat sending as a separate permission you must explicitly authorize. This separation matters for anyone who wants AI assistance drafting without the risk of Claude sending something before you review it.
+
+The practical use cases that work well today include summarizing long email threads before a call, drafting replies that match the tone of the original message, finding specific messages based on context rather than exact keywords, and organizing your inbox by creating label rules from examples you describe. Claude can also chain email actions with other MCP servers, for example reading an email with a contract and then querying a database MCP server for relevant customer information.
+
+## How Do You Set Up Gmail MCP in Claude Desktop?
+
+Google provides an official remote Gmail MCP server that connects through OAuth without requiring any local installation. To add it to Claude Desktop or Claude.ai, go to Settings and look for Connectors or MCP Servers, depending on your version. You need a Claude Pro, Max, Team, or Enterprise plan to use remote MCP connectors.
+
+Add the Gmail MCP server as a custom connector with these details:
+
+- **Server name**: Gmail
+- **Remote MCP URL**: `https://gmailmcp.googleapis.com/mcp/v1`
+- **Auth type**: OAuth 2.0
+
+Claude will walk you through an OAuth consent screen where you approve the scopes requested. The minimal scope set covers reading messages and threads. Adding the drafts scope lets Claude compose replies. The send scope is listed separately and can be withheld if you prefer Claude to stay in drafts-only mode.
+
+Once connected, test the integration by asking Claude to "find my last email from" a specific person or to "summarize the longest email thread in my inbox this week." If Claude returns results, the connection is working. For comparison with other communication tools in the same category, the [communication MCP servers roundup](/blog/best-mcp-servers-communication-slack-teams) covers Slack, Teams, and Discord alongside email options.
+
+## How Do You Connect Outlook to Claude Using MCP?
+
+Outlook MCP connects to your Microsoft 365 account through the Microsoft Graph API. There is no single official Microsoft-published Outlook MCP server with a public remote endpoint yet, so the most common setup paths use a community server or a managed connector through Composio.
+
+For the community path, use the Composio-managed Outlook MCP. Create a Composio account at composio.dev, connect your Microsoft 365 account under Integrations, and copy the personal MCP URL from your dashboard. Add it to Claude Desktop as a remote MCP server in Settings.
+
+For a self-hosted approach, install a community Outlook MCP package that uses the Microsoft Graph SDK:
+
+```json
+{
+  "mcpServers": {
+    "outlook": {
+      "command": "npx",
+      "args": ["-y", "@outlook-mcp/server"],
+      "env": {
+        "AZURE_CLIENT_ID": "your-app-id",
+        "AZURE_TENANT_ID": "your-tenant-id"
+      }
+    }
+  }
+}
+```
+
+You register an Azure app with Mail.Read and Mail.Send permissions to get the credentials. For business accounts, your Azure admin must approve the app registration before the OAuth flow completes. If you use Outlook primarily for calendar management rather than email, the Slack setup pattern described in the [Slack MCP server guide](/blog/slack-mcp-server-setup) shows how a similar communication tool handles OAuth scopes in a team context.
+
+## What Email Tasks Can AI Agents Perform Safely?
+
+Not every email action carries the same risk, and understanding the boundary between safe and risky operations helps you decide which permissions to grant. Safe operations are ones that are read-only or that create a draft that requires your approval before anything is sent externally.
+
+Safe tasks for AI agents with email MCP:
+
+- Reading and summarizing message threads
+- Searching for specific senders or subjects
+- Extracting attachments or finding invoice totals
+- Creating draft replies for your review
+- Applying or removing labels on existing messages
+
+Tasks that require explicit permission and human review before enabling:
+
+- Sending emails directly without a draft step
+- Deleting messages permanently
+- Creating filters that affect all incoming mail
+- Accessing messages in other people's mailboxes on a shared account
+
+For most personal and business users, the practical starting point is read-only plus drafts. You get most of the productivity value, Claude can help you work through your inbox faster, and nothing leaves your drafts folder until you press send yourself.
+
+## How Do You Choose Between Gmail MCP and Outlook MCP?
+
+The right choice depends on where your email lives, not on which server has more features. If your primary email is Google Workspace or a personal Gmail account, the official Google remote MCP server is the cleanest setup path since it needs no local installation and uses Google's own OAuth infrastructure.
+
+If you use Microsoft 365 for work email, Outlook MCP through Composio or a self-hosted community server is the practical option. The setup is slightly more involved because you register an Azure app, but once that is done the connection behaves the same as Gmail from Claude's perspective.
+
+A few practical differences: Gmail MCP exposes label management as a native tool since Gmail's label model is central to how the inbox is organized. Outlook MCP exposes folder operations instead, which maps to how Outlook users typically organize mail. Both servers support thread reading, draft creation, and search, so the core productivity workflow is available on either platform. Browse the full [communication servers catalog](/categories/communication) on MCPFind to see the complete list of 67 email, messaging, and team chat integrations alongside star counts and maintenance recency.
+
+## Frequently Asked Questions
+
+### Does an email MCP server have access to my full inbox?
+
+It depends on the OAuth scopes you grant. Gmail MCP requests scopes you approve during setup. You can limit access to specific labels, read-only operations, or draft creation without giving send permissions.
+
+### Can Claude send emails automatically through an email MCP server?
+
+Claude can draft emails and place them in your drafts folder. Whether it can send depends on the server and the scopes you authorize. Most email MCP servers require an explicit send permission you can withhold.
+
+### What is the difference between Gmail MCP and Outlook MCP for Claude?
+
+Gmail MCP connects to Google Workspace using OAuth and the Gmail API. Outlook MCP connects to Microsoft 365 through the Microsoft Graph API. Both work with Claude Desktop but have different auth flows and tool coverage.
+
+### Are email MCP servers safe to use with a business email account?
+
+They can be, but check your company's IT policy first. OAuth-based servers do not store your password. For business accounts, use read-only scopes and draft-only permissions unless your IT team approves broader access.
