@@ -1,0 +1,114 @@
+---
+title: "MongoDB MCP Server: NoSQL Data Access for AI Agents"
+description: "Connect Claude, Cursor, and other AI agents to MongoDB Atlas using the official MCP server. Learn authentication, permissions, and how it compares to SQL-based database options."
+excerpt: "The MongoDB Atlas MCP server lets AI agents query and manage your document collections without writing a single query manually. This guide covers installation, authentication options, permission scoping, and how MongoDB compares to SQL-based database MCP servers like Supabase and PostgreSQL."
+date: "2026-05-22"
+updatedAt: "2026-05-22"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+tags:
+  - "mcp"
+  - "developer"
+  - "databases"
+  - "mongodb"
+  - "nosql"
+category: "databases"
+focusKeyword: "mongodb mcp server"
+draft: false
+cornerstone: false
+topic_source: new_topic
+cluster: databases
+faqItems:
+  - question: "Does the MongoDB Atlas MCP server support Atlas Vector Search?"
+    answer: "Yes. The server exposes Atlas Vector Search through the aggregate pipeline tool, letting agents run $vectorSearch stages for semantic similarity queries directly from Claude or Cursor."
+  - question: "Can I use the MongoDB MCP server with a local MongoDB instance instead of Atlas?"
+    answer: "Yes. Point the connection string at a local mongodb://localhost:27017 URI and basic document queries work with any MongoDB 4.0+ instance, though Atlas-specific features like Search and Data API are unavailable."
+  - question: "What happens if an agent runs a destructive query through the MongoDB MCP server?"
+    answer: "The query executes with the permissions of the database user in your connection string. Configure a read-only database user and destructive operations are blocked at the database layer before the agent completes them."
+  - question: "How do I install the MongoDB MCP server in Cursor or Windsurf?"
+    answer: "Add the server configuration to your editor's MCP config file using the same JSON structure as Claude Desktop. Both Cursor and Windsurf read MCP server definitions from a settings JSON in your home directory."
+---
+
+If you want to ask Claude questions about your MongoDB collections, run aggregations, or insert documents without switching to a database client, the MongoDB Atlas MCP server connects your AI agent directly to your data. MCPFind's [databases category](/categories/databases) indexes 133 MCP servers across SQL and document stores, with an average of 33.26 stars per server. MongoDB Atlas sits alongside Supabase, PostgreSQL, and MySQL options as the official integration for teams using document databases. This guide covers what the server exposes, how to configure it, and how to scope permissions so your agent can work safely without putting production data at risk.
+
+## What Is the MongoDB Atlas MCP Server and What Does It Expose?
+
+The MongoDB Atlas MCP server is an official tool released by MongoDB that lets AI assistants query and manage your database through natural language. You connect it once to your Atlas cluster, and tools like Claude can then run find, aggregate, and insertOne operations without you writing a query manually. When you ask "show me the five most recent orders from the orders collection," the agent runs the operation, formats the results, and returns them directly in your conversation.
+
+The server communicates over stdio transport, running as a local process on your machine and connecting to your Atlas cluster through the standard MongoDB driver. It supports Atlas Community Edition and Enterprise Advanced in addition to Atlas cloud clusters, so you are not locked to the managed service. You can browse MCPFind's full [databases catalog](/categories/databases) to see how it compares to all 133 indexed database servers, sorted by star count and maintenance recency.
+
+If you are new to how MCP servers work at a protocol level, the [what-is-mcp guide](/blog/what-is-mcp) explains the basics before you start configuring database access.
+
+## How Do You Install and Configure the MongoDB MCP Server?
+
+You need Node.js version 20.19.0 or later before you start. Once Node.js is ready, add the server to your MCP client's configuration file. For Claude Desktop on macOS, that file lives at `~/Library/Application Support/Claude/claude_desktop_config.json`. Here is the configuration block:
+
+```json
+{
+  "mcpServers": {
+    "mongodb": {
+      "command": "npx",
+      "args": ["-y", "@mongodb-js/mongodb-mcp-server"],
+      "env": {
+        "MDB_MCP_CONNECTION_STRING": "mongodb+srv://user:pass@cluster.mongodb.net/"
+      }
+    }
+  }
+}
+```
+
+Cursor and Windsurf use the same JSON structure in their respective MCP config files. After saving and restarting your AI client, the MongoDB tools appear in the available tool list. Verify the connection by asking Claude to list your databases -- if it returns your database names, the server is active.
+
+The `@mongodb-js/mongodb-mcp-server` package is maintained by MongoDB directly, which means it tracks Atlas API updates more reliably than community forks. Alternatively, you can run it in Docker if you prefer to avoid a local Node.js install; the official MongoDB MCP docs cover both paths.
+
+## What Authentication Options Does the MongoDB MCP Server Support?
+
+The most common method uses a connection string that includes your username, password, cluster hostname, and database name. Atlas generates these strings under "Connect" in the Atlas UI. Paste the string into the `MDB_MCP_CONNECTION_STRING` environment variable and the server handles authentication automatically on each request.
+
+For teams that want to avoid plaintext passwords in config files, the server also supports X.509 certificate authentication and IAM-based auth for Atlas deployments running on AWS. These methods work well in CI pipelines or multi-developer environments where rotating secrets manually is impractical.
+
+Regardless of the method you choose, create a dedicated database user for your MCP server rather than reusing admin credentials. Scope that user to the specific database your agent needs -- the "Read Any Database" built-in role for read-only access, or a custom role limited to specific collections for read-write. This reduces the impact of a leaked config file and keeps credential rotation simple without affecting other connections.
+
+## How Does MongoDB MCP Compare to Other Database Servers in the Index?
+
+If you are choosing between MongoDB and a relational database for agent-backed data access, the choice comes down to how your data is structured. PostgreSQL-based servers -- including the [Supabase MCP server](/blog/supabase-mcp-server-deep-dive), which leads MCPFind's databases category at 2,556 stars -- perform best when your data is highly relational and agents need to run JOINs across normalized tables.
+
+MongoDB Atlas MCP is the better fit when your data lives in nested documents, arrays, or variable schemas. Product catalogs, user activity logs, and event streams are common cases where documents let agents query fields that appear in some records but not others, something that requires workarounds in strict SQL. The average star count across MCPFind's 133 database servers is 33.26 -- a useful benchmark when evaluating which servers have active communities behind them.
+
+For mixed workloads where you need both document storage and relational reporting, some teams run MongoDB Atlas MCP alongside a PostgreSQL server in the same Claude configuration, routing queries to whichever server fits the data shape.
+
+## What Can AI Agents Actually Do With MongoDB Through MCP?
+
+With read-only access, agents can run find operations by field values, execute aggregation pipelines, count results, use Atlas Search for text queries, and inspect collection schemas to understand what fields exist before querying. These operations cover most analytics and reporting use cases. You can ask Claude to group users by signup country over the last 30 days and get a formatted table without opening a database client.
+
+Write operations require a read-write database user and unlock insertOne, updateOne, replaceOne, and deleteOne. This is useful in automation workflows where an agent processes incoming data and writes results back to MongoDB -- for example, parsing webhook payloads and storing structured records without manual intervention.
+
+Atlas Vector Search is also available through the aggregation pipeline tool, letting agents run semantic similarity queries if you have vector embeddings in your collection. This makes MongoDB a practical backend for RAG pipelines where you want document storage and vector-based retrieval in the same database.
+
+## What Read-Write Scope Should You Set for Your AI Agent?
+
+Read-only access is the right starting point for most use cases. An agent with read access can answer questions, generate reports, and support debugging without the ability to change anything. You get this by creating an Atlas database user with the "Read Any Database" role or a custom role scoped to the collections your agent actually touches.
+
+Read-write access makes sense when your agent is part of an automation pipeline that needs to write results back to MongoDB. Apply write permissions at the collection level rather than the database level to limit the impact of an accidental delete or overwrite. If the agent only needs to write to a "processed-events" collection, do not give it access to your users or payments collections.
+
+Atlas also lets you set a credential expiry date on database users. For production agent workflows, automated rotation on a 30 or 90-day schedule adds protection that static connection strings lack. You generate a new connection string in Atlas, update the environment variable in your MCP config, and restart the agent -- the old credential stops working at the expiry date automatically.
+
+## Frequently Asked Questions
+
+### Does the MongoDB Atlas MCP server support Atlas Vector Search?
+
+Yes. The server exposes Atlas Vector Search through the aggregate pipeline tool, letting agents run $vectorSearch stages for semantic similarity queries directly from Claude or Cursor.
+
+### Can I use the MongoDB MCP server with a local MongoDB instance instead of Atlas?
+
+Yes. Point the connection string at a local `mongodb://localhost:27017` URI and basic document queries work with any MongoDB 4.0+ instance, though Atlas-specific features like Search and the Data API are unavailable.
+
+### What happens if an agent runs a destructive query through the MongoDB MCP server?
+
+The query executes with the permissions of the database user in your connection string. Configure a read-only database user and destructive operations are blocked at the database layer before the agent can complete them.
+
+### How do I install the MongoDB MCP server in Cursor or Windsurf?
+
+Add the server configuration to your editor's MCP config file using the same JSON structure as Claude Desktop. Both Cursor and Windsurf read MCP server definitions from a settings JSON in your home directory.

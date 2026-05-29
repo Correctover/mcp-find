@@ -1,0 +1,116 @@
+---
+title: "Notion MCP Server: Advanced Workflows Beyond Basic Setup"
+description: "Go beyond basic setup with the Notion MCP server. Learn how to query databases, filter records, write pages, automate multi-step workflows, and choose between hosted and local options."
+excerpt: "The Notion MCP server lets AI agents read, write, and query your entire workspace programmatically. This guide goes beyond installation to cover database querying, page creation, multi-workspace setups, and the difference between Notion's hosted and local server implementations in 2026."
+date: "2026-05-25"
+updatedAt: "2026-05-25"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+tags:
+  - "mcp"
+  - "developer"
+  - "productivity"
+  - "notion"
+  - "automation"
+category: "productivity"
+focusKeyword: "notion mcp server advanced"
+draft: false
+cornerstone: false
+topic_source: new_topic
+cluster: productivity
+faqItems:
+  - question: "What is the difference between Notion's hosted and local MCP servers?"
+    answer: "The hosted server connects via OAuth through a remote URL and is actively developed by Notion. The local server runs over stdio and is being officially sunset, meaning it will stop receiving updates over time."
+  - question: "Can the Notion MCP server access databases across multiple workspaces?"
+    answer: "Each server instance authenticates to a single workspace. If you need access to multiple workspaces, you configure separate MCP server entries in your client config, each with its own OAuth credentials or integration token."
+  - question: "Does the Notion MCP server support filtering database entries by property values?"
+    answer: "Yes. The database query tool accepts filter objects that match Notion's API filter schema, letting agents narrow results by text, date, checkbox, relation, or select values before returning records."
+  - question: "What is the rate limit for the Notion MCP server?"
+    answer: "The server operates under Notion's standard API rate limits, which allow three requests per second per integration. For bulk operations like reading thousands of pages, the server handles pagination automatically but total time depends on your workspace size."
+---
+
+If you have the basic Notion MCP server running but want to do more than read a few pages, this guide is for you. The Notion MCP server gives AI agents deep access to your workspace -- database queries with filters, page creation, block-level edits, and multi-step automations -- but the configuration and capability differences between the hosted and local implementations can trip you up. MCPFind's [documentation category](/categories/documentation) indexes 53 servers for knowledge management tools, and the [productivity category](/categories/productivity) covers 5 more. Notion connects both worlds as a database and docs platform at once. If you are new to MCP and want the protocol basics before diving in, the [what-is-mcp guide](/blog/what-is-mcp) covers the foundation. This post covers the advanced capabilities that the [basic Notion setup guide](/blog/connect-notion-mcp-ai-agents) does not, starting with which server to use in 2026.
+
+## What Is the Difference Between Notion's Hosted and Local MCP Servers?
+
+Notion offers two separate MCP implementations and they are not interchangeable. The hosted server connects to Notion's cloud infrastructure through OAuth and runs at a remote URL you add to your MCP client config. It is the implementation Notion is actively building out -- new tools and capabilities land here first. You do not need to install anything locally; the server runs on Notion's infrastructure and your client connects to it over the network.
+
+The local server runs over stdio on your machine using an integration token for authentication. It ships more tools than the hosted version right now, but Notion has confirmed it is being sunset. If you set up MCP using an older tutorial from 2025 or early 2026, you are likely on the local server. It still works but will not receive new features.
+
+For new setups, the hosted server is the right choice. Use the local server only if you need a specific tool that the hosted version does not yet expose, or if your environment blocks outbound connections to Notion's endpoints.
+
+## How Do You Set Up the Notion Hosted MCP Server?
+
+The hosted server authenticates through Notion's OAuth flow. Start by creating a Notion integration in your workspace under Settings and Members, then Integrations. Copy the integration token generated for your workspace.
+
+For Claude Desktop, add the remote server URL to your configuration file. The hosted server endpoint is available in the Notion developer documentation under the MCP guide. You supply the integration token as a bearer credential in the server config. Here is the general structure:
+
+```json
+{
+  "mcpServers": {
+    "notion": {
+      "command": "npx",
+      "args": ["-y", "@notionhq/notion-mcp-server"],
+      "env": {
+        "OPENAPI_MCP_HEADERS": "{\"Authorization\": \"Bearer YOUR_INTEGRATION_TOKEN\", \"Notion-Version\": \"2022-06-28\"}"
+      }
+    }
+  }
+}
+```
+
+After connecting, the integration needs access to specific pages and databases. In Notion, you share individual pages with the integration by clicking the three-dot menu and selecting "Connections." The agent can only read or write content in pages you explicitly share -- it cannot access your entire workspace automatically.
+
+## How Do You Query Notion Databases and Filter Results Through MCP?
+
+Database querying is where the Notion MCP server becomes genuinely useful for workflows beyond simple reading. When you ask Claude to "find all project tasks assigned to me that are overdue," the agent runs a database query with a filter object that checks the assignee property and the due date against today's value.
+
+The filter syntax follows Notion's API schema. You can filter by text properties (contains, equals, starts with), date properties (before, after, on or after a date), checkbox values, select and multi-select options, and relation fields. Combined filters using "and" or "or" logic work the same way as in Notion's own filter panel.
+
+Here is an example prompt that produces a filtered query: "Query my Tasks database, filter for status equal to 'In Progress', sort by due date ascending, and return the first 20 results." Claude constructs the appropriate database query, sends it through the MCP server, and formats the results. You can iterate on the query by refining the prompt rather than writing filter JSON manually.
+
+For large databases, the server handles pagination automatically and fetches additional pages of results until the requested limit is reached. Keep queries scoped to what you actually need -- pulling thousands of records in a single request can hit Notion's rate limits.
+
+## How Do You Create and Update Pages Using the Notion MCP Server?
+
+Page creation works through the create-page tool, which takes a parent page or database ID, a title, and optional property values and block content. If the parent is a database, you can set any property value the database schema supports: text fields, selects, dates, checkboxes, relations, and people fields.
+
+Updating existing pages is done at the block level for content and the properties level for structured data. To update a page's title or database properties, you call the update-page tool with the property name and new value. To edit the body of a page -- add a paragraph, insert a heading, or append a to-do block -- you use the append-block-children tool targeting the page's ID.
+
+Practical example: you can ask Claude to "create a new row in my Projects database with name 'Q3 Roadmap Review', status 'Not Started', and due date July 15" and the agent constructs and sends the create request through the server. For teams that log meeting notes to Notion, an agent can take a transcript summary and create a structured note page automatically without manual copying.
+
+## What Advanced Workflows Work Best With Notion MCP and AI Agents?
+
+The most practical advanced workflows combine reading and writing in a sequence. A research workflow might have Claude query a database of bookmarks, generate a summary of linked articles based on titles and metadata, and append that summary as a new page in a connected "Research Digest" database. Each step uses a different MCP tool -- database query, text generation, page creation -- chained together in a single conversation.
+
+For project management, agents can audit your task database for overdue items, draft a status update based on what they find, and post the update to a designated status page. This is the kind of multi-step operation that previously required writing a Notion API script -- now you describe the workflow in natural language.
+
+Teams using Notion as a CRM or data store often connect Notion MCP alongside other servers. Pairing it with a [productivity-focused MCP stack](/blog/best-mcp-servers-productivity-calendar-tasks-notes) that includes calendar and task tools lets agents coordinate across multiple tools in a single session, reading from Notion and writing to other destinations or vice versa.
+
+## When Should You Use Notion MCP vs the Notion API Directly?
+
+Notion MCP is the right choice when you want an AI agent to make decisions about what to query, create, or update based on instructions rather than deterministic code. If you can describe the task in natural language -- "summarize everything I wrote this week" or "create project pages for each item in this list" -- the MCP server handles it without you writing a Notion API client.
+
+The raw Notion API is still better when you need scheduled, high-volume, or fully automated operations. Exporting an entire workspace backup, syncing thousands of rows on a timer, or integrating Notion into a production application all benefit from direct API calls with explicit error handling and retry logic that you control.
+
+For most knowledge-worker workflows -- research, writing, project tracking, personal productivity -- Notion MCP is faster to set up and more flexible than custom scripts. The tradeoff is that your automation depends on the AI agent interpreting your instructions correctly, which occasionally produces unexpected results on the first attempt.
+
+## Frequently Asked Questions
+
+### What is the difference between Notion's hosted and local MCP servers?
+
+The hosted server connects via OAuth through a remote URL and is actively developed by Notion. The local server runs over stdio and is being officially sunset, meaning it will stop receiving updates over time.
+
+### Can the Notion MCP server access databases across multiple workspaces?
+
+Each server instance authenticates to a single workspace. If you need access to multiple workspaces, configure separate MCP server entries in your client config, each with its own OAuth credentials or integration token.
+
+### Does the Notion MCP server support filtering database entries by property values?
+
+Yes. The database query tool accepts filter objects that match Notion's API filter schema, letting agents narrow results by text, date, checkbox, relation, or select values before returning records.
+
+### What is the rate limit for the Notion MCP server?
+
+The server operates under Notion's standard API rate limits, which allow three requests per second per integration. For bulk operations, the server handles pagination automatically, but total time depends on your workspace size.
