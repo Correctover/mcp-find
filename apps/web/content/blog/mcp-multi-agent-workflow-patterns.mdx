@@ -1,0 +1,123 @@
+---
+title: "Building Multi-Agent Workflows With MCP: Patterns and Tools"
+description: "Learn how to build multi-agent MCP workflows using orchestrator-worker, pipeline, and reviewer patterns. Covers shared memory, tool scoping, and server selection from 10,212 indexed servers."
+excerpt: "Multi-agent workflows let AI agents collaborate on complex tasks by sharing MCP servers and passing structured outputs. This guide covers the orchestrator-worker pattern, shared memory approaches, tool routing, and which server categories from MCPFind's 10,212-server index support production agentic stacks."
+date: "2026-05-25"
+updatedAt: "2026-05-25"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+tags:
+  - "mcp"
+  - "developer"
+  - "multi-agent"
+  - "ai-agents"
+  - "workflow"
+category: "ai-ml"
+focusKeyword: "MCP multi-agent workflow patterns"
+draft: false
+cornerstone: false
+topic_source: new_topic
+cluster: architecture
+faqItems:
+  - question: "Can multiple AI agents share the same MCP server simultaneously?"
+    answer: "Yes. MCP servers are stateless by design, so multiple agents can call the same server concurrently without conflicts. Each tool call is handled independently, which makes shared MCP servers the standard approach for memory and search tools in multi-agent stacks."
+  - question: "What is the difference between an orchestrator agent and a worker agent in MCP?"
+    answer: "An orchestrator agent receives the top-level task, breaks it into subtasks, and routes those subtasks to worker agents with the right MCP tool context. Worker agents execute specific tool calls and return structured results. The orchestrator then synthesizes those results into a final output."
+  - question: "Do all MCP servers support concurrent multi-agent access?"
+    answer: "Not all. Servers using stdio transport bind to a single process and are single-client by default. Servers running over HTTP or Streamable HTTP support concurrent connections from multiple agents. For multi-agent workflows, prefer servers with HTTP or Streamable HTTP transport."
+  - question: "How do agents share state across MCP tool calls?"
+    answer: "Agents share state through dedicated memory MCP servers that store and retrieve key-value data, vector embeddings, or conversation history. MCPFind's ai-ml category indexes 755 servers, many of which provide memory and retrieval tools purpose-built for multi-agent state sharing."
+  - question: "Which MCP server categories are most useful in multi-agent workflows?"
+    answer: "The ai-ml category (755 servers, avg 125.9 stars) covers memory, retrieval, and orchestration tools. The devtools category (1,774 servers, avg 61 stars) covers code execution, file access, and repository tools. Combining one or two servers from each category gives you the foundation for most agentic pipelines."
+---
+
+A single AI agent handling an entire research-to-report task runs out of context, loses track of instructions, and misses details that a focused specialist would catch. Multi-agent workflows solve this by splitting a task across multiple agents, each equipped with a narrow set of MCP servers matched to its role. If you want one agent to search the web, another to analyze the results, and a third to write the final report, you need a coordination strategy. This guide explains the patterns that work, the MCP servers that support them, and what to watch out for when you build your first multi-agent stack.
+
+## What Is a Multi-Agent Workflow in the MCP Context?
+
+A multi-agent MCP workflow connects two or more AI agents, each configured with its own MCP servers, that collaborate on a shared goal. One agent acts as the orchestrator: it receives the high-level goal and routes subtasks to worker agents. Each worker agent has access only to the MCP servers relevant to its job. A research agent gets search servers, a coding agent gets devtools servers, and a writing agent gets documentation servers.
+
+MCPFind indexes 10,212 MCP servers across 21 categories. The ai-ml category alone has 755 servers with an average of 125.9 stars, covering memory management, vector retrieval, and tool routing that serve as the connective tissue between agents. The devtools category adds 1,774 servers averaging 61 stars for code execution, file access, and repository tools. Understanding which categories your workflow needs determines how you partition work across agents.
+
+Agents in a multi-agent system do not share a context window. Each agent maintains its own conversation, calls its own tools, and produces structured output that flows to the next agent. This separation makes it possible to run agents in parallel or sequence without hitting individual context limits on complex, multi-step tasks.
+
+## How Do You Pass Context Between Agents in a Multi-Agent MCP Stack?
+
+Context passing works through two mechanisms: output forwarding and shared external memory. Output forwarding is the simpler approach. The orchestrator collects the structured result from one worker agent and includes it in the next agent's system prompt. This works well for linear workflows where each step depends on the previous one and the output is compact enough to pass as text.
+
+Shared external memory is more powerful. A memory MCP server acts as a shared store that any agent can read from or write to during the workflow. When one agent writes a research summary to the memory server, the next agent retrieves it by key without the orchestrator needing to shuttle the full content through its own context.
+
+Here is what a basic memory-enabled multi-agent configuration looks like in JSON:
+
+```json
+{
+  "mcpServers": {
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "search": {
+      "url": "https://mcp.brave.com",
+      "transport": "http"
+    }
+  }
+}
+```
+
+Each worker agent gets the same `mcpServers` block for the shared memory server, but only the relevant additional servers for its specific role. This keeps individual agent configs lean while maintaining a shared state layer across the pipeline.
+
+## What Are the Core Orchestration Patterns for MCP Workflows?
+
+Three patterns cover most production multi-agent MCP use cases. Knowing which one fits your task before you build saves a lot of rework.
+
+**Orchestrator-Worker** runs worker agents in parallel. The orchestrator receives a task, spawns multiple workers with different tool sets, and waits for all of them to return results before synthesizing. Use this when subtasks are independent and the bottleneck is breadth rather than depth. A market research workflow where one agent searches competitors, another checks pricing, and a third scans job listings fits this pattern.
+
+**Pipeline** runs agents in sequence. Agent 1 produces output, Agent 2 consumes and transforms it, Agent 3 synthesizes the final result. Use a memory MCP server to pass state between steps. This pattern works well for research-draft-review workflows where each stage builds on the previous one.
+
+**Reviewer-Executor** uses two agents in a feedback loop. One agent generates a plan or draft, a second agent critiques it against source MCP data, and the first agent revises. Both agents access the same search and documentation servers. This pattern shows up frequently in code generation workflows where correctness matters more than speed.
+
+## Which MCP Server Categories Work Best in Multi-Agent Production Stacks?
+
+Not every MCP server is a good fit for multi-agent workflows. The best candidates expose structured, predictable output and support concurrent HTTP access rather than stdio-only connections.
+
+The [ai-ml category](/categories/ai-ml) is the starting point for multi-agent stacks. It has 755 servers with an average of 125.9 stars, the highest star average of any category in the MCPFind directory. Memory and retrieval servers in this category handle the shared state layer that lets agents read each other's outputs without passing raw text through the orchestrator's context.
+
+The [devtools category](/categories/devtools) (1,774 servers, average 61 stars) provides the code execution, file access, and repository tools that worker agents need for technical tasks. Combining a devtools server with a shared memory server gives you the foundation for most coding-focused multi-agent pipelines.
+
+Avoid stdio-only servers in worker roles if your orchestrator runs on a different machine. Stdio transport binds to a single process on one host, which breaks distributed agent architectures. Before adding a server to a multi-agent config, check its transport type on its MCPFind server page. HTTP and Streamable HTTP servers are the safest choice for production multi-agent deployments.
+
+## How Should You Structure Tool Scopes and Agent Prompts for Each Role?
+
+Giving every agent access to every MCP server creates confusion and increases the risk of unintended tool calls. Each agent should receive only the MCP servers it needs for its role, with the system prompt reinforcing that constraint.
+
+For an orchestrator agent, include a tool for dispatching tasks (often a custom scripting MCP server or a code execution server) but exclude data-fetching tools that workers should own. The orchestrator's job is routing and synthesis, not direct data access.
+
+For worker agents, use a narrow MCP server set that matches the task. A search worker gets search servers from the [search category](/categories/search) (380 servers indexed). A documentation worker gets documentation and productivity servers. Narrow scoping prevents a worker from making expensive or irrelevant calls outside its lane.
+
+System prompts for worker agents should include: the task description, the expected output format, and the list of MCP tools available. Structured output (JSON or Markdown with clear headers) makes it easier for the orchestrator to parse and pass results to the next agent without manual cleanup.
+
+For more on how individual MCP servers work before building multi-agent pipelines, start with [What Is MCP](/blog/what-is-mcp). For testing your agent configuration before deploying it, see the [MCP Inspector testing guide](/blog/testing-mcp-server-inspector-unit-tests-ci).
+
+## Frequently Asked Questions
+
+### Can multiple AI agents share the same MCP server simultaneously?
+
+Yes. MCP servers are stateless by design, so multiple agents can call the same server concurrently without conflicts. Each tool call is handled independently, which makes shared MCP servers the standard approach for memory and search tools in multi-agent stacks.
+
+### What is the difference between an orchestrator agent and a worker agent in MCP?
+
+An orchestrator agent receives the top-level task, breaks it into subtasks, and routes those subtasks to worker agents with the right MCP tool context. Worker agents execute specific tool calls and return structured results. The orchestrator then synthesizes those results into a final output.
+
+### Do all MCP servers support concurrent multi-agent access?
+
+Not all. Servers using stdio transport bind to a single process and are single-client by default. Servers running over HTTP or Streamable HTTP support concurrent connections from multiple agents. For multi-agent workflows, prefer servers with HTTP or Streamable HTTP transport.
+
+### How do agents share state across MCP tool calls?
+
+Agents share state through dedicated memory MCP servers that store and retrieve key-value data, vector embeddings, or conversation history. MCPFind's ai-ml category indexes 755 servers, many of which provide memory and retrieval tools purpose-built for multi-agent state sharing.
+
+### Which MCP server categories are most useful in multi-agent workflows?
+
+The ai-ml category (755 servers, avg 125.9 stars) covers memory, retrieval, and orchestration tools. The devtools category (1,774 servers, avg 61 stars) covers code execution, file access, and repository tools. Combining one or two servers from each category gives you the foundation for most agentic pipelines.

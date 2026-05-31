@@ -1,0 +1,138 @@
+---
+title: "Using MCP Servers With Gemini CLI: Complete Setup Guide"
+description: "Step-by-step guide to adding MCP servers to Gemini CLI. Covers settings.json config, compatible server types, transport requirements, and how setup differs from Claude Desktop."
+excerpt: "Gemini CLI added MCP support in 2025, letting you connect any server from MCPFind's 10,212-server index to Google's open-source AI terminal. This guide walks through the settings.json config format, compatible transports, which devtools servers work best, and common setup issues to avoid."
+date: "2026-05-27"
+updatedAt: "2026-05-27"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+tags:
+  - "mcp"
+  - "developer"
+  - "gemini-cli"
+  - "ide-integrations"
+  - "setup"
+category: "devtools"
+focusKeyword: "MCP servers Gemini CLI"
+draft: false
+cornerstone: false
+topic_source: new_topic
+cluster: architecture
+faqItems:
+  - question: "Where does Gemini CLI store its MCP server configuration?"
+    answer: "Gemini CLI reads MCP server config from ~/.gemini/settings.json for user-level configuration and from .gemini/settings.json in the project root for project-specific servers. The project-level file takes precedence when both exist."
+  - question: "Does Gemini CLI support stdio MCP servers?"
+    answer: "Yes. Gemini CLI supports both stdio and HTTP MCP servers. For stdio servers, you provide the command and args in the mcpServers block. For HTTP servers, you provide a url field with the server's endpoint. Most servers in the MCPFind devtools category support stdio."
+  - question: "Can I use the same MCP server with both Claude Desktop and Gemini CLI?"
+    answer: "Yes, if the server uses stdio transport. Both clients use the same mcpServers configuration format with command and args fields. The config file location differs: Claude Desktop uses claude_desktop_config.json and Gemini CLI uses settings.json. The server definition syntax is compatible across both."
+  - question: "What happens if I use underscores in the MCP server name in Gemini CLI?"
+    answer: "Gemini CLI does not support underscores in MCP server names. If you use an underscore, the server may fail to start or return a configuration error. Use hyphens instead: for example, 'github-mcp' not 'github_mcp'."
+  - question: "How many MCP servers can I configure in Gemini CLI at once?"
+    answer: "There is no hard limit documented in the Gemini CLI spec, but each active server adds to startup time and tool resolution overhead. In practice, 3 to 6 servers per config file is a reasonable limit before you start to notice performance impacts during session initialization."
+---
+
+Gemini CLI is Google's open-source AI terminal that runs Gemini models from the command line. It added MCP support in 2025, which means you can connect it to the same servers that Claude Desktop and Cursor users have been running for months. If you already have MCP servers configured for another client, you are most of the way to making them work in Gemini CLI too. This guide walks through the exact configuration format, covers which server types are compatible, and explains where the setup differs from other AI clients you may already be familiar with.
+
+## What Is Gemini CLI and How Does It Use MCP Servers?
+
+Gemini CLI is a terminal-based interface to Google's Gemini models. It runs locally, reads from a settings file, and passes tool calls to MCP servers the same way Claude Desktop and Cursor do. MCP servers act as a bridge between the Gemini model and external systems: a filesystem server lets Gemini read local files, a search server lets it fetch live web results, and a devtools server lets it interact with code repositories.
+
+MCPFind indexes 10,212 MCP servers across 21 categories. The devtools category alone has 1,774 servers averaging 61 stars per server. Most of these servers were written for general MCP compatibility, not for a specific client, which means the majority of them work with Gemini CLI out of the box. Servers that use stdio transport (command-line subprocess model) and servers that expose an HTTP endpoint both work. The main constraint is the configuration file format.
+
+One important note on scope: Gemini CLI supports MCP tool calls but does not currently support all MCP resource types. If a server you want to use exposes resources rather than tools, check the Gemini CLI documentation for the current resource support status before configuring it.
+
+## How Do You Add MCP Servers to Gemini CLI?
+
+You add MCP servers by editing the `settings.json` file. For user-wide servers, the file lives at `~/.gemini/settings.json`. For project-specific servers, create `.gemini/settings.json` in your project root. The project-level file takes precedence when both exist, which lets you have different server sets for different projects.
+
+Here is the format for a stdio server and an HTTP server in the same config:
+
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allowed/dir"]
+    },
+    "brave-search": {
+      "url": "https://mcp.brave.com",
+      "transport": "http",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+A few naming rules that catch people out: Gemini CLI does not allow underscores in server names. Use hyphens instead (`brave-search` not `brave_search`). The name you choose becomes the prefix for all tool names exposed by that server in the CLI session.
+
+If a server requires environment variables (like API keys), add them explicitly in an `env` block inside the server entry. Gemini CLI does not inherit shell environment variables automatically the way some other clients do.
+
+## Which MCP Servers Are Compatible With Gemini CLI?
+
+Any server that uses stdio or HTTP transport works with Gemini CLI. The vast majority of servers in the MCPFind [devtools category](/categories/devtools) (1,774 servers) use stdio, which means you can pull a server config from its MCPFind page and drop it directly into your `settings.json` without modification.
+
+Servers using SSE (Server-Sent Events) transport may require an additional configuration step or a compatibility wrapper, depending on the version of Gemini CLI you are running. Check the release notes for your version if you encounter SSE servers that fail to connect.
+
+For a curated starting point, the Docker MCP Toolkit includes over 220 pre-built servers that are tested for compatibility across major MCP clients including Gemini CLI. These servers cover filesystem access, GitHub, Playwright browser automation, and database connections. You configure them through the Docker Desktop UI rather than manually editing JSON, which reduces setup errors for complex server configurations.
+
+Servers from the [ai-ml category](/categories/ai-ml) (755 servers, average 125.9 stars) that expose memory and search tools are also strong candidates for Gemini CLI workflows, especially if you are building multi-agent pipelines. For more on combining multiple MCP servers for agent workflows, see [Building Multi-Agent Workflows With MCP](/blog/mcp-multi-agent-workflow-patterns).
+
+## How Is Gemini CLI MCP Config Different From Claude Desktop or Cursor?
+
+The `mcpServers` object format is nearly identical across all three clients. The main differences are the config file location and a few client-specific validation rules.
+
+Claude Desktop stores its config in `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS. Cursor uses a settings UI that generates a similar JSON format in its config directory. Gemini CLI uses `~/.gemini/settings.json` (or the project-level equivalent).
+
+The naming restriction (no underscores) is Gemini CLI-specific. Claude Desktop and Cursor are more permissive about server name formats. If you are copying a config from Claude Desktop to Gemini CLI, scan the server names and replace any underscores with hyphens.
+
+Gemini CLI also differs in how it exposes tools to the model. When a session starts, Gemini CLI loads all configured servers, discovers their tools, and makes them available in the session. Tools show up in the model's context under the server name as a prefix. Unlike some other clients, Gemini CLI does not let you selectively enable or disable individual tools from a server once the session is running.
+
+For reference on how MCP configuration looks in Cursor, see [How to Configure MCP Servers in Cursor](/blog/how-to-use-mcp-with-cursor). The comparison helps clarify where Gemini CLI follows the same conventions and where it diverges.
+
+## What Are Common Setup Issues When Running MCP Servers in Gemini CLI?
+
+Three issues account for most failed Gemini CLI MCP setups.
+
+The first is the underscore-in-name error described above. If a server fails to start and the error message mentions the server name, check for underscores and rename with hyphens. This is the most common configuration mistake and the easiest to fix.
+
+The second issue is missing environment variables. Gemini CLI does not inherit your shell's environment automatically. If a server needs an `OPENAI_API_KEY` or similar variable, add an `env` block inside the server's config entry:
+
+```json
+"my-server": {
+  "command": "npx",
+  "args": ["-y", "some-mcp-server"],
+  "env": {
+    "OPENAI_API_KEY": "your-key-here"
+  }
+}
+```
+
+The third issue is transport mismatch. If you copy a config that uses `sse` as the transport type, Gemini CLI may not recognize it in older versions. Switch to `http` as the transport type if available, or update Gemini CLI to the latest release which has improved SSE support.
+
+For an introduction to MCP server concepts before diving into client-specific setup, read [What Is MCP](/blog/what-is-mcp). For testing that your servers are responding correctly once configured, the [MCP Inspector guide](/blog/testing-mcp-server-inspector-unit-tests-ci) walks through the debugging process.
+
+## Frequently Asked Questions
+
+### Where does Gemini CLI store its MCP server configuration?
+
+Gemini CLI reads MCP server config from `~/.gemini/settings.json` for user-level configuration and from `.gemini/settings.json` in the project root for project-specific servers. The project-level file takes precedence when both exist.
+
+### Does Gemini CLI support stdio MCP servers?
+
+Yes. Gemini CLI supports both stdio and HTTP MCP servers. For stdio servers, you provide the command and args in the mcpServers block. For HTTP servers, you provide a url field with the server's endpoint. Most servers in the MCPFind devtools category support stdio.
+
+### Can I use the same MCP server with both Claude Desktop and Gemini CLI?
+
+Yes, if the server uses stdio transport. Both clients use the same mcpServers configuration format with command and args fields. The config file location differs: Claude Desktop uses claude_desktop_config.json and Gemini CLI uses settings.json. The server definition syntax is compatible across both clients.
+
+### What happens if I use underscores in the MCP server name in Gemini CLI?
+
+Gemini CLI does not support underscores in MCP server names. If you use an underscore, the server may fail to start or return a configuration error. Use hyphens instead: for example, `github-mcp` not `github_mcp`.
+
+### How many MCP servers can I configure in Gemini CLI at once?
+
+There is no hard limit documented in the Gemini CLI spec, but each active server adds to startup time and tool resolution overhead. In practice, 3 to 6 servers per config file is a reasonable limit before you start to notice performance impacts during session initialization.
