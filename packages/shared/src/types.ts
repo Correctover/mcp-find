@@ -24,6 +24,9 @@ export type SortOption = 'stars' | 'updated' | 'name' | 'downloads';
 export interface Server {
   id: string;
   slug: string;
+  // Stable URL slug — set once on INSERT, never overwritten on subsequent syncs.
+  // Populated after migration 005_canonical_slug.sql runs; null until then (use slug as fallback).
+  canonical_slug: string | null;
   name: string;
   description: string | null;
   version: string | null;

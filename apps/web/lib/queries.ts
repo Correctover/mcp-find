@@ -7,8 +7,9 @@ import { supabase } from './supabase';
 import type { Server, ServerListItem, ServerWithTools, ServerListParams, ServerListResponse } from '@mcpfind/shared';
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '@mcpfind/shared';
 
-// Excludes readme_content and search_vector to avoid pulling large blobs in list queries
-const SERVER_LIST_COLUMNS = 'id,slug,name,description,version,category,source,package_name,package_type,package_url,has_tools,has_resources,has_prompts,tool_count,github_url,github_stars,github_forks,github_open_issues,github_last_push,github_license,github_language,github_contributors,github_archived,npm_weekly_downloads,registry_status,registry_published_at,registry_updated_at,registry_tags,is_official,featured,created_at,updated_at,last_synced_at';
+// Excludes readme_content and search_vector to avoid pulling large blobs in list queries.
+// canonical_slug is included so route generation (sitemap, links) can use the stable URL column.
+const SERVER_LIST_COLUMNS = 'id,slug,canonical_slug,name,description,version,category,source,package_name,package_type,package_url,has_tools,has_resources,has_prompts,tool_count,github_url,github_stars,github_forks,github_open_issues,github_last_push,github_license,github_language,github_contributors,github_archived,npm_weekly_downloads,registry_status,registry_published_at,registry_updated_at,registry_tags,is_official,featured,created_at,updated_at,last_synced_at';
 
 async function _listServers(params: ServerListParams): Promise<ServerListResponse> {
   const page = Math.max(1, params.page || 1);
@@ -97,13 +98,30 @@ export const listServers = cache(
   }
 );
 
-// Inner function — does the actual Supabase fetch
+// Inner function — does the actual Supabase fetch.
+// Resolves by canonical_slug first (stable URL column), then falls back to slug
+// so this is safe to deploy before migration 005_canonical_slug.sql is applied.
 async function _getServerBySlug(slug: string): Promise<ServerWithTools | null> {
-  const { data: server, error } = await supabase
+  // Try canonical_slug first (populated after migration 005 runs).
+  // If no match, fall back to the mutable slug column (pre-migration or community servers).
+  let { data: server, error } = await supabase
     .from('servers')
     .select('*')
-    .eq('slug', slug)
-    .single();
+    .eq('canonical_slug', slug)
+    .maybeSingle();
+
+  if (!server) {
+    // Defensive fallback: resolve by the mutable slug column.
+    // This path is hit before migration 005 is applied, or for rows where
+    // canonical_slug has not yet been backfilled.
+    const result = await supabase
+      .from('servers')
+      .select('*')
+      .eq('slug', slug)
+      .maybeSingle();
+    server = result.data;
+    error = result.error;
+  }
 
   if (error || !server) return null;
 
@@ -162,21 +180,22 @@ export const getTopServers = cache(
 // Supabase caps each query at 1,000 rows, so we paginate internally in 1,000-row chunks
 // to return up to pageSize rows per sitemap batch.
 export const getServersSitemapPage = cache(
-  (offset: number, pageSize: number): Promise<Pick<ServerListItem, 'slug' | 'updated_at'>[]> =>
+  (offset: number, pageSize: number): Promise<Pick<ServerListItem, 'slug' | 'canonical_slug' | 'updated_at'>[]> =>
     unstable_cache(
       async () => {
         const SUPABASE_MAX = 1000;
-        const allRows: Pick<ServerListItem, 'slug' | 'updated_at'>[] = [];
+        const allRows: Pick<ServerListItem, 'slug' | 'canonical_slug' | 'updated_at'>[] = [];
         for (let i = 0; i < pageSize; i += SUPABASE_MAX) {
           const chunkSize = Math.min(SUPABASE_MAX, pageSize - i);
           const { data } = await supabase
             .from('servers')
-            .select('slug,updated_at')
+            // Include canonical_slug so the sitemap emits stable URLs after migration 005.
+            .select('slug,canonical_slug,updated_at')
             .eq('registry_status', 'active')
             .order('github_stars', { ascending: false })
             .range(offset + i, offset + i + chunkSize - 1);
           if (!data || data.length === 0) break;
-          allRows.push(...(data as Pick<ServerListItem, 'slug' | 'updated_at'>[]));
+          allRows.push(...(data as Pick<ServerListItem, 'slug' | 'canonical_slug' | 'updated_at'>[]));
           if (data.length < chunkSize) break;
         }
         return allRows;

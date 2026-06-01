@@ -91,6 +91,9 @@ export async function syncFromRegistry(supabase: SupabaseClient<any, any, any>):
       const record = {
         id: server.name,
         slug: generateSlug(server.name),
+        // canonical_slug is intentionally EXCLUDED from this record.
+        // It is set once per server via a post-upsert backfill (see below) and
+        // never touched again — guaranteeing URL stability even if upstream renames a server.
         name: server.title || server.name,
         description: server.description || null,
         version: server.version || pkg?.version || null,
@@ -129,6 +132,10 @@ export async function syncFromRegistry(supabase: SupabaseClient<any, any, any>):
     );
 
     if (deduped.length > 0) {
+      // canonical_slug is NOT in the upsert payload — it is never touched here.
+      // Invariant: once a server has a canonical_slug it is immutable.
+      // New rows will have canonical_slug = NULL after this upsert; the backfill
+      // below sets it from slug immediately after all batches complete.
       const { error } = await supabase.from('servers').upsert(deduped, { onConflict: 'id' });
       if (error) console.error(`Batch upsert failed:`, error.message);
       else totalSynced += deduped.length;
@@ -136,6 +143,16 @@ export async function syncFromRegistry(supabase: SupabaseClient<any, any, any>):
 
     console.log(`Synced batch: ${items.length} servers (total: ${totalSynced})`);
   } while (cursor);
+
+  // Backfill canonical_slug for any row that doesn't have one yet (new inserts from this
+  // sync run, or rows that existed before migration 005 ran).
+  // Invariant: rows that already have a canonical_slug are never touched.
+  const { error: backfillError } = await supabase.rpc('backfill_canonical_slug');
+  if (backfillError) {
+    // Non-fatal: the column may not exist yet (pre-migration environment).
+    // The next sync after migration 005 is applied will complete the backfill.
+    console.warn('canonical_slug backfill skipped (migration may not be applied yet):', backfillError.message);
+  }
 
   return totalSynced;
 }

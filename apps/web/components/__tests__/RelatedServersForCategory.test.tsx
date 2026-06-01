@@ -28,6 +28,7 @@ function makeServer(
   return {
     id: slug,
     slug,
+    canonical_slug: null,
     name: rest.name ?? slug,
     description: null,
     version: null,

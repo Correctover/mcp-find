@@ -18,7 +18,9 @@ export async function getServersSitemapBatch(batchIndex: number): Promise<Respon
     notFound();
   }
 
-  const renderUrl = (slug: string, updatedAt: string | null) => {
+  const renderUrl = (slug: string, canonicalSlug: string | null, updatedAt: string | null) => {
+    // Use canonical_slug if available (stable); fall back to slug (pre-migration path).
+    const urlSlug = canonicalSlug ?? slug;
     let lastmodStr = '';
     if (updatedAt) {
       try {
@@ -28,7 +30,7 @@ export async function getServersSitemapBatch(batchIndex: number): Promise<Respon
       }
     }
     return `  <url>
-    <loc>${escapeXml(`${SITE_URL}/servers/${slug}`)}</loc>
+    <loc>${escapeXml(`${SITE_URL}/servers/${urlSlug}`)}</loc>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>${lastmodStr}
   </url>`;
@@ -36,7 +38,7 @@ export async function getServersSitemapBatch(batchIndex: number): Promise<Respon
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${servers.map(s => renderUrl(s.slug, s.updated_at)).join('\n')}
+${servers.map(s => renderUrl(s.slug, s.canonical_slug, s.updated_at)).join('\n')}
 </urlset>`;
 
   return new Response(xml, {
