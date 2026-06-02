@@ -210,7 +210,7 @@ export default async function ServersPage({
                 "@id": `${SITE_URL}/servers`,
                 name: "MCP Server Directory",
                 url: `${SITE_URL}/servers`,
-                description: `Browse ${displayCount} MCP servers with instant install configs for Claude Desktop, Cursor, VS Code, Windsurf, and Claude Code.`,
+                description: `Browse ${result.total > 0 ? result.total.toLocaleString() : displayCount} MCP servers with instant install configs for Claude Desktop, Cursor, VS Code, Windsurf, and Claude Code.`,
                 mainEntity: {
                   "@type": "ItemList",
                   // Use result.total (live per-filter count) for the current view;

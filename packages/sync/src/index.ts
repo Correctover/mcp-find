@@ -82,11 +82,8 @@ async function runSyncPipeline() {
     const categorized = await categorizeServers(supabase);
     console.log(`[Stage 3] Categorized ${categorized} servers`);
 
-    // Stage 4: Trigger site revalidation so cached counts refresh immediately
-    console.log('[Stage 4] Triggering site cache revalidation...');
-    await triggerSiteRevalidation();
-
-    // Update sync log
+    // Update sync log first — mark completed before refreshing caches so we
+    // never push a revalidation against an unconfirmed sync state.
     await supabase
       .from('sync_log')
       .update({
@@ -99,6 +96,11 @@ async function runSyncPipeline() {
       .eq('id', log.id);
 
     console.log(`[Sync Pipeline] Complete — ${synced} synced, ${enriched} enriched, ${categorized} categorized`);
+
+    // Stage 4: Trigger site revalidation so cached counts refresh immediately.
+    // Runs after sync_log is committed so caches are refreshed against confirmed data.
+    console.log('[Stage 4] Triggering site cache revalidation...');
+    await triggerSiteRevalidation();
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     errors.push(errorMsg);

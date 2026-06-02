@@ -10,8 +10,9 @@ export const SITE_NAME = 'MCP Find';
  * Single source of truth — imported by app/page.tsx, app/servers/page.tsx, etc.
  */
 export const FALLBACK_SERVER_COUNT = 10000;
-/** Display string version of FALLBACK_SERVER_COUNT for use in UI and metadata. */
-export const FALLBACK_SERVER_COUNT_DISPLAY = '10,000+';
+/** Display string version of FALLBACK_SERVER_COUNT for use in UI and metadata.
+ *  Derived from FALLBACK_SERVER_COUNT so there is a single source of truth. */
+export const FALLBACK_SERVER_COUNT_DISPLAY = `${FALLBACK_SERVER_COUNT.toLocaleString()}+`;
 export const SITE_URL = 'https://mcpfind.org';
 export const SITE_DESCRIPTION = 'The open-source way to find MCP servers. AI-agent optimized.';
 export const REPO_URL = 'https://github.com/gusmar2017/mcp-find';

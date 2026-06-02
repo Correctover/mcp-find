@@ -57,7 +57,7 @@ export async function generateMetadata({
   const server = await getServerBySlug(slug);
   if (!server) return { title: "Server Not Found" };
 
-  // Deprecated servers get noindex — the page will also return 410 at render time.
+  // Deprecated servers get noindex — the page will also return 404 via notFound() at render time.
   if (server.registry_status === "deprecated") {
     return {
       title: "Server No Longer Available",

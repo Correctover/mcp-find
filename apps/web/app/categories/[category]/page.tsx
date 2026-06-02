@@ -29,9 +29,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { category } = await params;
   if (!(CATEGORIES as readonly string[]).includes(category)) return { title: 'Category Not Found' };
-  const servers = await getServersByCategory(category);
-  const label = CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS] || category;
-  return generateCategoryMetadata(category, label, servers.length);
+  const [count, label] = await Promise.all([
+    getCategoryCount(category),
+    Promise.resolve(CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS] || category),
+  ]);
+  return generateCategoryMetadata(category, label, count);
 }
 
 export default async function CategoryPage({
@@ -70,7 +72,7 @@ export default async function CategoryPage({
             {CATEGORY_DESCRIPTIONS[category as Category]}
           </p>
           <p className="text-neutral-500 text-lg">
-            {servers.length} servers in this category
+            {categoryCount} servers in this category
           </p>
         </div>
 

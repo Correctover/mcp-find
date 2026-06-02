@@ -125,6 +125,12 @@ async function _getServerBySlug(slug: string): Promise<ServerWithTools | null> {
 
   if (error || !server) return null;
 
+  // Skip the tools fetch for deprecated rows — the page will call notFound() immediately,
+  // so the tools data is never used. Return early with an empty tools array.
+  if (server.registry_status === 'deprecated') {
+    return { ...server, tools: [] } as ServerWithTools;
+  }
+
   const { data: tools } = await supabase
     .from('server_tools')
     .select('*')
