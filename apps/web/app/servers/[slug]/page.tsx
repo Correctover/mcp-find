@@ -42,7 +42,10 @@ export async function generateStaticParams() {
     return [];
   }
   const topServers = await getTopServers(200);
-  return topServers.map((s) => ({ slug: s.slug }));
+  // Use canonical_slug if available (stable URL); fall back to slug (pre-migration path).
+  return topServers.map((s) => ({
+    slug: s.canonical_slug ?? s.slug,
+  }));
 }
 
 export async function generateMetadata({
@@ -401,11 +404,6 @@ export default async function ServerDetailPage({
               const authorPath = server.github_url.replace("https://github.com/", "");
               const authorOrg = authorPath.split("/")[0] ?? "";
               const firstLetter = authorOrg.charAt(0)?.toUpperCase() ?? "";
-              const statusLabel = server.is_official
-                ? "Official"
-                : server.source === "registry"
-                ? "Registry"
-                : "Community";
               return (
                 <div className="rounded-xl bg-neutral-900 border border-neutral-800 p-5 space-y-3">
                   <h3 className="text-sm font-semibold text-neutral-300 uppercase tracking-wider">
@@ -418,9 +416,6 @@ export default async function ServerDetailPage({
                     <div className="min-w-0">
                       <div className="text-white text-sm font-medium truncate">
                         {authorOrg}
-                      </div>
-                      <div className="text-neutral-500 text-xs capitalize">
-                        {statusLabel} server
                       </div>
                     </div>
                   </div>

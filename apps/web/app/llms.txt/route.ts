@@ -27,9 +27,8 @@ export async function GET() {
 
   const content = `# ${SITE_NAME}
 
-> Open-source directory of ${count}+ MCP (Model Context Protocol) servers from the official
-> registry. Search, filter, and get copy-paste install configs for Claude Desktop,
-> Cursor, VS Code, Windsurf, and Claude Code. The first AI-agent-optimized MCP directory.
+> Open-source directory of ${count}+ MCP (Model Context Protocol) servers — search, filter,
+> and copy install configs for Claude Desktop, Cursor, VS Code, Windsurf, and Claude Code.
 
 ## Popular Categories
 ${categoryLines}
