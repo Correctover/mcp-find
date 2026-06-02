@@ -80,6 +80,8 @@ export default async function ServersPage({
 
   // For the JSON-LD description, use the live total or shared fallback
   const displayCount = totalCount > 0 ? `${totalCount.toLocaleString()}+` : FALLBACK_SERVER_COUNT_DISPLAY;
+  // Single count value used for BOTH numberOfItems and the description string — they must never contradict.
+  const jsonLdCount = result.total > 0 ? result.total : totalCount;
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -210,12 +212,10 @@ export default async function ServersPage({
                 "@id": `${SITE_URL}/servers`,
                 name: "MCP Server Directory",
                 url: `${SITE_URL}/servers`,
-                description: `Browse ${result.total > 0 ? result.total.toLocaleString() : displayCount} MCP servers with instant install configs for Claude Desktop, Cursor, VS Code, Windsurf, and Claude Code.`,
+                description: `Browse ${jsonLdCount > 0 ? jsonLdCount.toLocaleString('en-US') : FALLBACK_SERVER_COUNT_DISPLAY} MCP servers with instant install configs for Claude Desktop, Cursor, VS Code, Windsurf, and Claude Code.`,
                 mainEntity: {
                   "@type": "ItemList",
-                  // Use result.total (live per-filter count) for the current view;
-                  // falls back to totalCount (full active count) when no filters applied.
-                  numberOfItems: result.total > 0 ? result.total : totalCount,
+                  numberOfItems: jsonLdCount,
                   itemListElement: result.servers.slice(0, 50).map((s, i) => ({
                     "@type": "ListItem",
                     position: i + 1,

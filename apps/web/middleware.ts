@@ -4,8 +4,6 @@ import { NextRequest, NextResponse } from 'next/server';
 // (feat/curate-and-live-count). It over-blocked ~5,500 servers that were re-added
 // as live by the daily registry sync. Dynamic 410 responses are now returned
 // from the server detail page itself when registry_status = 'deprecated'.
-// The data/deleted-server-slugs.json file is retained for historical reference
-// but is no longer used here.
 
 // NOTE: This rate limiter is in-memory and only effective on a single process.
 // On free-tier Vercel (serverless), each function invocation may run in a
