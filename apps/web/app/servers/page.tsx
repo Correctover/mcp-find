@@ -78,8 +78,6 @@ export default async function ServersPage({
     // Supabase not available (e.g., during build without credentials)
   }
 
-  // For the JSON-LD description, use the live total or shared fallback
-  const displayCount = totalCount > 0 ? `${totalCount.toLocaleString()}+` : FALLBACK_SERVER_COUNT_DISPLAY;
   // Single count value used for BOTH numberOfItems and the description string — they must never contradict.
   const jsonLdCount = result.total > 0 ? result.total : totalCount;
 
