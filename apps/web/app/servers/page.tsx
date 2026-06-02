@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import { listServers } from "@/lib/queries";
-import { CATEGORIES, SITE_NAME, CATEGORY_LABELS, SITE_URL } from "@mcpfind/shared";
+import { listServers, getServerCount } from "@/lib/queries";
+import { CATEGORIES, SITE_NAME, CATEGORY_LABELS, SITE_URL, FALLBACK_SERVER_COUNT_DISPLAY } from "@mcpfind/shared";
 import type { Category } from "@mcpfind/shared";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -12,15 +12,20 @@ import { parseFilterParams } from "@/lib/filter-utils";
 import { safeJsonLd } from "@/lib/json-ld";
 import { getQualityStatus } from "@/lib/quality-status";
 
-// Keep in sync with FALLBACK_SERVER_COUNT_DISPLAY in app/page.tsx
-const FALLBACK_SERVER_COUNT_DISPLAY = "2,000+";
-
-export const metadata: Metadata = {
-  title: `Browse MCP Servers | ${SITE_NAME}`,
-  description:
-    `Search and filter ${FALLBACK_SERVER_COUNT_DISPLAY} MCP servers. Get instant install configs for Claude Desktop, Cursor, VS Code, Windsurf, and Claude Code.`,
-  alternates: { canonical: `${SITE_URL}/servers` },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  let countStr = FALLBACK_SERVER_COUNT_DISPLAY;
+  try {
+    const count = await getServerCount();
+    if (count > 0) countStr = `${count.toLocaleString()}+`;
+  } catch {
+    // Supabase unavailable at build time — use shared fallback constant
+  }
+  return {
+    title: `Browse MCP Servers | ${SITE_NAME}`,
+    description: `Search and filter ${countStr} MCP servers. Get instant install configs for Claude Desktop, Cursor, VS Code, Windsurf, and Claude Code.`,
+    alternates: { canonical: `${SITE_URL}/servers` },
+  };
+}
 
 export default async function ServersPage({
   searchParams,
@@ -50,23 +55,31 @@ export default async function ServersPage({
     totalPages: 0,
   };
 
+  let totalCount = 0;
+
   try {
-    result = await listServers({
-      q: filters.q || undefined,
-      category: (filters.category as Category) || undefined,
-      packageTypes: filters.packageTypes.length ? filters.packageTypes : undefined,
-      languages: filters.languages.length ? filters.languages : undefined,
-      hasTools: filters.hasTools || undefined,
-      hasResources: filters.hasResources || undefined,
-      hasPrompts: filters.hasPrompts || undefined,
-      isOfficial: filters.isOfficial || undefined,
-      featured: filters.featured || undefined,
-      sort: filters.sort,
-      page: filters.page,
-    });
+    [result, totalCount] = await Promise.all([
+      listServers({
+        q: filters.q || undefined,
+        category: (filters.category as Category) || undefined,
+        packageTypes: filters.packageTypes.length ? filters.packageTypes : undefined,
+        languages: filters.languages.length ? filters.languages : undefined,
+        hasTools: filters.hasTools || undefined,
+        hasResources: filters.hasResources || undefined,
+        hasPrompts: filters.hasPrompts || undefined,
+        isOfficial: filters.isOfficial || undefined,
+        featured: filters.featured || undefined,
+        sort: filters.sort,
+        page: filters.page,
+      }),
+      getServerCount(),
+    ]);
   } catch {
     // Supabase not available (e.g., during build without credentials)
   }
+
+  // For the JSON-LD description, use the live total or shared fallback
+  const displayCount = totalCount > 0 ? `${totalCount.toLocaleString()}+` : FALLBACK_SERVER_COUNT_DISPLAY;
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -76,10 +89,10 @@ export default async function ServersPage({
         {/* Page header */}
         <div className="mb-10">
           <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400 mb-2">
-            Verified MCP Server Directory
+            MCP Server Directory
           </h1>
           <p className="text-neutral-500 text-lg">
-            {result.total.toLocaleString()} verified servers available across{" "}
+            {result.total.toLocaleString()} servers available across{" "}
             {CATEGORIES.length} categories
             {filters.category && (
               <span>
@@ -197,10 +210,12 @@ export default async function ServersPage({
                 "@id": `${SITE_URL}/servers`,
                 name: "MCP Server Directory",
                 url: `${SITE_URL}/servers`,
-                description: `Browse ${FALLBACK_SERVER_COUNT_DISPLAY} MCP servers with instant install configs for Claude Desktop, Cursor, VS Code, Windsurf, and Claude Code.`,
+                description: `Browse ${displayCount} MCP servers with instant install configs for Claude Desktop, Cursor, VS Code, Windsurf, and Claude Code.`,
                 mainEntity: {
                   "@type": "ItemList",
-                  numberOfItems: result.total,
+                  // Use result.total (live per-filter count) for the current view;
+                  // falls back to totalCount (full active count) when no filters applied.
+                  numberOfItems: result.total > 0 ? result.total : totalCount,
                   itemListElement: result.servers.slice(0, 50).map((s, i) => ({
                     "@type": "ListItem",
                     position: i + 1,

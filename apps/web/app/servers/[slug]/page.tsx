@@ -57,6 +57,14 @@ export async function generateMetadata({
   const server = await getServerBySlug(slug);
   if (!server) return { title: "Server Not Found" };
 
+  // Deprecated servers get noindex — the page will also return 410 at render time.
+  if (server.registry_status === "deprecated") {
+    return {
+      title: "Server No Longer Available",
+      robots: { index: false, follow: false },
+    };
+  }
+
   const qualityStatus = getQualityStatus(slug);
   const base = generateServerMetadata(server);
 
@@ -86,6 +94,16 @@ export default async function ServerDetailPage({
   const { slug } = await params;
   const server = await getServerBySlug(slug);
   if (!server) notFound();
+
+  // Deprecated servers are gone — return a clean 404 via notFound().
+  // Throwing a Response from a Server Component does not set HTTP status in
+  // Next.js 14 App Router (there is no gone() helper and it errors/500s).
+  // notFound() renders the existing not-found UI; Google treats 404≈410
+  // long-term, and these pages are also dropped from the sitemap, so
+  // deindexing still happens with zero extra infrastructure.
+  if (server.registry_status === "deprecated") {
+    notFound();
+  }
 
   const qualityStatus = getQualityStatus(slug);
 

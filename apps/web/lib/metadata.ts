@@ -69,9 +69,14 @@ export function generateServerJsonLd(server: ServerWithTools): object {
 export function generateCategoryJsonLd(
   category: string,
   categoryLabel: string,
-  servers: ServerListItem[]
+  servers: ServerListItem[],
+  /** True total count for the category (may exceed the display limit of 200).
+   *  Defaults to servers.length for backward compatibility. */
+  trueCount?: number,
 ): object {
   const faqs = CATEGORY_FAQS[category as Category] || [];
+  // Use the true DB count if provided; fall back to the length of the fetched slice.
+  const totalCount = trueCount ?? servers.length;
 
   return {
     '@context': 'https://schema.org',
@@ -79,12 +84,12 @@ export function generateCategoryJsonLd(
       {
         '@type': 'CollectionPage',
         name: `${categoryLabel} MCP Servers`,
-        description: `Browse ${servers.length}+ ${categoryLabel.toLowerCase()} MCP servers with instant install configs.`,
+        description: `Browse ${totalCount}+ ${categoryLabel.toLowerCase()} MCP servers with instant install configs.`,
         url: `${SITE_URL}/categories/${category}`,
         breadcrumb: { '@id': `${SITE_URL}/categories/${category}#breadcrumb` },
         mainEntity: {
           '@type': 'ItemList',
-          numberOfItems: servers.length,
+          numberOfItems: totalCount,
           itemListElement: servers.slice(0, 50).map((s, i) => ({
             '@type': 'ListItem',
             position: i + 1,

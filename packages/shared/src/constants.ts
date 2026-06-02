@@ -1,6 +1,17 @@
 import type { ClientType } from './types';
 
 export const SITE_NAME = 'MCP Find';
+
+/**
+ * Fallback server count shown when the Supabase DB is unavailable (e.g., at build time).
+ * The live count from getServerCount() is always preferred. This value is intentionally
+ * a current-ish floor (not a stale overstatement) — set to 10,000 reflecting the
+ * ~10,337 servers in the registry as of 2026-06-01.
+ * Single source of truth — imported by app/page.tsx, app/servers/page.tsx, etc.
+ */
+export const FALLBACK_SERVER_COUNT = 10000;
+/** Display string version of FALLBACK_SERVER_COUNT for use in UI and metadata. */
+export const FALLBACK_SERVER_COUNT_DISPLAY = '10,000+';
 export const SITE_URL = 'https://mcpfind.org';
 export const SITE_DESCRIPTION = 'The open-source way to find MCP servers. AI-agent optimized.';
 export const REPO_URL = 'https://github.com/gusmar2017/mcp-find';

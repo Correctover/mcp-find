@@ -3,6 +3,36 @@ import { syncFromRegistry } from './registry-sync';
 import { enrichWithGitHub } from './github-enrichment';
 import { categorizeServers } from './categorizer';
 
+/** POST to the site's /api/revalidate endpoint so the cached server count
+ *  refreshes immediately after a sync. Non-fatal — a failure here should never
+ *  block the sync pipeline from completing successfully.
+ */
+async function triggerSiteRevalidation(): Promise<void> {
+  const siteUrl = process.env.SITE_URL || 'https://mcpfind.org';
+  const token = process.env.REVALIDATE_TOKEN;
+  if (!token) {
+    console.warn('[Revalidate] Skipped — REVALIDATE_TOKEN not set');
+    return;
+  }
+  try {
+    const res = await fetch(`${siteUrl}/api/revalidate`, {
+      method: 'POST',
+      headers: { 'x-revalidate-token': token },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '(unreadable)');
+      console.warn(`[Revalidate] Non-OK response ${res.status}: ${body}`);
+    } else {
+      console.log('[Revalidate] Site cache refreshed successfully');
+    }
+  } catch (err) {
+    // Non-fatal: network failure, timeout, or site down
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`[Revalidate] Failed (non-fatal): ${msg}`);
+  }
+}
+
 async function runSyncPipeline() {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -51,6 +81,10 @@ async function runSyncPipeline() {
     console.log('[Stage 3] Categorizing servers...');
     const categorized = await categorizeServers(supabase);
     console.log(`[Stage 3] Categorized ${categorized} servers`);
+
+    // Stage 4: Trigger site revalidation so cached counts refresh immediately
+    console.log('[Stage 4] Triggering site cache revalidation...');
+    await triggerSiteRevalidation();
 
     // Update sync log
     await supabase

@@ -12,7 +12,7 @@
 
 ## Why this exists
 
-The MCP ecosystem has grown to 2000+ servers, but discovering and installing them remains painful. Existing directories — Glama, PulseMCP, mcp.so — are all closed source. None of them are optimized for AI agent discovery, and none generate the copy-paste configuration snippets developers actually need.
+The MCP ecosystem has grown to 10,000+ servers, but discovering and installing them remains painful. Existing directories — Glama, PulseMCP, mcp.so — are all closed source. None of them are optimized for AI agent discovery, and none generate the copy-paste configuration snippets developers actually need.
 
 MCP Find is the open-source alternative.
 

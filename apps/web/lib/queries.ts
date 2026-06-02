@@ -224,6 +224,27 @@ export const getServersByCategory = cache(
     )()
 );
 
+/**
+ * Returns the true count of active servers for a given category.
+ * Used in JSON-LD numberOfItems to reflect the real category size,
+ * not just the page-size cap from getServersByCategory().
+ */
+export const getCategoryCount = cache(
+  (category: string): Promise<number> =>
+    unstable_cache(
+      async () => {
+        const { count } = await supabase
+          .from('servers')
+          .select('*', { count: 'exact', head: true })
+          .eq('category', category)
+          .eq('registry_status', 'active');
+        return count || 0;
+      },
+      ['category-count', category],
+      { tags: ['servers', `category-${category}`], revalidate: 3600 }
+    )()
+);
+
 export const getCategoryLastUpdated = cache(
   (): Promise<Record<string, string>> =>
     unstable_cache(
