@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import deletedSlugsData from './data/deleted-server-slugs.json';
 
-// Bake the deleted-slug set into a module-level constant so it is evaluated
-// once at cold-start — no per-request file I/O in edge middleware.
-const DELETED_SERVER_SLUGS = new Set<string>(deletedSlugsData.slugs);
+// NOTE: The static deleted-server-slugs.json 410 block was removed on 2026-06-01
+// (feat/curate-and-live-count). It over-blocked ~5,500 servers that were re-added
+// as live by the daily registry sync. Dynamic 410 responses are now returned
+// from the server detail page itself when registry_status = 'deprecated'.
 
 // NOTE: This rate limiter is in-memory and only effective on a single process.
 // On free-tier Vercel (serverless), each function invocation may run in a
@@ -24,16 +24,6 @@ function getClientIp(request: NextRequest): string {
 }
 
 export function middleware(request: NextRequest) {
-  // Return 410 Gone for permanently deleted server pages so Googlebot stops
-  // retrying and drops them from the index faster than it would on a 404.
-  const { pathname } = request.nextUrl;
-  if (pathname.startsWith('/servers/')) {
-    const slug = pathname.slice('/servers/'.length).split('/')[0];
-    if (slug && DELETED_SERVER_SLUGS.has(slug)) {
-      return new Response(null, { status: 410 });
-    }
-  }
-
   if (!request.nextUrl.pathname.startsWith('/api/')) {
     return NextResponse.next();
   }
@@ -67,4 +57,4 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-export const config = { matcher: ['/api/:path*', '/servers/:slug*'] };
+export const config = { matcher: ['/api/:path*'] };

@@ -1,4 +1,4 @@
-import { getServersByCategory } from '@/lib/queries';
+import { getServersByCategory, getCategoryCount } from '@/lib/queries';
 import { generateCategoryMetadata, generateCategoryJsonLd } from '@/lib/metadata';
 import { getQualityStatus } from '@/lib/quality-status';
 import { safeJsonLd } from '@/lib/json-ld';
@@ -29,9 +29,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { category } = await params;
   if (!(CATEGORIES as readonly string[]).includes(category)) return { title: 'Category Not Found' };
-  const servers = await getServersByCategory(category);
-  const label = CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS] || category;
-  return generateCategoryMetadata(category, label, servers.length);
+  const [count, label] = await Promise.all([
+    getCategoryCount(category),
+    Promise.resolve(CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS] || category),
+  ]);
+  return generateCategoryMetadata(category, label, count);
 }
 
 export default async function CategoryPage({
@@ -43,7 +45,12 @@ export default async function CategoryPage({
   if (!(CATEGORIES as readonly string[]).includes(category)) notFound();
 
   const label = CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS] || category;
-  const servers = await getServersByCategory(category);
+  // Fetch servers (up to 200 for display) and the true total count in parallel.
+  // The true count feeds JSON-LD numberOfItems; servers feeds the card grid.
+  const [servers, categoryCount] = await Promise.all([
+    getServersByCategory(category),
+    getCategoryCount(category),
+  ]);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -53,7 +60,7 @@ export default async function CategoryPage({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: safeJsonLd(generateCategoryJsonLd(category, label, servers)),
+            __html: safeJsonLd(generateCategoryJsonLd(category, label, servers, categoryCount)),
           }}
         />
 
@@ -65,7 +72,7 @@ export default async function CategoryPage({
             {CATEGORY_DESCRIPTIONS[category as Category]}
           </p>
           <p className="text-neutral-500 text-lg">
-            {servers.length} servers in this category
+            {categoryCount} servers in this category
           </p>
         </div>
 
