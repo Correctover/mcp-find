@@ -1,0 +1,83 @@
+---
+title: "MCP for Data Scientists: Connect Live Data to Notebooks"
+description: "How data scientists use MCP servers to connect Jupyter notebooks, SQL databases, and analytics tools to Claude for faster, context-rich data workflows."
+excerpt: "MCPFind indexes 190 analytics and 322 database MCP servers purpose-built for data work. This guide shows how to connect Jupyter notebooks, BigQuery, and SQL databases to Claude and which servers earn a spot in a production data science workflow."
+date: "2026-06-02"
+updatedAt: "2026-06-02"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+tags:
+  - "mcp"
+  - "developer"
+  - "analytics"
+  - "data-science"
+  - "jupyter"
+  - "sql"
+category: "analytics"
+focusKeyword: "mcp for data scientists"
+draft: false
+cornerstone: false
+topic_source: new_topic
+cluster: analytics
+faqItems:
+  - question: "Can MCP servers execute code inside a running Jupyter kernel?"
+    answer: "Yes. The datalayer jupyter-mcp-server connects to a live Jupyter kernel via WebSocket, allowing Claude to insert and execute cells and read the outputs directly. Your kernel session, loaded variables, and imports persist between operations."
+  - question: "Do MCP database servers require direct database access, or can they use read replicas?"
+    answer: "Most MCP database servers connect via standard connection strings, so they work with read replicas and poolers like PgBouncer just as well as a primary instance. Pointing to a read replica keeps production write traffic separate during exploratory queries."
+  - question: "Which MCP servers support BigQuery or cloud data warehouses?"
+    answer: "Google manages an official BigQuery MCP server that authenticates via service account and runs standard SQL against your GCP project. Databricks and Snowflake community servers are also available through MCPFind's analytics category, which indexes 190 servers total."
+  - question: "Can I use MCP to interact with pandas or polars data frames?"
+    answer: "Not through a dedicated MCP server, but Jupyter MCP servers let Claude run Python code that uses pandas or polars inside your kernel. The output, whether a data frame preview, a plot, or a computed statistic, is returned as notebook cell output."
+---
+
+Data science work pulls from dozens of tools at once: notebooks, SQL editors, cloud warehouses, and dashboards. Moving context between them burns time and breaks focus. MCP (Model Context Protocol) changes this by giving AI assistants like Claude a direct connection to your data environment. Instead of copying query results or switching tabs, you describe what you need and the AI runs the query, reads the notebook output, or pulls a warehouse table inside the same conversation. MCPFind indexes 190 analytics and 322 database MCP servers that matter here. This guide covers which ones belong in a working data science setup and how to use them effectively.
+
+## What Is MCP and How Does It Fit a Data Scientist's Workflow?
+
+MCP is a protocol that lets AI systems connect to external tools and data sources through standardized server interfaces. For data scientists, this means Claude can execute notebook cells, run SQL queries, fetch warehouse schemas, and return structured results without breaking the conversation flow. Think of it as a direct connector between Claude and your data stack.
+
+The practical difference shows up most during exploratory work. Instead of running a query, copying the output, pasting it into Claude, and asking a question, the AI handles all of it in one turn. You ask "what is the distribution of order values by region last quarter?" and Claude queries the database, formats a summary, and suggests a follow-up analysis. The iteration loop that normally takes five minutes collapses into a single response. That shift matters especially when the next question depends on what the previous answer reveals. You can read more about the underlying protocol in our [introduction to MCP](/blog/what-is-mcp).
+
+## Which MCP Servers Connect Jupyter Notebooks to Claude?
+
+Two servers handle Jupyter integration: the datalayer jupyter-mcp-server, which connects via WebSocket to a live kernel, and jjsantos01's Jupyter Notebook MCP, which uses the Jupyter REST API. Both let Claude insert and execute cells, then read the output, all without copy-paste steps.
+
+The datalayer server runs inside your Jupyter environment and keeps the kernel session alive. Loaded variables, imports, and dataframes persist between Claude's operations. If you load a CSV into a pandas dataframe in one cell, Claude can reference it in the next call without reloading the file. The REST API approach from jjsantos01 is lighter and works without an active server process. For notebooks already running in JupyterLab, the WebSocket-based server is the better choice for interactive work. For programmatic file access without a live session, the REST alternative adds less overhead. Both options are indexed in MCPFind's [analytics category](/categories/analytics), alongside 188 other servers covering the broader data ecosystem.
+
+## How Do You Query SQL Databases and Data Warehouses With MCP?
+
+MCPFind's databases category indexes 322 servers covering PostgreSQL, MySQL, SQLite, BigQuery, Snowflake, DuckDB, and more. The most widely used for data science is [Supabase MCP](/servers/com-supabase-mcp), which leads the databases category at 2,556 GitHub stars. It exposes schema inspection, row filtering, and aggregation queries through Claude with OAuth or service-role-key authentication.
+
+For pure analytics queries on structured datasets, DuckDB-based servers are a strong choice. DuckDB runs in-process, handles Parquet files and CSV directly, and returns results faster than most hosted databases for local analytical work. If your data lives in Google Cloud, the managed BigQuery MCP connects with a service account and runs standard SQL without an intermediary layer. Read-only mode on any of these servers is good practice during exploration; it removes the risk of a stray write while iterating on queries. The official PostgreSQL server from Anthropic's reference implementations also supports connection strings pointing to read replicas or PgBouncer pools, keeping production traffic separate. Each option is searchable in MCPFind's [databases directory](/categories/databases).
+
+## What MCP Servers Support Analytics Pipelines and BI Reporting?
+
+MCPFind's analytics category indexes 190 servers covering the full stack, from raw data access to BI dashboards. The most useful for data science include PostHog's official server for product analytics, Databricks's managed MCP for Spark-based warehouse queries, and Google's BigQuery server for GCP workloads. PostHog exposes event queries, funnels, and retention metrics through a simple API key, while the Databricks server targets teams running larger Spark workflows.
+
+The key split to understand is between read-oriented analytics servers and general-purpose database servers. Analytics servers like PostHog and Amplitude expose pre-built query types; you can request a funnel breakdown or cohort retention chart but you are not writing raw SQL. Database servers like PostgreSQL MCP and Supabase let you run arbitrary queries, which is more powerful but requires knowing the schema upfront. A practical workflow is to start with an analytics server for day-to-day metric checks and drop to a database server when you need raw access for a custom analysis. For a comparison of the best options across both types, see our guide on [the best data analytics MCP servers](/blog/best-mcp-servers-data-analytics-bi).
+
+## How Do You Configure MCP Servers in a Data Science Environment?
+
+Adding MCP servers to a data science setup is usually a one-time config task. Claude Desktop reads a JSON config file where you list which servers to load. A database server entry points to a connection string; a Jupyter server entry points to your running Jupyter port. Both stay resident while Claude Desktop is open and reconnect automatically on restart.
+
+The most common starting configuration for data science work includes a database server and a Jupyter server. Add the database server first since that is where most exploratory queries start. Test it by asking Claude to list the tables in your schema. Then add the Jupyter server and verify Claude can execute a simple cell. From there, the workflow becomes natural: write Python in the notebook, ask Claude to analyze the output, run a follow-up query against the database, and iterate. When something breaks, Claude Desktop's log view shows which server timed out or returned an error, making troubleshooting faster than most standard developer tooling. If you are new to installing MCP servers in general, start with the resources in the [MCPFind blog](/blog) before adding multiple servers at once.
+
+## Frequently Asked Questions
+
+### Can MCP servers execute code inside a running Jupyter kernel?
+
+Yes. The datalayer jupyter-mcp-server connects to a live Jupyter kernel via WebSocket, allowing Claude to insert and execute cells and read the outputs directly. Your kernel session, loaded variables, and imports persist between operations.
+
+### Do MCP database servers require direct database access, or can they use read replicas?
+
+Most MCP database servers connect via standard connection strings, so they work with read replicas and poolers like PgBouncer just as well as a primary instance. Pointing to a read replica keeps production write traffic separate during exploratory queries.
+
+### Which MCP servers support BigQuery or cloud data warehouses?
+
+Google manages an official BigQuery MCP server that authenticates via service account and runs standard SQL against your GCP project. Databricks and Snowflake community servers are also available through MCPFind's analytics category, which indexes 190 servers total.
+
+### Can I use MCP to interact with pandas or polars data frames?
+
+Not through a dedicated MCP server, but Jupyter MCP servers let Claude run Python code that uses pandas or polars inside your kernel. The output, whether a data frame preview, a plot, or a computed statistic, is returned as notebook cell output.

@@ -1,0 +1,83 @@
+---
+title: "MCP for Marketing Teams: Analytics, Social Media, and Content"
+description: "How marketing teams use MCP servers to connect GA4, social media platforms, CRMs, and content tools to Claude for faster campaign work without switching tabs."
+excerpt: "MCPFind indexes servers across analytics, communication, CRM, and automation categories that marketing teams actually use. This guide shows which MCP servers fit agency-grade workflows, from GA4 reporting to HubSpot CRM queries to social scheduling."
+date: "2026-06-03"
+updatedAt: "2026-06-03"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+tags:
+  - "mcp"
+  - "beginner"
+  - "audience-marketing"
+  - "analytics"
+  - "crm"
+  - "social"
+category: "analytics"
+focusKeyword: "mcp for marketing teams"
+draft: false
+cornerstone: false
+topic_source: new_topic
+cluster: audience-marketing
+faqItems:
+  - question: "Do marketing MCP servers require technical setup?"
+    answer: "It depends on the server. Many vendor-managed MCP servers, like GA4, HubSpot, and Google Ads, require only an API key and a short config block in Claude Desktop's settings file. No coding is needed. Community-maintained servers sometimes need npm or npx installation."
+  - question: "Can MCP servers pull live campaign performance data into Claude?"
+    answer: "Yes. Analytics servers like the GA4 MCP connect to your property with OAuth or a service account and can return sessions, conversions, and behavioral metrics in response to plain-language questions. Ad platform servers from Google Ads and Amazon Ads work the same way."
+  - question: "Is there an MCP server for managing social media posts?"
+    answer: "Yes. Several social MCP servers exist for X (Twitter), LinkedIn organic posts, and Buffer scheduling. They vary in tool coverage and authentication requirements. MCPFind's communication category indexes 158 servers, which includes social platforms alongside email and team chat tools."
+  - question: "Can I use MCP servers to write and publish blog content?"
+    answer: "Some content CMS servers connect Claude to platforms like WordPress, letting it draft, format, and publish posts. Notion MCP servers also allow creating and updating pages inside your workspace. For publishing, confirm the server's write permissions before giving it production access."
+---
+
+Marketing teams spend a large chunk of their day moving between tools: pulling a GA4 report, checking HubSpot activity, reviewing social metrics, and briefing content writers. Each switch breaks context and slows decisions. MCP (Model Context Protocol) lets AI assistants like Claude connect directly to those tools, so you can run a campaign health check, pull lead data, or research a keyword inside one conversation. MCPFind indexes servers across analytics, communication, CRM, and automation categories that cover most agency-grade marketing workflows. This guide walks through what is actually available and how to think about building your marketing MCP stack.
+
+## What Can Marketing Teams Actually Do With MCP?
+
+MCP is a protocol that gives AI assistants permission to call external tools on your behalf. For a marketing team, that means Claude can pull live GA4 data, query your CRM for pipeline metrics, check a keyword's search volume, or draft a LinkedIn post using current campaign context, all without you copying data between tabs.
+
+The most common use cases break into four areas: analytics and reporting, CRM and lead management, social media and content, and research automation. A campaign manager might start a morning by asking Claude to summarize last week's performance across channels, then move directly into drafting a creative brief using that data. A growth marketer might ask Claude to pull all leads from a specific campaign, score them against a set of criteria, and draft a follow-up email sequence. What makes this practical is that each task now runs in the same session. Context from the first query carries into the next without re-explaining the background. You can get started with the basics by reading our [guide to MCP](/blog/what-is-mcp).
+
+## Which MCP Servers Handle Analytics and Campaign Reporting?
+
+If your team lives inside Google Analytics, the GA4 MCP server is the most impactful place to start. It authenticates with OAuth or a service account and exposes over 200 GA4 metrics through plain-language queries. Ask Claude for weekly session trends, top landing pages, or conversion rates by channel, and it returns the numbers directly.
+
+Google Ads has an official MCP server covering Sponsored Search, Performance Max, and Shopping campaigns. Amazon Ads launched their server in early 2026 for Sponsored Products and Sponsored Brands. For product analytics, PostHog's MCP server exposes event queries, funnels, and retention breakdowns through a simple API key. If your attribution data lives in a cloud warehouse, BigQuery MCP lets Claude run arbitrary SQL against your full data model, including ad spend, CRM data, and web behavior in one query. MCPFind's [analytics category](/categories/analytics) indexes 190 servers covering this space.
+
+## What MCP Servers Exist for Social Media and Content Management?
+
+Social media MCP servers cover the major platforms but vary widely in what they let Claude do. The X (Twitter) server from OpenTweet covers the full tweet lifecycle: drafting, publishing, scheduling, and reading analytics. LinkedIn has both an organic post server and the official HubSpot integration for B2B social publishing. Buffer's MCP server handles cross-platform scheduling if you manage multiple accounts through a single dashboard.
+
+For content, Notion MCP is the most versatile option. It lets Claude read brand guidelines, create new pages, update databases, and draft posts directly inside your Notion workspace. WordPress MCP servers exist for teams publishing to self-hosted sites, covering draft creation and basic publishing. A HubSpot MCP server ties content to your CRM, so Claude can reference deal stages or contact properties when writing follow-up content. MCPFind's [communication category](/categories/communication) indexes 158 servers, including social platforms, email tools, and team chat integrations in one place.
+
+## How Do You Connect Your CRM to Claude Using MCP?
+
+CRM MCP servers give Claude access to your contact and deal data, so it can answer pipeline questions, surface at-risk accounts, or draft personalized outreach without a manual data export. HubSpot's official MCP server is the most complete option for marketing teams. It covers contacts, companies, deals, and workflows, and it connects via OAuth so individual users control their own permissions.
+
+Salesforce has a remote MCP server for enterprise teams that need CRM data alongside marketing cloud data. For smaller teams, Brevo ships an MCP server that covers both CRM contacts and email campaign management in one connection. The practical pattern is to pair a CRM server with an analytics server so Claude can correlate marketing performance with pipeline impact in one session. You ask "which campaigns drove the most qualified leads last quarter?" and Claude queries both systems and summarizes the answer. MCPFind's [CRM category](/categories/crm) is smaller than analytics (7 servers currently), but the major platforms are covered.
+
+## What Does a Practical Marketing MCP Stack Look Like?
+
+Most marketing teams do not need to install every available MCP server at once. A focused stack of three to five servers covers the majority of daily tasks. A reasonable starting configuration for a growth or demand gen team includes GA4 for web analytics, HubSpot for CRM and lead data, and a social server for the primary platform your team uses. That alone replaces the tab-switching most marketers do every morning when reviewing overnight performance.
+
+From there, adding Google Ads or a paid social server fills in the campaign data layer. If your team runs content marketing, a Notion or WordPress server rounds out the stack by letting Claude draft and stage content using the campaign data you pulled earlier. The configuration file for Claude Desktop takes each server as a JSON entry, so you can add or remove them as your needs change. None of these connections require a developer for the managed, OAuth-based versions. The general approach of starting small and layering in tools as your workflow demands it applies to MCP the same way it does to any software stack. Explore the full range of options available across all marketing-relevant categories in the [MCPFind blog](/blog).
+
+## Frequently Asked Questions
+
+### Do marketing MCP servers require technical setup?
+
+It depends on the server. Many vendor-managed MCP servers, like GA4, HubSpot, and Google Ads, require only an API key and a short config block in Claude Desktop's settings file. No coding is needed. Community-maintained servers sometimes need npm or npx installation.
+
+### Can MCP servers pull live campaign performance data into Claude?
+
+Yes. Analytics servers like the GA4 MCP connect to your property with OAuth or a service account and can return sessions, conversions, and behavioral metrics in response to plain-language questions. Ad platform servers from Google Ads and Amazon Ads work the same way.
+
+### Is there an MCP server for managing social media posts?
+
+Yes. Several social MCP servers exist for X (Twitter), LinkedIn organic posts, and Buffer scheduling. They vary in tool coverage and authentication requirements. MCPFind's communication category indexes 158 servers, which includes social platforms alongside email and team chat tools.
+
+### Can I use MCP servers to write and publish blog content?
+
+Some content CMS servers connect Claude to platforms like WordPress, letting it draft, format, and publish posts. Notion MCP servers also allow creating and updating pages inside your workspace. For publishing, confirm the server's write permissions before giving it production access.
