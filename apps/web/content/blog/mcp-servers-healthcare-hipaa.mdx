@@ -1,0 +1,105 @@
+---
+title: "MCP Servers for Healthcare: HIPAA Rules and Medical Data"
+description: "How to use MCP servers in healthcare workflows without violating HIPAA. Covers BAA requirements, PHI safeguards, FHIR integrations, and safe server categories."
+excerpt: "Healthcare AI teams are deploying MCP servers faster than compliance teams can review them. This guide covers the HIPAA Security and Privacy Rules that apply when MCP servers touch patient data, which server categories are safe, and the technical controls required before production."
+date: "2026-06-03"
+updatedAt: "2026-06-03"
+author: "Gus Marquez"
+authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
+authorSameAs:
+  - "https://www.linkedin.com/in/gustavoamarquez"
+tags:
+  - "mcp"
+  - "developer"
+  - "healthcare"
+  - "hipaa"
+  - "security"
+category: "security"
+focusKeyword: "mcp servers healthcare HIPAA"
+draft: false
+cornerstone: false
+topic_source: new_topic
+cluster: audience-healthcare
+faqItems:
+  - question: "Do I need a HIPAA BAA with Anthropic to use Claude with patient data?"
+    answer: "Yes. If Claude processes ePHI through an MCP tool call, Anthropic must sign a Business Associate Agreement before you deploy in production. Check Anthropic's current BAA availability before building a HIPAA-covered workflow."
+  - question: "Can I use a read-only MCP database server with patient records under HIPAA?"
+    answer: "Read-only access still triggers HIPAA Technical Safeguard requirements. The Security Rule applies to any system that stores, transmits, or receives ePHI, regardless of whether it writes back. You still need access controls, audit logs, and encrypted transport."
+  - question: "What is the difference between de-identified and anonymized data in MCP contexts?"
+    answer: "Under HIPAA, de-identification follows a specific standard: you must remove 18 defined identifiers or apply statistical expert certification. Anonymized is not a HIPAA legal term. MCP servers that receive de-identified data per HIPAA Safe Harbor or Expert Determination fall outside HIPAA scope entirely."
+  - question: "Which authentication method does HIPAA recommend for MCP server access?"
+    answer: "HIPAA does not specify authentication protocols, but the Security Rule requires unique user identification and automatic logoff. OAuth 2.1 with short-lived tokens meets these requirements better than static API keys, which violate the unique user identification requirement when shared across team members."
+  - question: "Are there any certified HIPAA-compliant MCP servers for EHR access in 2026?"
+    answer: "No MCP server carries formal HIPAA certification because HIPAA certifies organizations and business processes, not software products. You achieve compliance through BAAs, technical controls, and policies, not by selecting a certified server. Evaluate vendors on their BAA terms and security architecture instead."
+---
+
+Healthcare teams are adding AI agents to clinical workflows faster than compliance reviews can keep up. MCP servers give those agents access to databases, record systems, and communication tools, but connecting patient data to an AI model creates HIPAA obligations most development teams haven't mapped yet. We analyzed MCPFind's 565 security-category servers and the emerging FHIR and EHR integrations to produce a practical compliance guide for developer teams building in healthcare. This post covers which HIPAA rules apply, which server categories are safe, and the technical controls required before you go to production.
+
+## What HIPAA Rules Apply When You Connect Patient Data to an AI Agent Through MCP?
+
+HIPAA's Security Rule and Privacy Rule both apply the moment an MCP server handles electronic protected health information (ePHI). The Security Rule requires technical safeguards: access controls, audit controls, automatic logoff, person authentication, and transmission security. The Privacy Rule limits what data you can query and what the model may output. Any MCP server that reads or writes ePHI is part of the covered system and must implement these safeguards in full.
+
+Business Associate Agreements are the compliance checkpoint most teams miss first. If your MCP server runs on a cloud provider's infrastructure, that provider becomes a Business Associate and must sign a BAA before you process ePHI through their platform. AWS, Azure, and GCP all offer BAA-covered service tiers. The specific endpoint matters though: running a self-hosted MCP server on an EC2 instance you control is different from routing calls through a managed API service. Audit which parts of your stack actually process ePHI before you route anything through them.
+
+## Which MCP Server Categories Are Safe for Healthcare Workflows That Don't Touch Patient Data?
+
+Not every healthcare workflow triggers HIPAA obligations. Administrative tasks, scheduling, internal documentation, and staff communications that contain no patient identifiers operate outside the regulation's scope. MCPFind indexes 11,383 MCP servers across 21 categories. Many of these work safely in healthcare settings for non-PHI administrative work without requiring HIPAA controls.
+
+The [search category](/categories/search) covers 748 servers (avg 38.16 stars) that work well for internal policy documents, clinical care protocols, and staff-facing knowledge bases. These contain no patient data and carry no HIPAA obligation. The communication category (162 servers) handles team messaging integrations for internal coordination. The analytics category (202 servers) supports operational reporting without patient-level data. Where you enter regulated territory is specifically when the MCP server has read or write access to EHR systems, clinical databases, or any data store containing patient identifiers, diagnoses, treatment records, or billing information. If you are unsure whether a data source contains ePHI, treat it as if it does.
+
+## How Do You Configure an MCP Server to Meet HIPAA Technical Safeguard Requirements?
+
+HIPAA Technical Safeguards require five controls for any system handling ePHI: unique user identification, emergency access procedure, automatic logoff, encryption, and audit controls. An MCP server touching ePHI must address all five. The specific implementation depends on the server and host application, but the principles map directly to MCP's transport and auth model.
+
+For transport security, Streamable HTTP remote servers must use TLS 1.2 or higher. For stdio local servers, process isolation provides a natural security boundary, but the host application must handle authentication. Scope-limiting at the server layer is the single highest-impact control: your server should return only the fields required for the specific tool call, not the full record.
+
+```json
+{
+  "mcpServers": {
+    "ehr-readonly": {
+      "command": "npx",
+      "args": ["-y", "@your-org/ehr-mcp-server"],
+      "env": {
+        "EHR_API_KEY": "${EHR_API_KEY}",
+        "SCOPE": "read:appointments:desensitized"
+      }
+    }
+  }
+}
+```
+
+Audit logging must capture who accessed what data and when. Build logging into the MCP server layer rather than relying on the host application to record tool calls. The [security category](/categories/security) on MCPFind indexes 565 servers, including access control and secrets management tools that support the audit infrastructure.
+
+## What FHIR and EHR MCP Servers Exist for Healthcare Developers in 2026?
+
+The healthcare-specific MCP server space is early but growing. FHIR (Fast Healthcare Interoperability Resources) is the standard API format for EHR systems, and several servers now wrap FHIR R4 endpoints for AI agent access. AWS HealthLake, Microsoft Azure Health Data Services, and Epic's FHIR API are the most common integration targets in 2026.
+
+AWS HealthLake supports FHIR R4 and has a dedicated integration path via the ai-ml category servers on MCPFind (1,304 servers, avg 72.91 stars). For Epic EHR access, community-maintained servers wrap Epic's FHIR API with scoped read access, though none carry official Epic support. Cerner/Oracle Health and Allscripts have similar community efforts. The most reliable path for production healthcare deployments is building a purpose-built MCP server that wraps your vendor's FHIR API with field-level access control, PHI masking on tool output, and structured audit logging before any data reaches the model context. Generic off-the-shelf database MCP servers are not appropriate for EHR data without a purpose-built access layer in front of them.
+
+## How Do You Reduce Prompt Injection and Output Risks for PHI in MCP Workflows?
+
+Prompt injection is a specific risk in healthcare MCP deployments. HIPAA's minimum necessary use standard requires that ePHI exposure be limited to what is needed for the specific purpose. When an MCP server exposes EHR data through tool calls, the model may include PHI in its reasoning output in ways that violate this standard, even when the original query was clinically appropriate.
+
+The safest architecture intercepts tool results before they reach the full model context. Apply output filtering at the MCP server layer: your server should mask fields not required for the specific workflow. A "get patient appointment" tool should return the appointment slot and care type without diagnosis codes unless the diagnosis is explicitly required. Document which PHI fields each tool is authorized to return and enforce this in the server code, not through prompt instructions. Prompt-level restrictions are not a substitute for technical access controls under the Security Rule. Review both [what-is-mcp](/blog/what-is-mcp) for protocol fundamentals and [MCP security basics](/blog/mcp-security-basics) for general safeguard patterns before designing your healthcare MCP architecture.
+
+## Frequently Asked Questions
+
+### Do I need a HIPAA BAA with Anthropic to use Claude with patient data?
+
+Yes. If Claude processes ePHI through an MCP tool call, Anthropic must sign a Business Associate Agreement before you deploy in production. Check Anthropic's current BAA availability before building a HIPAA-covered workflow.
+
+### Can I use a read-only MCP database server with patient records under HIPAA?
+
+Read-only access still triggers HIPAA Technical Safeguard requirements. The Security Rule applies to any system that stores, transmits, or receives ePHI, regardless of whether it writes back. You still need access controls, audit logs, and encrypted transport.
+
+### What is the difference between de-identified and anonymized data in MCP contexts?
+
+Under HIPAA, de-identification follows a specific standard: remove 18 defined identifiers or apply statistical expert certification. De-identified data per HIPAA Safe Harbor or Expert Determination falls entirely outside HIPAA scope, making it safe for any MCP server.
+
+### Which authentication method does HIPAA recommend for MCP server access?
+
+HIPAA does not specify protocols, but the Security Rule requires unique user identification and automatic logoff. OAuth 2.1 with short-lived tokens meets these requirements better than static API keys, which violate the unique user identification requirement when shared.
+
+### Are there any certified HIPAA-compliant MCP servers for EHR access in 2026?
+
+No MCP server carries formal HIPAA certification. HIPAA certifies organizations and processes, not software. You achieve compliance through BAAs, technical controls, and operational policies. Evaluate vendors on their BAA terms and security architecture.
