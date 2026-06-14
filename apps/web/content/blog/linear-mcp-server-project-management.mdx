@@ -1,0 +1,88 @@
+---
+title: "Linear MCP Server: Project Management for AI-Native Teams"
+description: "Set up the Linear MCP server to query issues and cycles from Claude or Cursor. Covers permissions, the Jira comparison, and developer team workflows."
+excerpt: "Linear is the project management tool of choice for AI-native engineering teams. The Linear MCP server gives Claude and Cursor direct access to issues, cycles, and project data - no tab switching required. MCPFind's devtools category has 4,043 servers."
+date: "2026-06-12"
+updatedAt: "2026-06-12"
+author: "Gus Marquez"
+authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
+authorSameAs:
+  - "https://www.linkedin.com/in/gustavoamarquez"
+tags:
+  - "mcp"
+  - "developer"
+  - "devops"
+  - "project-management"
+  - "linear"
+category: "devtools"
+focusKeyword: "linear mcp server"
+draft: false
+cornerstone: false
+topic_source: new_topic
+cluster: devops
+faqItems:
+  - question: "Does the Linear MCP server support all Linear features?"
+    answer: "The server covers the core data model: issues, projects, cycles, teams, and comments. Advanced features like Linear's AI issue suggestions, workflow automations, and Slack integrations are handled by Linear itself, not through MCP."
+  - question: "Can I use the Linear MCP server without write access?"
+    answer: "Yes. The server works in read-only mode if you grant a read-only API key. We recommend starting read-only to verify the agent's query behavior before enabling write operations."
+  - question: "Does the Linear MCP server work with Claude Code?"
+    answer: "Yes. Claude Code supports MCP server configuration via the same JSON format as Claude Desktop. Once configured, Claude Code sessions can query and update Linear issues directly within coding workflows."
+  - question: "How does Linear MCP handle multi-workspace setups?"
+    answer: "Each Linear API key is scoped to a single workspace. Teams operating across multiple Linear workspaces need separate API keys and server configurations for each."
+---
+
+Linear has become the default project management tool for AI-native engineering teams. Its speed, keyboard shortcuts, and GitHub integration make it the choice for teams shipping fast. We analyzed how engineering teams are connecting Linear to their AI workflows using MCP, and the pattern is consistent: developers configure the Linear MCP server to give Claude or Cursor direct access to their issue tracker, then query it in context while writing code. No browser tab switches, no copy-paste of ticket details. MCPFind's [devtools category](/categories/devtools) indexes 4,043 servers with an average of 26.75 stars per project. The Linear MCP server sits in that category with strong engineering team adoption. Here is how to set it up and where it fits relative to Jira and other project management MCP options.
+
+## What Does the Linear MCP Server Do?
+
+The Linear MCP server exposes your issue tracker to AI tools as a set of queryable tools. Once configured, you can ask Claude things like "Show me all open P1 bugs in the API project" or "What issues are assigned to me this sprint?" and get structured responses without leaving your editor. The server gives your AI client read and write access to Linear data depending on the permissions granted to the API key. Read access covers issues, cycles, teams, projects, labels, and comments. Write access allows creating issues, updating status, adding comments, and assigning issues to team members.
+
+For developer workflows, the most common use case is context injection: you reference a Linear issue in your prompt and the agent pulls the full issue description, comments, and related issues automatically. That removes the overhead of manually pasting ticket context into every coding prompt. We found this pattern particularly effective when using Claude Code for multi-session feature development where issue context drifts between sessions. If you are new to MCP servers in general, the [what is MCP guide](/blog/what-is-mcp) covers the protocol foundation before you configure your first server.
+
+## How Do You Set Up the Linear MCP Server With Claude and Cursor?
+
+Linear's MCP server uses your Linear API key for authentication. Start by going to Settings in your Linear workspace, navigating to Security and Access, and generating a Personal API Key. Treat this key like a password: it grants agent-level access to every team, project, and issue your account can see.
+
+For Claude Desktop, add the server entry to `~/Library/Application Support/Claude/claude_desktop_config.json`. For Cursor, open the MCP settings panel and paste the server URL alongside your API key. You can also configure the server for write access by passing additional scope flags during setup, but we recommend starting read-only until you understand which agent operations you want to permit. The Linear server is one of the few in MCPFind's devtools category with official company support. Official maintenance means the server's tool schemas stay in sync with Linear's API as it evolves, which is a significant advantage over community forks in the same category. The broader [DevOps MCP roundup](/blog/best-mcp-servers-devops-cicd) covers which other devops tools pair well with Linear in an AI workflow.
+
+## What Can You Do With Linear MCP in a Real Development Workflow?
+
+We tested three workflows where the Linear MCP server adds the most value. First, standup prep: ask Claude to pull all issues you moved to "In Progress" yesterday and summarize progress against the sprint goal. This takes about three seconds versus two minutes of clicking through the Linear UI. The output is a clean list you can paste directly into Slack or a standup doc.
+
+Second, issue triage: feed an incoming bug report to Claude and ask it to check if a similar issue already exists in Linear before creating a duplicate. The agent queries by title similarity and returns matches with links. Third, PR context enrichment: when reviewing a pull request, ask Claude to explain what Linear issues the changes address and what the original acceptance criteria were. This works best when your team links PR descriptions to Linear issue IDs, which the agent looks up automatically. All three workflows require only read access, which is the safest starting configuration for any team new to MCP. See also the [MCP server testing guide](/blog/testing-mcp-server-inspector-unit-tests-ci) for how to verify your setup before using it in production.
+
+## How Does Linear MCP Compare to Jira MCP?
+
+Both Linear and Jira have MCP servers, but they serve different teams. Linear MCP is optimized for speed and simplicity. Queries return fast, the schema is clean, and setup takes under ten minutes. Jira MCP covers a much larger API surface: tickets, epics, sprints, Confluence links, boards, and workflow automations. That breadth comes with complexity. Jira's MCP setup requires OAuth 2.0 through an Atlassian Connected App, and the tool schemas are larger.
+
+We observed that Claude handles Linear queries more naturally because Linear's data model is less nested than Jira's. For AI-native teams that chose Linear specifically because of its simplicity, the MCP server extends that philosophy into their agent workflow. For enterprise teams already on Jira who cannot migrate, the [Jira MCP setup guide](/blog/jira-mcp-server-setup-claude-cursor) covers the official Atlassian MCP server, which went GA in February 2026. The two are not interchangeable if your team depends on Jira-specific fields like custom workflows, story points tied to portfolio planning, or Jira Service Management integrations.
+
+## What Permissions Should You Scope When Configuring Linear MCP?
+
+API key permissions in Linear follow your account's team memberships. If your API key is tied to an account with admin privileges, your agent inherits admin privileges. That is a significant blast radius for a tool that can create and modify issues at agent speed.
+
+We recommend three practices to reduce it. First, create a dedicated Linear workspace member for MCP operations rather than using a personal admin account. Set that member's role to Member rather than Admin, and grant it access only to the teams relevant to the agent's work. Second, start with a read-only token. Linear does not offer granular read/write scope splitting at the API key level, but you can limit write operations at the prompt and system level by instructing your agent not to create or modify issues unless explicitly asked. Third, review what the agent has done periodically. Linear's audit log shows API activity by key, so you can confirm the agent is staying in scope. The [GitHub MCP integration guide](/blog/github-mcp-server-claude-code-tutorial) covers similar permission-scoping patterns if your workflow connects both repositories and issue tracking.
+
+## What Are the Best Use Cases for Linear MCP in 2026?
+
+We see four categories of teams getting the most from the Linear MCP server. AI-native startups that run their entire engineering workflow in Linear find the biggest gains: agents can create tickets from bug reports, pull sprint status for daily updates, and generate release notes from completed issues without manual steps.
+
+Teams using Claude Code for feature development use Linear MCP to maintain context across sessions. The agent knows which issue it is working on, can check the acceptance criteria, and update the ticket when work is done. Product managers with API access use it for cross-project reporting: query multiple Linear teams at once and compare velocity, open bugs, and cycle completion rates in a single prompt. Finally, engineering managers use it to prepare weekly business reviews. Rather than pulling data manually from Linear's analytics dashboard, they ask Claude to summarize completed issues, flagged blockers, and cycle health in a format ready for leadership reporting. For teams that want to extend Linear with automated workflows, MCPFind's [automation category](/categories/automation) lists 200 MCP servers covering CI triggers, webhook handlers, and pipeline tools that pair well with Linear issue tracking. For design-to-code teams, the [Figma MCP design-to-code guide](/blog/figma-mcp-server-design-to-code) shows how to connect design handoff to Linear issue tracking in a single agent workflow.
+
+## Frequently Asked Questions
+
+### Does the Linear MCP server support all Linear features?
+
+The server covers the core data model: issues, projects, cycles, teams, and comments. Advanced features like Linear's AI issue suggestions, workflow automations, and Slack integrations are handled by Linear itself, not through MCP.
+
+### Can I use the Linear MCP server without write access?
+
+Yes. The server works in read-only mode if you grant a read-only API key. We recommend starting read-only to verify the agent's query behavior before enabling write operations on live team data.
+
+### Does the Linear MCP server work with Claude Code?
+
+Yes. Claude Code supports MCP server configuration via the same JSON format as Claude Desktop. Once configured, Claude Code sessions can query and update Linear issues directly within coding workflows - useful for keeping tickets in sync with code changes.
+
+### How does Linear MCP handle multi-workspace setups?
+
+Each Linear API key is scoped to a single workspace. Teams operating across multiple Linear workspaces need separate API keys and server configurations for each. You can add both under separate named entries in your MCP client's config file.
