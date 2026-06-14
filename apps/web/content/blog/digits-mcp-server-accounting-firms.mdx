@@ -1,0 +1,88 @@
+---
+title: "Digits MCP Server: Financial Data for Accounting Firms"
+description: "Connect the Digits MCP server to Claude or Cursor for real-time accounting data. Covers setup, what data it accesses, and how it compares to Stripe and BankSync."
+excerpt: "The Digits MCP server lets accounting firms and fractional CFOs query client financial data directly from Claude, Cursor, or any MCP client. Launched April 2026, it covers P&L, cash flow, and vendor spend in read-only mode. MCPFind's finance category has 52 servers total."
+date: "2026-06-11"
+updatedAt: "2026-06-11"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+tags:
+  - "mcp"
+  - "developer"
+  - "finance"
+  - "accounting"
+  - "beginner"
+category: "finance"
+focusKeyword: "digits mcp server"
+draft: false
+cornerstone: false
+topic_source: new_topic
+cluster: finance
+faqItems:
+  - question: "Is the Digits MCP server free to use?"
+    answer: "Access to the Digits MCP server requires an active Digits account, which is a paid subscription. The MCP server itself does not have separate pricing - it is part of the Digits platform."
+  - question: "Does the Digits MCP server support write operations?"
+    answer: "No. The current version of the Digits MCP server is read-only. You can query financial data but cannot create transactions, update categories, or modify client records through the server."
+  - question: "Which AI clients work with the Digits MCP server?"
+    answer: "The Digits MCP server supports any MCP-compatible client, including Claude Desktop, Cursor, and Windsurf. It uses a remote HTTP transport, so no local installation is required."
+  - question: "How many clients can I access through the Digits MCP server?"
+    answer: "You can access all client accounts linked to your Digits login. The server inherits your account permissions, so multi-client access is available if your Digits plan includes it."
+---
+
+Accounting firms work with dozens of client accounts. Getting a clear view of real-time cash flow, revenue trends, or expense breakdowns has historically meant logging into Digits' dashboard, pulling data manually, and reformatting it for reports. The Digits MCP server changes that workflow. Launched in April 2026, it lets AI agents query Digits' financial data directly using Claude, Cursor, or any MCP-compatible client. Your agent can answer "What is the net income for Q1 across all clients?" without you switching tabs. This guide covers what the Digits MCP server does, how it connects, what data it can access, and how it compares to the other financial MCP servers in MCPFind's [finance category](/categories/finance).
+
+## What Does the Digits MCP Server Do?
+
+Digits is a financial intelligence platform built for accounting teams and their small business clients. Its MCP server exposes the Digits data layer to AI agents, letting them query financials without a human logging in to export a spreadsheet. The server covers profit and loss statements, cash flow data, vendor spend, payroll summaries, and revenue breakdowns - the core data types accounting firms need for client advisory work.
+
+Instead of asking a client to send a CSV, you configure the Digits MCP server once and let your agent pull current numbers on demand. The server uses OAuth authentication tied to your Digits account, which means your agent inherits the same permissions your login has. If you have read access to a client's books, your agent does too. This model makes the server particularly useful for CPA practices that use Claude or another AI assistant as a research and analysis layer across their book of business. For context on how MCP servers work in general, the [what is MCP guide](/blog/what-is-mcp) covers the protocol foundation.
+
+## How Do You Set Up the Digits MCP Server?
+
+The Digits MCP server connects using a remote HTTP endpoint, which means you do not need to install or host anything. You add it to your AI client configuration the same way you would add any remote MCP server. For Claude Desktop, open your `claude_desktop_config.json` file and add an entry under `mcpServers`. For Cursor, go to Settings, then the MCP section. You will need a Digits API key from your account settings.
+
+OAuth authentication handles identity automatically once you complete the authorization flow. The Digits team recommends creating a dedicated API key for each AI client you configure, so you can revoke access independently if needed. Setup takes under ten minutes for teams already using Digits for client work. The main prerequisite is an active Digits account with at least one connected client. MCPFind's [finance category](/categories/finance) lists the Digits server alongside 51 other financial MCP options, including Stripe MCP at 1,395 stars and BankSync at $7/month, so you can compare them at a glance.
+
+## What Financial Data Can the Digits MCP Server Access?
+
+The Digits MCP server exposes read access to the financial data Digits aggregates for your clients. That includes income statement line items (revenue, gross profit, operating expenses, net income), balance sheet data (assets, liabilities, equity), cash flow summaries, and vendor-level spend breakdowns. It also surfaces Digits' categorized transaction data, which is useful for expense trend analysis across multiple periods.
+
+You can ask your agent questions that would normally require a manual export: "Show me the top 10 vendors by spend for Client X in Q1 2026" or "Compare gross margin for these three clients over the last six months." The server returns structured data that your agent can then format into a report, a Slack message, or a spreadsheet output depending on your workflow. Write access is not available in the current version - the server is intentionally read-only, which limits its blast radius if an agent makes an unexpected request.
+
+## How Does Digits MCP Compare to Other Financial MCP Servers?
+
+MCPFind's finance category has 52 servers averaging 27.31 stars, covering bookkeeping tools, payment processors, and banking APIs. Digits occupies a specific niche: accounting practice management data, not personal finance or payment processing. Here is where it sits relative to the alternatives.
+
+Stripe MCP (1,395 stars) is the most widely deployed financial server, but it focuses on payment transactions, not accounting books. BankSync ($7/month) connects to personal and business bank accounts via Plaid, covering raw transaction data without the categorization and aggregation layer Digits provides. QuickBooks and Xero also have community-built MCP servers focused on the accounting system itself rather than the advisory intelligence layer Digits adds. If your workflow is about analyzing client financials across a practice, Digits MCP is the most purpose-built option available. The [best MCP servers for finance roundup](/blog/best-mcp-servers-finance-banking) covers all four categories in detail if you are still choosing between options.
+
+## Who Should Use the Digits MCP Server?
+
+The Digits MCP server targets accounting firms and fractional CFOs who already use Digits as their analytics layer. If you are a solo CPA with ten clients on Digits, you can configure the MCP server once and use Claude to run comparative analyses that would otherwise take hours of manual work. For larger practices with a staff of accountants, the server becomes a shared tool: each team member connects their AI client to the same Digits endpoint and queries client data directly during meetings or report preparation.
+
+The setup is not designed for small business owners managing their own books. Digits is a B2B platform, and the MCP server assumes you are an accounting professional with multi-client access. If you are a developer building custom finance workflows, the adjacent [BankSync MCP server review](/blog/banksync-mcp-server-review) and the [Stripe MCP guide](/blog/stripe-mcp-server-guide) cover raw transaction and payment access patterns that complement Digits' higher-level analytics. And if your practice already uses QuickBooks or Xero, the [MCP for accountants guide](/blog/mcp-for-accountants-quickbooks-xero) covers setup across those platforms too.
+
+## What Are the Limitations of the Digits MCP Server?
+
+A few boundaries matter before you build a workflow around this server. The server is read-only, which protects data integrity but means you cannot automate data entry or transaction coding from an agent. Rate limits apply, though Digits has not published exact quotas - aggressive multi-client batch queries may hit throttling during peak hours.
+
+The server connects to data already in Digits. If a client's books are incomplete or behind on bank feed imports, the agent returns incomplete data. That is a Digits platform issue rather than an MCP server issue, but it matters when you are troubleshooting agent outputs. OAuth tokens expire and require re-authentication, so long-running agent pipelines need a mechanism to refresh credentials. The Digits MCP server launched in April 2026, making it newer than most financial MCP options. Feature coverage will expand as Digits iterates, so checking their changelog before configuring new workflows is a good habit.
+
+## Frequently Asked Questions
+
+### Is the Digits MCP server free to use?
+
+Access to the Digits MCP server requires an active Digits account, which is a paid subscription. The MCP server itself does not have separate pricing - it is included as part of the Digits platform access.
+
+### Does the Digits MCP server support write operations?
+
+No. The current version of the Digits MCP server is read-only. You can query financial data but cannot create transactions, update categories, or modify client records through the server. This is by design to limit agent-side data modification risk.
+
+### Which AI clients work with the Digits MCP server?
+
+The Digits MCP server supports any MCP-compatible client, including Claude Desktop, Cursor, and Windsurf. It uses a remote HTTP transport, so no local installation is required on your machine.
+
+### How many clients can I access through the Digits MCP server?
+
+You can access all client accounts linked to your Digits login. The server inherits your account permissions, so multi-client access is available if your Digits plan includes it. Use a dedicated API key per AI client to maintain clean audit separation.
