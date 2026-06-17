@@ -1,0 +1,109 @@
+---
+title: "Google Drive MCP Server: Search and Manage Files With AI"
+description: "Connect Google Drive to Claude with an MCP server. This beginner guide covers the available options, OAuth setup, and what you can do once your Drive is live."
+excerpt: "Google Drive has one HEALTHY MCP server indexed in MCPFind's filesystems category, which covers 67 servers. This guide walks through setup, authentication, and what Claude can do with your Drive files once the connection is established."
+date: "2026-06-10"
+updatedAt: "2026-06-10"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+tags:
+  - "mcp"
+  - "beginner"
+  - "productivity"
+  - "google-drive"
+  - "filesystems"
+category: "filesystems"
+focusKeyword: "google drive mcp server"
+draft: false
+cornerstone: false
+topic_source: new_topic
+faqItems:
+  - question: "Do I need a paid Google Workspace account to use the Google Drive MCP server?"
+    answer: "No. The community Google Drive MCP server works with personal Google accounts. The official Google remote server at drivemcp.googleapis.com requires OAuth credentials and works with both personal and Workspace accounts."
+  - question: "Is the Google Drive MCP server read-only or can it create files?"
+    answer: "Most Google Drive MCP servers support both reading and creating files. The exact scope depends on which OAuth permissions you grant during setup. You can restrict permissions to read-only if you prefer."
+  - question: "How do I authenticate Google Drive with Claude safely?"
+    answer: "Use OAuth 2.0 with the minimum scopes you need. For read-only use, request drive.readonly. Avoid granting drive scope (full access) unless you specifically need file deletion. Revoke access from your Google account security page at any time."
+  - question: "Can the Google Drive MCP server access shared drives?"
+    answer: "Support for shared drives varies by server. The official Google server supports shared drives when using a Google Workspace account with the appropriate permissions. Community servers typically work with My Drive and shared folders but may not enumerate team drives."
+---
+
+If you have ever asked Claude to summarize a document only to spend five minutes locating it and copying the text manually, a Google Drive MCP server eliminates that step. You connect Claude to your Drive once, and it can search for files, read document contents, and even create new files on request. MCPFind's [filesystems category](/categories/filesystems) indexes 67 servers, and the options covering Google Drive range from community-built connectors to Google's own hosted endpoint. This guide walks through what the connection actually unlocks, which server to use, and how to get the authentication right without giving Claude more access than necessary.
+
+## What Does a Google Drive MCP Server Do for Claude?
+
+A Google Drive MCP server gives Claude tools to interact with your files during a conversation. If you want to ask Claude to pull talking points from last quarter's sales deck or find all documents tagged with a specific label, the server handles those requests without you leaving the chat.
+
+The core tools you can expect include listing files and folders, searching your Drive by name or content, reading the full text of a document, and creating new files or folders. Some servers also expose sharing controls, moving files, and working with Google Sheets data. What makes this useful for non-developers is that the setup happens once, and after that Claude handles the navigation. You do not need to know folder structures or remember file names exactly. Natural-language queries like "find my Q1 budget spreadsheet" work because the server translates them into Drive API calls and returns the matching file content.
+
+## What Google Drive MCP Options Are Available in 2026?
+
+Two main paths exist for connecting Google Drive to Claude. The community [domdomegg google-drive-mcp server](/servers/io-github-domdomegg-google-drive-mcp) is the HEALTHY option MCPFind tracks in the filesystems category. It uses stdio transport, handles OAuth 2.0 authentication through a local credentials flow, and supports reading, searching, and creating files. You run it locally, which means your Drive credentials never leave your machine.
+
+Google also operates an official hosted endpoint at `drivemcp.googleapis.com`. This remote server skips the local setup entirely. You authenticate through OAuth in your browser, and Claude connects to Google's infrastructure directly. The tradeoff is that the hosted path routes through Google's servers rather than staying local. For personal productivity use, either option works well. For enterprise or sensitive document workflows, the local community server gives you more control over where credentials and file content travel.
+
+Neither option requires a paid subscription to get started. Both work with standard Google accounts.
+
+## How Do You Connect Google Drive to Claude With MCP?
+
+For the community server, start by setting up a Google Cloud project and generating OAuth 2.0 credentials with the Drive API scope. Download the `credentials.json` file from the Google Cloud Console, then install the server:
+
+```bash
+npx @domdomegg/google-drive-mcp auth
+```
+
+This command opens a browser, prompts you to sign in, and saves the resulting token locally. Then add the server to your Claude Desktop config at `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "google-drive": {
+      "command": "npx",
+      "args": ["-y", "@domdomegg/google-drive-mcp"],
+      "env": {
+        "GOOGLE_CREDENTIALS_PATH": "/Users/yourname/.google-drive-mcp/credentials.json"
+      }
+    }
+  }
+}
+```
+
+Restart Claude Desktop after saving. For the official Google hosted server, configure a custom connector in Claude.ai settings using the remote MCP URL and your OAuth client credentials. The hosted path requires no local installation but does require a paid Claude plan tier that supports custom connectors.
+
+When the connection is active, test it by asking Claude to list files in your Drive root or search for a document by name. If authentication fails, the most common cause is an expired token. Run the auth command again to refresh it. For shared Google Workspace environments, confirm that your Google Cloud project has Drive API enabled in the Cloud Console, since the API is not active by default on new projects. The community server stores credentials in `~/.google-drive-mcp/` by default, so that directory needs to persist between sessions for the token to remain valid without re-authenticating each time.
+
+## What Permissions Does the Google Drive MCP Server Need?
+
+OAuth scopes control what Claude can do with your Drive. If you want Claude to read documents but not create or delete anything, request the `https://www.googleapis.com/auth/drive.readonly` scope during the auth setup. This is the most conservative option and still covers the majority of useful tasks: searching, reading, and summarizing your files.
+
+If you want Claude to create notes or drafts, add `https://www.googleapis.com/auth/drive.file`, which limits creation to files the MCP server itself creates rather than granting blanket write access. Avoid requesting the top-level `https://www.googleapis.com/auth/drive` scope unless you need deletion or sharing management, since that gives Claude access to every file in your Drive including ones in Trash.
+
+You can review and revoke MCP server access at any time from your Google Account security settings under "Third-party apps and services." This is the same flow you would use to revoke any OAuth app, so there is no special MCP-specific cleanup needed if you stop using the server.
+
+## Which AI Tasks Can Claude Handle With Your Google Drive?
+
+Document summarization is the most common use case once the connection is live. Ask Claude to pull a specific document and summarize it, and it handles the retrieval and reading in one step. This works well for long PDFs, meeting notes, or technical specs you need a quick read on without opening the file.
+
+Research and content gathering is the second high-value pattern. If you store research notes, interview transcripts, or reference materials in Drive, Claude can search across them to find relevant context for a writing task. You describe what you need rather than navigating folder structures manually.
+
+File creation from conversation is the third strong use case. Ask Claude to draft a project brief or meeting summary and save it to a specific Drive folder, and it handles both the writing and the file creation in one step. Pair the Drive connection with a calendar MCP for a workflow that pulls meeting notes from your calendar and saves summaries to Drive automatically. For related productivity tools, the [Notion MCP server](/blog/notion-mcp-server-advanced-workflows) covers the document-database side, and the [productivity MCP roundup](/blog/best-mcp-servers-productivity-calendar-tasks-notes) shows the full category. If you are new to MCP, start with the [what is MCP guide](/blog/what-is-mcp) for the foundational concepts.
+
+## Frequently Asked Questions
+
+### Do I need a paid Google Workspace account to use the Google Drive MCP server?
+
+No. The community Google Drive MCP server works with personal Google accounts. The official Google remote server at drivemcp.googleapis.com requires OAuth credentials and works with both personal and Workspace accounts.
+
+### Is the Google Drive MCP server read-only or can it create files?
+
+Most Google Drive MCP servers support both reading and creating files. The exact scope depends on which OAuth permissions you grant during setup. You can restrict permissions to read-only if you prefer.
+
+### How do I authenticate Google Drive with Claude safely?
+
+Use OAuth 2.0 with the minimum scopes you need. For read-only use, request drive.readonly. Avoid granting drive scope (full access) unless you specifically need file deletion. Revoke access from your Google account security page at any time.
+
+### Can the Google Drive MCP server access shared drives?
+
+Support for shared drives varies by server. The official Google server supports shared drives when using a Google Workspace account with the appropriate permissions. Community servers typically work with My Drive and shared folders but may not enumerate team drives.

@@ -1,0 +1,105 @@
+---
+title: "Obsidian MCP Server: Turn Your Notes Into AI Context"
+description: "Set up an Obsidian MCP server to give Claude access to your vault notes. Compare four HEALTHY options by transport type, setup complexity, and write access."
+excerpt: "MCPFind indexes four HEALTHY Obsidian MCP servers in the documentation category, which covers 295 servers in total. We compared them by architecture (file-system vs REST API), transport, and write support to help you pick the right one for Claude Desktop and Claude Code workflows."
+date: "2026-06-08"
+updatedAt: "2026-06-08"
+author: "Gus Marquez"
+authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
+authorSameAs:
+  - "https://www.linkedin.com/in/gustavoamarquez"
+tags:
+  - "mcp"
+  - "developer"
+  - "productivity"
+  - "knowledge-management"
+  - "obsidian"
+category: "documentation"
+focusKeyword: "obsidian mcp server"
+draft: false
+cornerstone: false
+topic_source: new_topic
+faqItems:
+  - question: "Can I use the Obsidian MCP server without Obsidian running?"
+    answer: "It depends on the server. File-based servers like cyanheads read raw .md files directly and work without Obsidian open. REST API-based servers require Obsidian to be running with the Local REST API plugin active."
+  - question: "Does the Obsidian MCP server work with Claude Code or just Claude Desktop?"
+    answer: "Both. Servers using stdio transport work with Claude Desktop by default. Claude Code users configure the server in .claude/settings.json as an additional MCP server entry."
+  - question: "How does the Obsidian MCP handle large vaults with thousands of notes?"
+    answer: "Performance varies by implementation. File-based servers with BM25 search handle large vaults better than full-text scan approaches. Test search latency on vaults larger than 5,000 notes before committing to a configuration."
+  - question: "Can I write back to Obsidian from Claude, or is it read-only?"
+    answer: "Most Obsidian MCP servers support write operations including creating and updating notes. Check the specific server README for its full tool list, since some community forks restrict write access by default."
+---
+
+Obsidian's local-first, Markdown-based design makes it one of the most natural knowledge bases to connect to an AI agent. Instead of pasting notes into Claude's context window, an MCP server lets Claude search your vault directly, read specific notes on request, and create new ones during a session. MCPFind's [documentation category](/categories/documentation) now indexes 295 servers with an average of 12.08 stars, reflecting a growing set of knowledge-management integrations. This guide compares the four HEALTHY Obsidian MCP servers we track, covers setup for both Claude Desktop and Claude Code, and identifies the workflows where this connection pays off most.
+
+## What Does the Obsidian MCP Server Actually Do?
+
+An Obsidian MCP server exposes your vault as a set of callable tools during a Claude session. The core tool set typically includes searching notes by keyword or tag, reading the full text of a note by path, listing files in a directory, and appending to or creating notes. The server translates each tool call into a file-system or HTTP operation against your vault.
+
+Two architectures handle this differently. REST API bridges communicate through Obsidian's Local REST API community plugin, which requires Obsidian to be running. File-system servers read `.md` files directly from the vault path, so they work whether or not Obsidian is open. For developers running Claude Code in remote sessions, the file-system approach removes the dependency on a local Obsidian process. For Claude Desktop users who keep Obsidian open throughout the workday, the REST API path can surface native search indexes and plugin metadata not accessible through raw file reads. Both approaches ship as stdio-transport servers, which means no hosted endpoints and no usage costs tied to vault size.
+
+## Which Obsidian MCP Servers Does MCPFind Index?
+
+We track four HEALTHY Obsidian MCP servers in MCPFind's documentation category. The [cyanheads obsidian-mcp-server](/servers/io-github-cyanheads-obsidian-mcp-server) uses stdio transport with direct file access, requires no Obsidian plugins, and exposes search, read, create, and update operations against your vault directory. It is the lowest-friction starting point for most configurations.
+
+The [hint-services obsidian-github-mcp](/servers/ai-smithery-hint-services-obsidian-github-mcp) combines vault access with GitHub repository context in one server. If your notes cross-reference code or link to technical documentation in a repository, this dual-scope server eliminates the need for two separate MCP connections. Two additional community servers are HEALTHY in the directory: one targets WebSocket-compatible clients, and another focuses on a REST-first approach for users who prefer the Obsidian Local REST API ecosystem.
+
+None of these servers require API keys. They operate entirely on local files or a local HTTP server, keeping notes off third-party infrastructure. Auth is simply the vault path and, for REST-based servers, a token generated by the Obsidian plugin.
+
+## How Do You Set Up the Obsidian MCP Server With Claude?
+
+Install the cyanheads server via npx and add the block below to your Claude Desktop config at `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "obsidian": {
+      "command": "npx",
+      "args": ["-y", "@cyanheads/obsidian-mcp-server"],
+      "env": {
+        "VAULT_PATH": "/Users/yourname/Documents/MyVault"
+      }
+    }
+  }
+}
+```
+
+Set `VAULT_PATH` to the absolute path of your vault directory. Avoid using `~` expansion since some environments resolve home directory shortcuts inconsistently. Restart Claude Desktop after saving.
+
+For Claude Code, add the same `mcpServers` block to `.claude/settings.json`. Test the connection by asking Claude to list notes in your root vault folder. If the search returns no results, confirm the path resolves correctly by running `ls` on it from the same terminal environment Claude Code uses. We recommend pointing the server at a read-only vault copy during initial testing to confirm write behavior before granting access to your primary vault.
+
+For teams using Obsidian Sync, the MCP server reads from the local vault directory regardless of sync status. Changes Claude writes are picked up by Obsidian Sync automatically on the next sync cycle, so no special handling is needed for synced vaults. If you use Git for vault versioning, committing before and after a Claude session gives you a clean diff of what changed during the session. This is a practical safety net when Claude writes multiple notes at once. The cyanheads server also respects `.obsidianignore` if your vault has one configured, so you can exclude sensitive directories from Claude's reach without modifying the server itself.
+
+## Does the Obsidian MCP Server Support Write Operations?
+
+Write support is one of the key differences between servers. The cyanheads server exposes `create_note` and `update_note` tools by default, meaning Claude can add new notes or modify existing ones without additional configuration. This is intentional, since the primary value of vault write access is letting Claude generate structured outputs directly into your knowledge base.
+
+The REST API-based servers delegate write operations to Obsidian's Local REST API plugin, which honors Obsidian's internal permissions model. If you use a community plugin that locks certain notes, those restrictions carry over. File-system servers bypass Obsidian's permission layer entirely and write directly to the `.md` files, which is faster but skips any plugin-level safeguards you have configured.
+
+For teams sharing a vault, we suggest testing what happens when Claude writes to a note that another team member has open. Most setups handle this gracefully since Obsidian detects external file changes and reloads, but confirming this behavior before relying on it in a production workflow avoids surprises.
+
+## What AI Workflows Work Best With Obsidian and MCP?
+
+Research synthesis tops the list. Claude can search your vault for a topic, pull the most relevant notes, and generate a structured summary or identify coverage gaps in a single session. This replaces the manual workflow of locating notes, copying their content, and pasting into a prompt repeatedly.
+
+Context injection for engineering work is the second strong pattern. Architecture decision records, API documentation, and project briefs stored in your vault are available to Claude on request, rather than requiring you to locate and paste content manually. Pair this with a Git or GitHub MCP server and you get bidirectional traceability between vault notes and code commits.
+
+Note-driven task planning rounds out the high-value use cases. Claude can read a project brief from your vault, extract action items, and write a structured task list back as a new note. The [Notion MCP server](/blog/notion-mcp-server-advanced-workflows) covers the same workflow pattern for teams using a hosted knowledge base. For a broader comparison of productivity tools in this space, see our [productivity MCP server roundup](/blog/best-mcp-servers-productivity-calendar-tasks-notes). Start with the [MCP primer](/blog/what-is-mcp) if you are new to the protocol before diving into server configuration.
+
+## Frequently Asked Questions
+
+### Can I use the Obsidian MCP server without Obsidian running?
+
+It depends on the server. File-based servers like cyanheads read raw .md files directly and work without Obsidian open. REST API-based servers require Obsidian to be running with the Local REST API plugin active.
+
+### Does the Obsidian MCP server work with Claude Code or just Claude Desktop?
+
+Both. Servers using stdio transport work with Claude Desktop by default. Claude Code users configure the server in .claude/settings.json as an additional MCP server entry.
+
+### How does the Obsidian MCP handle large vaults with thousands of notes?
+
+Performance varies by implementation. File-based servers with BM25 search handle large vaults better than full-text scan approaches. Test search latency on vaults larger than 5,000 notes before committing to a configuration.
+
+### Can I write back to Obsidian from Claude, or is it read-only?
+
+Most Obsidian MCP servers support write operations including creating and updating notes. Check the specific server README for its full tool list, since some community forks restrict write access by default.

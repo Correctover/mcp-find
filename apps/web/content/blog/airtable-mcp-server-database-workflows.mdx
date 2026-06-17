@@ -1,0 +1,105 @@
+---
+title: "Airtable MCP Server: Database Workflows for AI Agents"
+description: "Set up the Airtable MCP server to let Claude read and write your bases. Covers the official server, authentication, and the AI workflows you can build with it."
+excerpt: "Airtable's official MCP server launched February 2026 and supports full read-write access to your bases. MCPFind indexes it in the databases category alongside 380 servers. This guide covers setup, personal access tokens, and the task automation workflows that work best with Airtable MCP."
+date: "2026-06-12"
+updatedAt: "2026-06-12"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+tags:
+  - "mcp"
+  - "beginner"
+  - "databases"
+  - "airtable"
+  - "no-code"
+category: "databases"
+focusKeyword: "airtable mcp server"
+draft: false
+cornerstone: false
+topic_source: new_topic
+faqItems:
+  - question: "Does the Airtable MCP server need a paid Airtable plan?"
+    answer: "No. The Airtable MCP server works with free Airtable accounts. Personal access tokens are available on all plans. Some advanced base features, like linked records across workspaces, require a paid plan but are not MCP-specific limitations."
+  - question: "Can the Airtable MCP server write data back to my bases, or is it read-only?"
+    answer: "The Airtable MCP server supports both reading and writing. Claude can create records, update field values, and manage tables depending on the permissions of the personal access token you provide."
+  - question: "Is the Airtable MCP different from the official Airtable API?"
+    answer: "Yes. The Airtable REST API requires building a custom integration. The MCP server wraps the API into callable tools Claude can use directly, so no custom code is needed on your side."
+  - question: "Which AI tools support the Airtable MCP server?"
+    answer: "Any MCP-compatible client works with the Airtable server, including Claude Desktop, Claude Code, Cursor, and Windsurf. The server uses stdio transport, which is the most widely supported MCP transport across AI coding tools."
+---
+
+Airtable sits in an interesting category: it looks like a spreadsheet but behaves like a relational database, which makes it a natural fit for AI agents that need structured data to work with. Airtable published its official MCP server in February 2026, and it gives Claude the ability to query bases, create records, update fields, and manage tables through natural conversation. MCPFind's [databases category](/categories/databases) indexes 380 servers with an average of 11.64 stars, with Supabase leading at 2,556 stars. This guide walks through what the Airtable MCP connection enables, how to authenticate it safely, and which workflows justify setting it up.
+
+## What Does the Airtable MCP Server Do?
+
+The Airtable MCP server exposes your bases as tools Claude can call during a conversation. If you want Claude to check whether a project task is marked complete, pull all records where a status field equals "Pending," or add a new row when you describe a task verbally, the server handles those requests without you opening Airtable directly.
+
+The tool set covers the core database operations: listing bases and tables, reading records with optional filters, creating new records, updating existing fields, and retrieving schema information so Claude knows what fields each table contains. What makes this useful for non-technical users is that Claude translates plain-language requests into the right API calls. You do not need to know filter formulas or field names exactly. Airtable's MCP server gives Claude the schema first, so it can match your description to the correct table and field combination before running any operation.
+
+## Which Airtable MCP Server Should You Use?
+
+Airtable's official MCP server is the recommended starting point. MCPFind tracks the [ai-waystation-airtable server](/servers/ai-waystation-airtable) as HEALTHY in its databases category, and this is the server Airtable's own documentation points to for MCP integration. It uses stdio transport, authenticates with a personal access token, and supports full read-write access scoped to the bases your token covers.
+
+A community alternative, [domdomegg-airtable-mcp-server](/servers/io-github-domdomegg-airtable-mcp-server), exists but is currently classified as STALE in MCPFind's quality tracking. For production use, stick with the HEALTHY official option. The MCPFind databases category as a whole holds 380 servers including well-established tools like [Supabase](/blog/supabase-mcp-server-deep-dive) and [MongoDB](/blog/mongodb-mcp-server-guide), so if Airtable's no-code database model is not the right fit, the category has alternatives for more traditional SQL or NoSQL setups.
+
+Both options use stdio transport, which means no hosted MCP endpoint to manage and no per-query usage cost beyond your existing Airtable plan.
+
+## How Do You Set Up the Airtable MCP Server?
+
+Start by generating a personal access token from your Airtable account settings. Under the "Developer hub" section, create a token and grant the scopes you need: at minimum `data.records:read` for reading, and `data.records:write` if you want Claude to create or update records. Scope the token to specific bases rather than all workspaces to limit the blast radius if the token is ever exposed.
+
+Add the server to your Claude Desktop config at `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "airtable": {
+      "command": "npx",
+      "args": ["-y", "@waystation-ai/mcp-airtable"],
+      "env": {
+        "AIRTABLE_PERSONAL_ACCESS_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+Restart Claude Desktop after saving. Test the connection by asking Claude to list the bases your token can access. If the response comes back empty, confirm the token was scoped to include the base you are trying to reach. For Claude Code, add the same `mcpServers` block to `.claude/settings.json`.
+
+Personal access tokens expire when you revoke them or if your Airtable account's security settings change. There is no built-in expiration timer for Airtable personal tokens, so the MCP connection remains active until you explicitly revoke the token. To rotate a token, generate a new one in Airtable's Developer Hub, update the environment variable in your Claude config, and restart the client. If you manage multiple Airtable workspaces, consider creating one token per workspace with the minimum required scopes rather than a single token with broad access across all your bases. This limits the scope of exposure if a token is ever leaked.
+
+## Can the Airtable MCP Server Write Data Back to Your Bases?
+
+Write access is one of the more powerful aspects of the Airtable MCP server, and it is worth understanding what that means before you enable it. Claude can create records, update field values, and modify table schemas depending on the permissions of the personal access token you provide. When you ask Claude to "add a new project to the tracker," it issues a record creation call against your base in real time.
+
+This is genuinely useful, but it also means mistakes are immediate. Unlike working in Airtable's own interface where you can see a preview before saving, Claude executes the write operation as part of the conversation flow. A few practices help: scope your token to the minimum bases needed, keep a revision history enabled in Airtable so you can undo unexpected changes, and test with a sandbox base before pointing Claude at a production tracker.
+
+The upside is that Claude can handle batch operations that would otherwise require repetitive manual data entry. Updating twenty records based on a status change, populating a base from a list you describe verbally, or reorganizing field values across a table all become conversational tasks.
+
+## What Airtable AI Workflows Make the Most Sense?
+
+Project tracking is the highest-return use case. If your team uses Airtable as a project management layer, connecting Claude lets you ask questions like "which tasks are past due this week" or "create a new record for the onboarding meeting" without navigating the interface. Claude reads the schema, understands your table structure, and handles the data operations.
+
+CRM and sales pipeline management is the second strong use case. Airtable is a popular choice for small-team CRMs, and Claude can query leads by status, update stage fields after a call, or list all contacts in a specific region. This is faster than filtering the Airtable interface manually when you are already in a conversation with Claude.
+
+Content and editorial tracking rounds out the most common patterns. Content calendars, publication queues, and research bases are all structured data Airtable holds well, and Claude can query or update them from a simple prompt. For teams needing a more developer-oriented database integration, the [best database MCP servers roundup](/blog/best-database-mcp-servers) covers the broader category, and the [databases listicle for Postgres workflows](/blog/best-databases-mcp-servers-postgres-workflows) focuses on SQL-specific options. Read the [MCP primer](/blog/what-is-mcp) if you are new to the protocol before starting your setup.
+
+## Frequently Asked Questions
+
+### Does the Airtable MCP server need a paid Airtable plan?
+
+No. The Airtable MCP server works with free Airtable accounts. Personal access tokens are available on all plans. Some advanced base features, like linked records across workspaces, require a paid plan but are not MCP-specific limitations.
+
+### Can the Airtable MCP server write data back to my bases, or is it read-only?
+
+The Airtable MCP server supports both reading and writing. Claude can create records, update field values, and manage tables depending on the permissions of the personal access token you provide.
+
+### Is the Airtable MCP different from the official Airtable API?
+
+Yes. The Airtable REST API requires building a custom integration. The MCP server wraps the API into callable tools Claude can use directly, so no custom code is needed on your side.
+
+### Which AI tools support the Airtable MCP server?
+
+Any MCP-compatible client works with the Airtable server, including Claude Desktop, Claude Code, Cursor, and Windsurf. The server uses stdio transport, which is the most widely supported MCP transport across AI coding tools.
