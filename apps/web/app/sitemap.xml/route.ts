@@ -1,14 +1,15 @@
 import { getServerCount } from '@/lib/queries';
 import { SITE_URL } from '@mcpfind/shared';
+import { BATCH_SIZE, MAX_BATCHES } from '@/lib/sitemap-servers';
 
 export const dynamic = 'force-dynamic';
 
-// BATCH_SIZE must match the value in sitemap-servers.ts
-const BATCH_SIZE = 5000;
-
 export async function GET() {
   const totalServerCount = await getServerCount();
-  const totalServerBatches = Math.ceil(totalServerCount / BATCH_SIZE);
+  const totalServerBatches = Math.min(
+    Math.ceil(totalServerCount / BATCH_SIZE),
+    MAX_BATCHES,
+  );
 
   const today = new Date().toISOString().split('T')[0];
 

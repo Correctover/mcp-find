@@ -3,8 +3,8 @@ import { SITE_URL } from '@mcpfind/shared';
 import { escapeXml } from '@/lib/escape-xml';
 import { notFound } from 'next/navigation';
 
-const BATCH_SIZE = 5000;
-const MAX_BATCHES = 10; // Safety cap — supports up to 50,000 servers
+export const BATCH_SIZE = 5000;
+export const MAX_BATCHES = 10; // Safety cap — supports up to 50,000 servers
 
 export async function getServersSitemapBatch(batchIndex: number): Promise<Response> {
   if (isNaN(batchIndex) || batchIndex < 0 || batchIndex >= MAX_BATCHES) {
