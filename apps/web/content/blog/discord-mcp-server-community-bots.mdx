@@ -1,0 +1,116 @@
+---
+title: "Discord MCP Server: Build AI-Powered Community Bots"
+description: "Learn how to set up a Discord MCP server with Claude and turn natural-language commands into server management, moderation, and bot automation."
+excerpt: "The Discord MCP server lets Claude send messages, manage roles, moderate content, and automate community workflows directly through the Model Context Protocol. MCPFind indexes 185 communication servers. Here is how Discord fits in and how to get started."
+date: "2026-06-15"
+updatedAt: "2026-06-15"
+author: "Gus Marquez"
+authorUrl: "https://www.linkedin.com/in/gustavoamarquez"
+authorSameAs:
+  - "https://www.linkedin.com/in/gustavoamarquez"
+tags:
+  - "mcp"
+  - "developer"
+  - "discord"
+  - "communication"
+  - "bots"
+category: "communication"
+focusKeyword: "discord mcp server"
+draft: false
+cornerstone: false
+topic_source: new_topic
+faqItems:
+  - question: "Does a Discord MCP server require a Discord bot account?"
+    answer: "Yes. You need a Discord application and bot token from the Discord Developer Portal. The bot must be invited to your server with the permissions your chosen MCP server requires, such as reading messages, managing roles, or sending to specific channels."
+  - question: "Can you use the Discord MCP server with Claude Desktop and Cursor?"
+    answer: "Yes. Community Discord MCP servers support stdio transport, which works with Claude Desktop, Cursor, Windsurf, and Claude Code. You add the server configuration under mcpServers in your client settings file and restart the client."
+  - question: "What permissions does a Discord MCP bot need?"
+    answer: "Permissions depend on which tools you use. Read message history and send messages are the baseline. Moderation tools need ban members, manage messages, and kick members. Role management requires manage roles with a hierarchy check so the bot cannot modify roles above its own."
+  - question: "Are there official Discord MCP servers or only community options?"
+    answer: "As of mid-2026, Discord has not published an official managed MCP server. All production-ready options are community-maintained or provided through third-party connector platforms. Anthropic publishes a channel plugin for Claude Code that routes messages through Discord, but it is limited to message forwarding rather than full server management."
+---
+
+We analyzed MCPFind's communication category and found 185 MCP servers with an average of 1.24 stars each. Discord sits at the active end of that field: multiple community teams have shipped MCP servers that expose Discord's full API surface through Claude, from reading channel history to banning members and scheduling events.
+
+This post covers what a Discord MCP server can do, which community options exist in 2026, how to configure one for Claude Desktop or Cursor, and where the permission model requires attention before you deploy.
+
+## What Can a Discord MCP Server Do With Claude?
+
+A Discord MCP server maps Discord API endpoints to MCP tools that Claude can call during a conversation. The scope depends on which implementation you choose, but the most capable community servers expose tools in four main areas.
+
+Message operations let Claude read channel history, send messages to specific channels, edit existing messages, add reactions, and delete messages. Role management tools handle assigning and revoking roles, listing server members by role, and creating new roles with specific permission flags. Moderation tools cover banning, kicking, muting, and issuing timeouts, along with reading audit logs to trace prior actions. Server management tools expose guild metadata, channel creation and configuration, webhook setup, and event scheduling.
+
+The HardHeadHackerHead discord-mcp project lists 134 admin tools across 20 categories, which gives a concrete sense of API coverage. Most setups only need a small subset of those tools. Scoping your bot token to the minimum required permissions is the correct starting point.
+
+## How Do You Set Up a Discord MCP Server With Claude?
+
+Setting up a Discord MCP server takes three steps: create a bot, configure permissions, and add the MCP server to your client.
+
+Start in the Discord Developer Portal at discord.com/developers/applications. Create a new application, navigate to the Bot section, and copy the bot token. Under OAuth2, generate an invite URL with the scopes and permissions your use case requires. Invite the bot to your server using that URL.
+
+Next, install the MCP server. The v-3/discordmcp project is a common starting point and installs via npm:
+
+```bash
+npm install -g discord-mcp-server
+```
+
+Then add the server to your client's MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "discord": {
+      "command": "discord-mcp-server",
+      "args": [],
+      "env": {
+        "DISCORD_TOKEN": "your-bot-token-here",
+        "DISCORD_GUILD_ID": "your-server-id"
+      }
+    }
+  }
+}
+```
+
+Restart your client after saving. Claude will list the available Discord tools when you start a new conversation. You can then send a message like "list the last 10 messages in #general" or "assign the Moderator role to @username" and Claude will call the appropriate tool.
+
+## What Are the Main Discord MCP Server Options in 2026?
+
+Three community implementations have active maintenance and clear use-case separation.
+
+The v-3/discordmcp project focuses on message reading and sending. It is a minimal implementation suited for reading channel content and responding through Claude. Installation is straightforward, and the permission footprint is small. This option fits monitoring and response workflows where you want Claude to summarize discussions or draft replies.
+
+The SaseQ/discord-mcp project adds server management tools on top of messaging. It covers guild metadata, channel operations, and event scheduling. The documentation is more detailed than v-3, which helps when configuring specific permission scopes.
+
+HardHeadHackerHead/discord-mcp is the most comprehensive option, with 134 tools across 20 categories including voice channel operations, thread management, and full moderation tooling. It includes an interactive setup wizard that walks through bot permissions during initial configuration. The broader tool surface means more careful scoping is needed at the bot-permission level before deployment.
+
+MCPFind's [communication category](/categories/communication) indexes 185 servers that span Discord, Slack, email, and team chat platforms. For developer-facing automation tools that interact with source control and CI systems alongside Discord, the [devtools category](/categories/devtools) lists 4,207 servers with more infrastructure-adjacent options. Compare your use case against available options before committing to one implementation.
+
+## How Do Discord MCP Bots Compare to Traditional Bot Development?
+
+Traditional Discord bots run as persistent processes that listen for events using the Discord Gateway WebSocket. You write event handlers, manage reconnection logic, and handle rate limiting yourself. A bot that reacts to a message requires a full process running continuously.
+
+A Discord MCP server does not replace that model. It adds a different capability: on-demand Discord API access through natural language. Claude calls the MCP tools when you ask it to, which means there is no persistent listener. The bot is present in your server, but it does not watch for new messages unless you explicitly ask Claude to read recent history.
+
+The practical difference is that MCP Discord tools work well for one-shot operations and workflow triggers: "send a summary of today's #announcements to #digest" or "ban the three users in this list." For real-time event-driven automation, a traditional bot framework is still the right tool. Many teams run both: a traditional bot for event-driven responses and an MCP integration for ad-hoc Claude-driven tasks.
+
+We looked at existing tutorials in the MCP ecosystem for context. The pattern mirrors what we have seen in our [email MCP setup guide](/blog/mcp-server-email-gmail-outlook-setup) and the broader [communication MCP category analysis](/blog/best-mcp-servers-communication-slack-teams): protocol-connected tools work best for deliberate, structured actions rather than reactive flows.
+
+If you want to understand how Discord MCP fits within the broader MCP ecosystem, [What Is MCP?](/blog/what-is-mcp) covers the protocol fundamentals.
+
+## Frequently Asked Questions
+
+### Does a Discord MCP server require a Discord bot account?
+
+Yes. You need a Discord application and bot token from the Discord Developer Portal. The bot must be invited to your server with the permissions your chosen MCP server requires, such as reading messages, managing roles, or sending to specific channels.
+
+### Can you use the Discord MCP server with Claude Desktop and Cursor?
+
+Yes. Community Discord MCP servers support stdio transport, which works with Claude Desktop, Cursor, Windsurf, and Claude Code. You add the server configuration under mcpServers in your client settings file and restart the client.
+
+### What permissions does a Discord MCP bot need?
+
+Permissions depend on which tools you use. Read message history and send messages are the baseline. Moderation tools need ban members, manage messages, and kick members. Role management requires manage roles with a hierarchy check so the bot cannot modify roles above its own.
+
+### Are there official Discord MCP servers or only community options?
+
+As of mid-2026, Discord has not published an official managed MCP server. All production-ready options are community-maintained or provided through third-party connector platforms. Anthropic publishes a channel plugin for Claude Code that routes messages through Discord, but it is limited to message forwarding rather than full server management.
