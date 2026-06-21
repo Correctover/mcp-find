@@ -1,0 +1,121 @@
+---
+title: "Terraform MCP Server: Infrastructure as Code Meets AI"
+description: "Set up the official HashiCorp Terraform MCP server to let Claude query the Terraform Registry, manage workspaces, and generate compliant IaC with real-time module data."
+excerpt: "The Terraform MCP server is now generally available from HashiCorp and gives Claude direct access to the Terraform Registry, HCP Terraform workspaces, and private module registries. MCPFind indexes 277 cloud MCP servers. Here is how Terraform's official option fits in and how to configure it."
+date: "2026-06-17"
+updatedAt: "2026-06-17"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+tags:
+  - "mcp"
+  - "developer"
+  - "terraform"
+  - "infrastructure"
+  - "devops"
+category: "cloud"
+focusKeyword: "terraform mcp server"
+draft: false
+cornerstone: false
+topic_source: new_topic
+faqItems:
+  - question: "Is the Terraform MCP server official from HashiCorp?"
+    answer: "Yes. HashiCorp maintains the terraform-mcp-server repository and declared it generally available for both HCP Terraform and Terraform Enterprise. It is the recommended way to connect Claude and other MCP clients to Terraform workflows."
+  - question: "Does the Terraform MCP server support private module registries?"
+    answer: "Yes. When you connect the Terraform MCP server to HCP Terraform or Terraform Enterprise, Claude can query your organization's private module registry alongside the public Terraform Registry. This lets Claude recommend modules that have already been approved for use inside your organization."
+  - question: "What transport does the Terraform MCP server use?"
+    answer: "The server supports both stdio (for local use with Claude Desktop and Cursor) and Streamable HTTP (for remote deployments and HCP Terraform integration). Most individual developers start with stdio, while team and enterprise setups benefit from the HTTP transport with token authentication."
+  - question: "Can Claude apply Terraform changes directly through the MCP server?"
+    answer: "The Terraform MCP server lets Claude run plan and apply operations when connected to HCP Terraform or Terraform Enterprise with the appropriate API token. For local Terraform use, Claude can generate and review configuration but execution happens in your terminal."
+---
+
+If you manage infrastructure with Terraform, you spend a lot of time switching between your editor, the Terraform Registry, and your terminal. The Terraform MCP server collapses that loop. Connect it to Claude once and you can query providers and modules, inspect workspace state, and generate new configuration without leaving your current context.
+
+HashiCorp declared the Terraform MCP server generally available in 2026 for both HCP Terraform and Terraform Enterprise. MCPFind tracks 277 servers in the cloud category, with an average of 35.29 stars each. Cloudflare MCP leads the category at 3,566 stars, and Terraform slots in as the infrastructure-as-code anchor for DevOps teams. Here is how it works and how to set it up.
+
+## What Does the Terraform MCP Server Let You Do With Claude?
+
+The Terraform MCP server gives Claude four main capabilities that are otherwise unavailable without switching tools. First, it queries the public Terraform Registry in real time, so Claude can tell you the latest provider version, find the right module for a given use case, and pull example configurations directly from registry documentation.
+
+Second, it connects to HCP Terraform and Terraform Enterprise workspaces. Claude can list workspaces, read workspace variables, check run status, and trigger runs with an API token. Third, it supports private module registries, so your organization's approved modules appear alongside public ones. Fourth, it generates and reviews Terraform configuration grounded in accurate registry data, which reduces the hallucination risk that comes with asking Claude to write IaC from general knowledge alone.
+
+The overall effect is that Claude becomes a workspace-aware Terraform assistant rather than a general-purpose code generator.
+
+## How Do You Install the Terraform MCP Server With Claude Desktop?
+
+If you want to use the Terraform MCP server locally with Claude Desktop or Cursor, installation takes about five minutes. The server ships as an npm package maintained by HashiCorp.
+
+Open your MCP client settings file and add the following configuration:
+
+```json
+{
+  "mcpServers": {
+    "terraform": {
+      "command": "npx",
+      "args": ["-y", "@hashicorp/terraform-mcp-server"]
+    }
+  }
+}
+```
+
+Save the file and restart your client. Claude will now list available Terraform tools when you start a conversation. You can ask it to "find the latest AWS provider version" or "show me the most downloaded Kubernetes module" and it will call the Terraform Registry API directly rather than relying on training data.
+
+For teams with a private registry, you will add environment variables for your HCP Terraform token and organization in the same configuration block. The server documentation on the HashiCorp developer portal covers the full set of environment variables for enterprise connectivity.
+
+## How Do You Connect the Terraform MCP Server to HCP Terraform or Terraform Enterprise?
+
+The StreamableHTTP transport is the right choice when you want Claude to access HCP Terraform workspaces or a Terraform Enterprise instance. This mode is designed for remote access and works across team environments where multiple developers share the same AI-assisted workflow.
+
+You will need an HCP Terraform API token with permissions scoped to the workspaces and registries Claude should access. HashiCorp recommends team tokens over user tokens for shared environments because they do not rotate when team members leave. Once you have the token, configure the MCP server to point at your HCP Terraform endpoint:
+
+```json
+{
+  "mcpServers": {
+    "terraform": {
+      "command": "npx",
+      "args": ["-y", "@hashicorp/terraform-mcp-server"],
+      "env": {
+        "TFE_TOKEN": "your-hcp-terraform-token",
+        "TFE_HOSTNAME": "app.terraform.io"
+      }
+    }
+  }
+}
+```
+
+For Terraform Enterprise, replace `app.terraform.io` with your instance hostname. Claude can then list workspaces, read run history, and trigger plans from within a conversation. This is the most useful configuration for teams that want Claude to help with cross-workspace dependency analysis and module version governance.
+
+## What Terraform Registry Features Does the MCP Server Expose?
+
+The registry integration is the most broadly useful feature for teams that are not yet on HCP Terraform. You can ask Claude to query providers, modules, and examples directly from the public registry without any authentication.
+
+Providers are queryable by name and version. Claude can tell you the current stable version of the AWS provider, list available resources in the azurerm provider, and pull argument documentation for specific resources. This is more reliable than asking Claude to recall provider schemas from training data, which often returns outdated attribute names.
+
+Modules are filterable by verified status, download count, and compatibility. If you ask Claude to find a VPC module for AWS, it queries the registry rather than guessing. You get the actual module source path, current version, and supported Terraform versions. Private modules from your organization's registry appear in the same results when you are authenticated.
+
+## How Does the Terraform MCP Server Fit With Other DevOps MCP Tools?
+
+The Terraform MCP server is one part of a larger infrastructure automation picture. Teams using MCP for DevOps workflows tend to pair it with source control and CI tools. The [GitHub MCP server](/blog/github-mcp-server-claude-code-tutorial) lets Claude read pull requests, review Terraform module changes, and comment on plans as part of the same conversation. The [Jira MCP server](/blog/jira-mcp-server-setup-claude-cursor) connects infrastructure tasks to tickets for change management workflows.
+
+MCPFind's [cloud category](/categories/cloud) lists 277 servers covering Cloudflare, AWS, GCP, and infrastructure tooling, with an average of 35.29 stars per server. The broader [devtools category](/categories/devtools) adds 4,207 servers that include code review, dependency management, and CI pipeline tools that pair naturally with Terraform-managed infrastructure. Cloudflare MCP leads at 3,566 stars. For DevOps-focused roundups, the [best DevOps MCP servers guide](/blog/best-mcp-servers-devops-cicd) covers how Terraform fits relative to CI/CD and container management options.
+
+If you are new to MCP and want context before configuring Terraform, [What Is MCP?](/blog/what-is-mcp) explains how the protocol works and why it is different from API integrations.
+
+## Frequently Asked Questions
+
+### Is the Terraform MCP server official from HashiCorp?
+
+Yes. HashiCorp maintains the terraform-mcp-server repository and declared it generally available for both HCP Terraform and Terraform Enterprise. It is the recommended way to connect Claude and other MCP clients to Terraform workflows.
+
+### Does the Terraform MCP server support private module registries?
+
+Yes. When you connect the Terraform MCP server to HCP Terraform or Terraform Enterprise, Claude can query your organization's private module registry alongside the public Terraform Registry. This lets Claude recommend modules that have already been approved for use inside your organization.
+
+### What transport does the Terraform MCP server use?
+
+The server supports both stdio (for local use with Claude Desktop and Cursor) and Streamable HTTP (for remote deployments and HCP Terraform integration). Most individual developers start with stdio, while team and enterprise setups benefit from the HTTP transport with token authentication.
+
+### Can Claude apply Terraform changes directly through the MCP server?
+
+The Terraform MCP server lets Claude run plan and apply operations when connected to HCP Terraform or Terraform Enterprise with the appropriate API token. For local Terraform use, Claude can generate and review configuration but execution happens in your terminal.
