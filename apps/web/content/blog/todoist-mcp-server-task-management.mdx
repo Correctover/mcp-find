@@ -1,0 +1,119 @@
+---
+title: "Todoist MCP Server: AI-Powered Task Management for Claude"
+description: "Connect Todoist to Claude using the MCP server. Add tasks, query projects, and automate your to-do list with natural language prompts in Claude Desktop and Cursor."
+excerpt: "MCPFind's productivity category indexes 27 MCP servers for task and calendar tools. This guide explains how to configure the Todoist MCP server in Claude Desktop, what you can automate with it, and how it compares to other productivity MCP options like Notion and Google Drive for daily workflow management."
+date: "2026-06-16"
+updatedAt: "2026-06-16"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+tags:
+  - "mcp"
+  - "beginner"
+  - "productivity"
+  - "todoist"
+  - "task-management"
+category: "productivity"
+focusKeyword: "todoist mcp server"
+draft: false
+cornerstone: false
+topic_source: new_topic
+faqItems:
+  - question: "Is there an official Todoist MCP server from Doist?"
+    answer: "Doist does not publish an official MCP server. Community-built implementations use Todoist's public REST API v2 with an API token, which gives them access to tasks, projects, sections, and labels without requiring official vendor support."
+  - question: "What API scopes does the Todoist MCP server need?"
+    answer: "The Todoist MCP server needs a Todoist API token with read and write access to tasks and projects. You generate this token in Todoist's Settings under Integrations. The token provides full account access, so treat it like a password."
+  - question: "Can the Todoist MCP server create tasks in any project, or only specific ones?"
+    answer: "By default, most Todoist MCP servers can create and read tasks in any project your account has access to. Some implementations let you scope the connection to specific project IDs via environment variable to limit what Claude can touch."
+  - question: "Does the Todoist MCP server work with Todoist Free accounts?"
+    answer: "Yes. The Todoist REST API is available on all plan tiers including Free. You can add tasks, list projects, and complete tasks regardless of subscription level. Some advanced features like comments and filters require Todoist Pro."
+  - question: "How does the Todoist MCP server handle recurring tasks?"
+    answer: "Recurring tasks in Todoist use the due_string field for natural language scheduling (e.g., 'every Monday'). The Todoist API accepts these strings, so you can ask Claude to create tasks with recurrence and the MCP server passes the scheduling string to the API."
+---
+
+Todoist is one of the most widely-used task management apps, with a clean REST API that makes it a practical target for MCP integration. If you want to manage your to-do list from Claude without switching apps or copying tasks manually, the Todoist MCP server lets you add tasks, query your inbox, and complete items using natural language in Claude Desktop or Cursor. MCPFind's [productivity category](/categories/productivity) indexes 27 MCP servers for task and calendar tools, and the [automation category](/categories/automation) adds 224 more servers for workflow connectors that can chain Todoist with other tools. This guide walks through what the Todoist MCP server can do, how to configure it, and what its practical limits look like for daily use.
+
+## What Does a Todoist MCP Server Let You Do With Claude?
+
+The Todoist MCP server gives Claude a set of tools connected to your Todoist account. Instead of switching to the Todoist app to log a task, you can tell Claude what you need to remember and it adds it directly to your inbox or a specific project.
+
+Typical tools include creating tasks with due dates and priorities, listing all tasks in your inbox or a specific project, marking tasks complete, and searching for existing items. More advanced implementations also support adding comments, assigning tasks to projects by name, and querying tasks due today or this week as part of a daily planning workflow.
+
+The practical benefit is that task capture happens where you are already working. If you are in a Claude conversation debugging code or drafting an email, you can say "add a task to follow up with the vendor on Friday" and move on without breaking your flow. To understand what makes MCP connections like this possible, the [MCP explainer](/blog/what-is-mcp) covers the protocol foundation.
+
+## How Do You Set Up the Todoist MCP Server in Claude Desktop?
+
+If you want to connect Todoist to Claude Desktop, you configure a server entry in `claude_desktop_config.json` on your machine. The Todoist MCP server uses your Todoist API token to authenticate, so you need to generate one first.
+
+To get your API token, open Todoist, go to Settings, click Integrations, and scroll to the Developer section. Copy the API token shown there. Then add this entry to your Claude Desktop config:
+
+```json
+{
+  "mcpServers": {
+    "todoist": {
+      "command": "npx",
+      "args": ["-y", "mcp-todoist"],
+      "env": {
+        "TODOIST_API_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+Restart Claude Desktop after saving. Once connected, you can ask Claude to "show me my tasks due today" or "create a task called Review invoice for tomorrow at 9am" and Claude will interact with Todoist directly. The token grants access to your entire Todoist account, so store it as you would any other password and avoid sharing the config file.
+
+## What Todoist Tasks Can You Automate With the MCP Server?
+
+The Todoist MCP server works best for capture, review, and triage workflows rather than complex project management. If you want to automate task creation during a planning session, Claude can take a list of action items you describe in conversation and add them to the right Todoist projects all at once.
+
+Daily review is a strong use case. You can ask Claude to pull all tasks due today, group them by project, and summarize what needs attention, without opening the Todoist app. For meeting follow-ups, you can paste notes into Claude and ask it to extract action items and add them to your inbox automatically.
+
+Limitations exist: the MCP server does not access Todoist's Kanban board view, task history logs, or team productivity reports. It works at the task and project data level through the REST API. For team workflows, the [Notion MCP server for advanced workflows](/blog/notion-mcp-server-advanced-workflows) and the [best productivity MCP servers guide](/blog/best-mcp-servers-productivity-calendar-tasks-notes) cover tools better suited to collaborative project tracking.
+
+## What Are the Todoist MCP Server's Permission Requirements and Security Considerations?
+
+The Todoist API uses a single API token for authentication, which means Claude gets full read and write access to your Todoist account when you connect the MCP server. There is no fine-grained OAuth scope to limit Claude to specific projects or read-only access.
+
+This is different from some other productivity tools. Google Drive and Notion MCP integrations use OAuth flows that ask you to approve specific permission scopes. With Todoist, the API token approach is simpler to set up but less granular in what it permits.
+
+Practical safeguards: store your API token in the Claude Desktop environment variable rather than hardcoding it in shared config files. If you use Claude Desktop on a shared machine, be aware that anyone with access to the config file can read your token. Rotating the token in Todoist settings is straightforward if you suspect exposure. Some community Todoist MCP server implementations support project ID restrictions via environment variable, which lets you limit Claude to a subset of projects rather than the full account.
+
+## How Does the Todoist MCP Server Compare to Other Productivity Options in MCPFind?
+
+MCPFind's productivity category has 27 servers averaging 0.37 stars each. The low average reflects that productivity tools are a smaller, less-starred segment of the directory compared to categories like databases (400 servers, avg 11.06 stars) or ai-ml (1,592 servers, avg 59.72 stars). That does not mean the tools are low quality; it reflects that productivity MCP servers are community-built for specific workflows rather than competing for GitHub attention.
+
+For task management specifically, Todoist competes with Linear (better for engineering teams, covered in the [Linear MCP server guide](/blog/linear-mcp-server-project-management)), Notion databases (more flexible structure, covered in the [Notion MCP server guide](/blog/notion-mcp-server-advanced-workflows)), and Google Tasks (fewer features but always present in Google Workspace accounts). Todoist's advantage is its clean API, cross-platform availability, and a parser that understands natural language due dates like "next Friday" out of the box.
+
+If your workflow centers on file-based productivity, the [Google Drive MCP server guide](/blog/google-drive-mcp-server-guide) and the [Obsidian MCP server guide](/blog/obsidian-mcp-server-knowledge-base) cover complementary options for document access and personal knowledge bases alongside task tools.
+
+## What Are the Practical Limits of the Todoist MCP Server?
+
+The Todoist MCP server handles task data well but has gaps worth knowing before you rely on it for daily automation. The Todoist REST API does not expose attachments, so Claude cannot see files attached to tasks. It does not expose Todoist Filters or Labels view in most community implementations, which limits automation for people who rely heavily on those organizational features.
+
+Rate limits are another consideration. Todoist's API allows up to 450 requests per 15-minute window. For individual task capture and daily review, this is rarely a problem. In multi-agent workflows where Claude queries Todoist repeatedly across a longer session, you may hit limits. Monitor API usage if you build automated pipelines rather than ad-hoc queries.
+
+Finally, the Todoist MCP server works best alongside other tools rather than in isolation. Pairing it with a calendar MCP (for scheduling context) and a notes MCP like Obsidian (for reference material) gives Claude a more complete picture of your workday and lets it make better task suggestions based on what you already have planned.
+
+## Frequently Asked Questions
+
+### Is there an official Todoist MCP server from Doist?
+
+Doist does not publish an official MCP server. Community-built implementations use Todoist's public REST API v2 with an API token, which gives them access to tasks, projects, sections, and labels without requiring official vendor support.
+
+### What API scopes does the Todoist MCP server need?
+
+The Todoist MCP server needs a Todoist API token with read and write access to tasks and projects. You generate this token in Todoist's Settings under Integrations. The token provides full account access, so treat it like a password.
+
+### Can the Todoist MCP server create tasks in any project, or only specific ones?
+
+By default, most Todoist MCP servers can create and read tasks in any project your account has access to. Some implementations let you scope the connection to specific project IDs via environment variable to limit what Claude can touch.
+
+### Does the Todoist MCP server work with Todoist Free accounts?
+
+Yes. The Todoist REST API is available on all plan tiers including Free. You can add tasks, list projects, and complete tasks regardless of subscription level. Some advanced features like comments and filters require Todoist Pro.
+
+### How does the Todoist MCP server handle recurring tasks?
+
+Recurring tasks in Todoist use the due_string field for natural language scheduling (e.g., "every Monday"). The Todoist API accepts these strings, so you can ask Claude to create tasks with recurrence and the MCP server passes the scheduling string to the API.

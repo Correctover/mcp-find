@@ -1,0 +1,123 @@
+---
+title: "MySQL MCP Server: Connect Your Database to Claude Step by Step"
+description: "Connect MySQL to Claude and AI agents using MCP. Compare community server options, configure read-only access, and avoid write-access pitfalls in production."
+excerpt: "MCPFind indexes 400 database MCP servers including community-built MySQL options. This guide covers setting up the MySQL MCP server in Claude Desktop, choosing between read-only and read-write modes, and comparing MySQL to PostgreSQL MCP alternatives for real-world data workflows."
+date: "2026-06-15"
+updatedAt: "2026-06-15"
+author: "Adam Bush"
+authorUrl: "https://www.linkedin.com/in/adam-bush/"
+authorSameAs:
+  - "https://www.linkedin.com/in/adam-bush/"
+tags:
+  - "mcp"
+  - "developer"
+  - "databases"
+  - "mysql"
+  - "sql"
+category: "databases"
+focusKeyword: "mysql mcp server"
+draft: false
+cornerstone: false
+topic_source: new_topic
+faqItems:
+  - question: "Is there an official MySQL MCP server from Oracle?"
+    answer: "No. Oracle and the MySQL team do not maintain an official MCP server. All available implementations are community-built and distributed through GitHub and npm, which means you evaluate them by maintenance activity and feature completeness rather than vendor SLA."
+  - question: "Can the MySQL MCP server modify data, or is it read-only by default?"
+    answer: "Most community MySQL MCP servers default to read-only SELECT access. Write tools (INSERT, UPDATE, DELETE) exist in some implementations but require explicit configuration flags to enable. Start with read-only access in any production environment."
+  - question: "How is the MySQL MCP server different from the PostgreSQL MCP server?"
+    answer: "MySQL and PostgreSQL servers share the same transport patterns but differ in connection string format, schema introspection method (information_schema vs pg_catalog), and auth plugin requirements. MySQL 8.0 introduced caching_sha2_password by default, which older MCP server builds may not support."
+  - question: "What credentials does the MySQL MCP server require to connect?"
+    answer: "You need a host, port (default 3306), database name, username, and password. Create a dedicated read-only user scoped to the target database rather than using root or admin credentials."
+  - question: "Does the MySQL MCP server work with cloud-hosted databases like PlanetScale or Amazon RDS?"
+    answer: "Yes. Cloud-hosted MySQL instances including Amazon RDS, Google Cloud SQL, and PlanetScale work with any MySQL MCP server that accepts a standard connection string. PlanetScale's serverless driver uses HTTP rather than TCP, so verify your server's transport compatibility before connecting."
+---
+
+MySQL runs behind more than half of production web applications worldwide, powering everything from content management systems to SaaS dashboards. As AI agents take on more data-retrieval tasks, connecting MySQL to Claude has become a practical goal for engineering teams. MCPFind indexes 400 database MCP servers, and while PostgreSQL has attracted most first-mover attention, MySQL-specific community options have arrived. If you are new to the protocol, the [MCP guide](/blog/what-is-mcp) explains how servers like this connect AI tools to external systems. This post covers what the MySQL MCP server does, how to configure it in Claude Desktop, what access controls to put in place, and how it compares to the alternatives in the [databases category](/categories/databases).
+
+## What Is the MySQL MCP Server and What Does It Expose?
+
+A MySQL MCP server sits between Claude and your database. When Claude needs data to answer a question, it calls a named tool on the server, which translates the request into SQL, executes it against your MySQL instance, and returns results as structured output.
+
+The server exposes a set of named tools. Most community-built implementations include a `query` tool for SELECT statements, a `describe_table` tool for schema inspection, and a `list_tables` tool for discovery. Some add write capabilities for INSERT, UPDATE, and DELETE, but those should require explicit configuration rather than being available by default.
+
+Unlike [Supabase](/servers/com-supabase-mcp), which leads MCPFind's databases category with 2,556 GitHub stars among 400 indexed database servers, MySQL does not have an official MCP server from Oracle or the MySQL team. All implementations are community-built, which means you pick based on maintenance recency, transport support (stdio vs HTTP), and whether the server validates queries before execution.
+
+## How Do You Configure the MySQL MCP Server in Claude Desktop?
+
+If you want to connect MySQL to Claude Desktop, add a server entry to `claude_desktop_config.json`. Most community MySQL servers follow the stdio pattern: Claude launches the server as a local process, sends commands through stdin, and receives results through stdout.
+
+A typical configuration looks like this:
+
+```json
+{
+  "mcpServers": {
+    "mysql": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-mysql"],
+      "env": {
+        "MYSQL_HOST": "localhost",
+        "MYSQL_PORT": "3306",
+        "MYSQL_USER": "mcp_reader",
+        "MYSQL_PASSWORD": "your-secure-password",
+        "MYSQL_DATABASE": "myapp_db"
+      }
+    }
+  }
+}
+```
+
+Before connecting, create a dedicated read-only user scoped to the database: `GRANT SELECT ON myapp_db.* TO 'mcp_reader'@'%' IDENTIFIED BY 'password';`. Never use root credentials or an account with write access on a production database. Restart Claude Desktop after saving the configuration file. Once connected, Claude can list tables, describe schema, and run read-only queries in response to natural language questions.
+
+## What MySQL Server Options Does MCPFind Index in the Database Category?
+
+MCPFind's database category indexes 400 servers averaging 11.06 stars each. Most top-starred servers target PostgreSQL, Supabase, or SQLite. MySQL-specific implementations represent a smaller subset, so expect fewer options with lower star counts than you would find for PostgreSQL alternatives.
+
+Community MySQL servers fall into two types. Thin wrappers pass query strings directly to the mysql2 Node.js client with minimal preprocessing: straightforward to configure, but no validation layer between Claude and your data. Structured servers add an intent-parsing step before generating SQL, which reduces the risk of destructive queries from an ambiguous prompt and fits better in production settings.
+
+When evaluating options, check three criteria: when the repository was last updated (MySQL 8.0's `caching_sha2_password` default auth breaks older servers), whether SSL is supported via environment variable for encrypted connections, and whether write tools require an explicit `ALLOW_WRITE=true` flag rather than being on by default. The [best database MCP servers comparison](/blog/best-database-mcp-servers) covers the broader database ecosystem including how MySQL options compare to higher-starred alternatives in the category.
+
+## How Does MySQL MCP Server Authentication Work With Different Connection Types?
+
+MySQL MCP servers handle authentication through environment variables passed at startup, rather than through the MCP protocol itself. Your credentials live in the Claude Desktop config file (or a `.env` file referenced by the server), not in the MCP handshake.
+
+For local MySQL (MAMP, XAMPP, or a local Docker instance), the default `mysql_native_password` plugin works without additional configuration. For MySQL 8.0 on cloud hosts, the `caching_sha2_password` default may require you to either create the read-only user with `mysql_native_password` explicitly, or ensure your MySQL MCP server uses a mysql2 version that supports the newer plugin.
+
+For Amazon RDS or Google Cloud SQL, add SSL environment variables. Most community servers accept `MYSQL_SSL_CA` for the CA certificate path and `MYSQL_SSL_REJECT_UNAUTHORIZED=true` to enforce certificate validation. Never disable SSL validation on a production database connection, even temporarily. If you see connection errors related to SSL, the fix is almost always a cert path issue, not disabling the check.
+
+## How Does the MySQL MCP Server Compare to the PostgreSQL MCP Server?
+
+The [PostgreSQL MCP server ecosystem](/blog/connect-postgresql-claude-mcp) is better-established today. The official Supabase server, several Neon and PlanetScale equivalents, and multiple high-starred community options give PostgreSQL users more maintained choices. If you are evaluating databases for a new MCP-enabled project, PostgreSQL's ecosystem depth is a concrete advantage.
+
+For existing MySQL workloads, the functional gap is narrower than the star-count difference suggests. Both database MCP servers expose schema inspection, query execution, and read/write access controls through the same MCP tool patterns. The differences are operational: MySQL uses `information_schema` for schema introspection rather than `pg_catalog`, connection pooling behavior differs (MySQL's `max_connections` defaults lower), and auth plugin requirements vary by server version.
+
+A practical middle path for teams already using MySQL is to connect it via MCP for read-only reporting workflows, and reserve write access for application code with proper transaction handling. The [Supabase MCP server deep dive](/blog/supabase-mcp-server-deep-dive) and the [MongoDB MCP guide](/blog/mongodb-mcp-server-guide) offer comparison points if you are evaluating a database migration alongside the MCP adoption.
+
+## What Are the Production Best Practices for MySQL MCP Server Deployments?
+
+Production MySQL MCP deployments need four guardrails before you hand Claude access to live data. First, use a dedicated read-only MySQL user scoped to specific databases, not root. Grant only `SELECT` plus any stored procedures Claude needs to call; revoke `INSERT`, `UPDATE`, and `DELETE` entirely.
+
+Second, set a query timeout at the MySQL server level or in the MCP server configuration to prevent runaway AI-generated SQL from locking tables. A `MAX_EXECUTION_TIME=5000` session variable (MySQL 5.7.8+) caps individual query runtime at 5 seconds. Third, route MCP queries through a separate database replica if your application load is sensitive to reads, so Claude's exploratory queries do not compete with production traffic.
+
+Fourth, log all MCP-originated queries separately. Most community servers expose the executed SQL in their debug output; route that to a separate log stream and audit it weekly. If you later move to a hosted MCP endpoint rather than a local stdio server, also review the [remote vs local MCP server guide](/blog/remote-vs-local-mcp-server) and the [Airtable MCP workflows post](/blog/airtable-mcp-server-database-workflows) for how other database tools handle this boundary.
+
+## Frequently Asked Questions
+
+### Is there an official MySQL MCP server from Oracle?
+
+No. Oracle and the MySQL team do not maintain an official MCP server. All available implementations are community-built and distributed through GitHub and npm, which means you evaluate them by maintenance activity and feature completeness rather than vendor SLA.
+
+### Can the MySQL MCP server modify data, or is it read-only by default?
+
+Most community MySQL MCP servers default to read-only SELECT access. Write tools (INSERT, UPDATE, DELETE) exist in some implementations but require explicit configuration flags to enable. Start with read-only access in any production environment.
+
+### How is the MySQL MCP server different from the PostgreSQL MCP server?
+
+MySQL and PostgreSQL servers share the same transport patterns but differ in connection string format, schema introspection method (information_schema vs pg_catalog), and auth plugin requirements. MySQL 8.0 introduced caching_sha2_password by default, which older MCP server builds may not support.
+
+### What credentials does the MySQL MCP server require to connect?
+
+You need a host, port (default 3306), database name, username, and password. Create a dedicated read-only user scoped to the target database rather than using root or admin credentials.
+
+### Does the MySQL MCP server work with cloud-hosted databases like PlanetScale or Amazon RDS?
+
+Yes. Cloud-hosted MySQL instances including Amazon RDS, Google Cloud SQL, and PlanetScale work with any MySQL MCP server that accepts a standard connection string. PlanetScale's serverless driver uses HTTP rather than TCP, so verify your server's transport compatibility before connecting.
